@@ -14,14 +14,15 @@
     "orca": {
       "probe_status": "passed",
       "ledger_events": 10,
-      "summary_sha256": "10a280dba61c6de77f60cb8d43a71962f72b04ea9aa6c724e26fbd78455f5103",
+      "summary_sha256": "c44332bf87699bf7dfa708423beebff073d3e4b0fdf39882095960335d8f6a65",
       "semantic_parity": "blocked",
-      "blockers": ["runtime graph unavailable", "benchmark workspace is not registered among 46 inspected worktrees", "live workflow lifecycle not verified"]
+      "blockers": ["runtime graph unavailable", "live workflow lifecycle not verified"],
+      "workspace_attestation": "orca-workspace-attestation-v1.0.json"
     },
     "agent-orchestrator": {
       "probe_status": "passed",
       "ledger_events": 10,
-      "summary_sha256": "bd35335b8d06fcaf2ac2421eb68f28f42ce9705e63d6d01e96e7e2588ca7a2a2",
+      "summary_sha256": "ccaa5f03794761077fd4bcb837a1324901697d2e91c5b78199842d3fb65970e2",
       "semantic_parity": "blocked",
       "blockers": ["native lifecycle event stream is not exposed", "full worker session semantic parity remains unverified"],
       "polling_bridge": "verified"
