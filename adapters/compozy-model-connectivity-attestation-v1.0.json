@@ -2,7 +2,7 @@
   "schema_version": "compozy-model-connectivity-attestation-v1.0",
   "protocol_version": "v1.0",
   "verified_on": "2026-08-17",
-  "status": "connectivity-verified-excluded-from-pilot",
+  "status": "pilot-blocked-required-model-unavailable",
   "source": "temporary Compozy session prompt/events probe",
   "fixture": {
     "product_id": "greenfield",
@@ -27,8 +27,32 @@
   },
   "protocol_model_check": {
     "requested_model": "gpt-5.3-codex",
-    "result": "unavailable-in-compozy-config",
+    "result": "rejected-by-acp-provider-runtime",
     "valid_config_choices_observed": ["gpt-5.3-codex-spark", "gpt-5.4", "gpt-5.4-mini", "gpt-5.5", "gpt-5.6-luna", "gpt-5.6-sol", "gpt-5.6-terra"]
   },
-  "decision": "Compozy can execute a read-only model-backed connectivity probe with gpt-5.3-codex-spark, but that model is explicitly excluded from the pilot. The protocol snapshot gpt-5.3-codex must be made available or the protocol must be explicitly revised before collection."
+  "configuration_attempt": {
+    "surface": "~/.compozy/config.toml",
+    "protocol_default_declared": true,
+    "config_sha256_before": "0cb12f7a817b12c5afd34003e3db4071eebe543dd2cabb19eaed172c5c8099c1",
+    "config_sha256_after_rollback": "0cb12f7a817b12c5afd34003e3db4071eebe543dd2cabb19eaed172c5c8099c1",
+    "daemon_reload": "applied",
+    "active_generation_after_rollback": 3,
+    "temporary_catalog_metadata_attempted": true,
+    "temporary_catalog_metadata_removed": true,
+    "reason": "The official Compozy configuration and catalog surfaces accepted the declaration, but the ACP provider still rejected the model and returned the same closed valid-choice list."
+  },
+  "exact_model_probe": {
+    "provider": "codex",
+    "model": "gpt-5.3-codex",
+    "reasoning_effort": "high",
+    "prompt_returncode": 71,
+    "provider_execution_observed": false,
+    "event_count": 2,
+    "event_types": ["hook.dispatch.complete", "hook.dispatch.start"],
+    "session_stopped": true,
+    "fixture_destroyed": true,
+    "prompt_output_sha256": "67d3071fe24234873adb5b4c6a66f8c473b65c5f8f3dea266ed3d545fcb40f2e",
+    "events_output_sha256": "206ef2a85a12e8ecc4addf36afde83107e12fd5dfea27ad0ef379157669b97a7"
+  },
+  "decision": "Compozy can execute a read-only model-backed connectivity probe with gpt-5.3-codex-spark, but that model is explicitly excluded from the pilot. The required gpt-5.3-codex declaration is preserved, while the installed ACP provider remains the blocking boundary; do not revise the protocol or substitute a model."
 }

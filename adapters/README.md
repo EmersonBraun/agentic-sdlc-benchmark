@@ -30,7 +30,7 @@ The benchmark-side action mapping is [`agentskit-component-action-attestation-v1
 
 The integrated provider-free fixture is [`agentskit-integrated-fixture-attestation-v1.0.json`](agentskit-integrated-fixture-attestation-v1.0.json). It combines 15 public-core runtime events and six mapped component actions in one stable ledger fingerprint; it does not authorize a provider-backed pilot.
 
-ORCA workspace binding evidence is [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json). Compozy's alternate-model connectivity evidence is [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json); it is explicitly excluded from pilot results because the protocol model is unavailable there.
+ORCA workspace binding evidence is [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json). Compozy's model connectivity evidence is [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json); the alternate model is excluded, and the exact protocol model remains blocked by the installed ACP provider despite an official configuration attempt.
 
 OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). The pinned Python 3.12 environment still fails normal dependency resolution, so no session is started.
 

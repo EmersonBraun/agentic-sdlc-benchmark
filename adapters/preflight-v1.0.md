@@ -69,7 +69,7 @@ The action mapping contract is now covered by [`agentskit-component-action-attes
 
 The integrated fixture is [`agentskit-integrated-fixture-attestation-v1.0.json`](agentskit-integrated-fixture-attestation-v1.0.json): 21 events share one stable redacted ledger fingerprint without provider or session. This is the final provider-free gate; it does not establish model-backed task parity.
 
-ORCA workspace binding is recorded in [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json): an isolated worktree was created and removed successfully, but the graph remains unavailable. Compozy model connectivity is recorded in [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json): a read-only call succeeded only with `gpt-5.3-codex-spark`, which is excluded from the pilot because the frozen protocol requires `gpt-5.3-codex`.
+ORCA workspace binding is recorded in [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json): an isolated worktree was created and removed successfully, but the graph remains unavailable. Compozy model connectivity is recorded in [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json): a read-only call succeeded only with `gpt-5.3-codex-spark`, while the exact protocol model `gpt-5.3-codex` remained rejected by the installed ACP provider after an official configuration attempt.
 
 The OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). It rechecks the declared SDK/tool/workspace versions in a clean Python 3.12 container with normal dependency resolution and records the conflict hash.
 

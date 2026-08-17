@@ -22,8 +22,8 @@
     {
       "component": "ade:compozy",
       "evidence_refs": ["preflight-v1.0.json", "preflight-v1.0.md", "compozy-binding-attestation-v1.0.json", "compozy-model-connectivity-attestation-v1.0.json"],
-      "blocking_conditions": ["0 providers ready in provider catalog", "required gpt-5.3-codex snapshot unavailable in Compozy config", "session is unbound at creation", "live lifecycle ledger bridge not verified"],
-      "resolution_gate": "Declare a stable CLI path, make the protocol model available, resolve workspace/config, authenticate an allowed provider in an isolated profile, bind a session, and prove lifecycle plus ledger emission.",
+      "blocking_conditions": ["0 providers ready in provider catalog", "required gpt-5.3-codex is declared but rejected by the ACP provider runtime", "session is unbound at creation", "live lifecycle ledger bridge not verified"],
+      "resolution_gate": "Declare a stable CLI path, make the exact protocol model advertised and executable by the ACP provider, resolve workspace/config, authenticate an allowed provider in an isolated profile, bind a session, and prove lifecycle plus ledger emission.",
       "safe_next_action": "Do not install or authenticate automatically; use the official installation/provider procedures and rerun read-only status/provider probes after operator setup."
     },
     {

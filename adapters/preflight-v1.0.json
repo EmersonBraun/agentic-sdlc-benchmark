@@ -118,7 +118,7 @@
         "lifecycle_attestation": "compozy-session-attestation-v1.0.json",
         "binding_attestation": "compozy-binding-attestation-v1.0.json",
         "model_connectivity_attestation": "compozy-model-connectivity-attestation-v1.0.json",
-        "model_connectivity_probe": "alternate-model-excluded-from-pilot",
+        "model_connectivity_probe": "required-model-configured-but-rejected-by-acp-runtime",
         "agent_catalog_count": 4,
         "agent_provider_bound_count": 0,
         "doctor_error_count": 19,
@@ -127,7 +127,7 @@
         "registered_workspace_id": "ws_d15ffee1d255378e",
         "parity_probes": ["compozy.version", "compozy.workspace-resolution", "compozy.adapter-readonly-preflight", "compozy.provider-auth-summary"]
       },
-      "decision": "A local session and an alternate-model read-only connectivity probe pass, but the required gpt-5.3-codex snapshot is unavailable in Compozy configuration; do not use in pilot until the protocol model is available and bound-session ledger parity passes."
+      "decision": "A local session and an alternate-model read-only connectivity probe pass. The required gpt-5.3-codex remains declared in Compozy configuration but is rejected by the installed ACP provider runtime; do not use in pilot until that exact model is advertised and bound-session ledger parity passes."
     }
   },
   "harness": {
