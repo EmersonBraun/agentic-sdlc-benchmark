@@ -34,9 +34,13 @@
         "agent_sessions_started": false,
         "permission_mode": "controller-approve-reads",
         "lifecycle_bridge": "contract-tested",
-        "ledger_bridge": "contract-tested"
+        "ledger_bridge": "contract-tested",
+        "auth_probe": "passed",
+        "system_default_auth": true,
+        "provider_states": {"error": 1, "ok": 1, "unavailable": 6},
+        "workflow_guard": "blocked-and-ledgered"
       },
-      "decision": "Do not use in pilot until the runtime graph, workspace binding, and benchmark adapter readiness are verified."
+      "decision": "Do not use in pilot until the runtime graph, workspace binding, live lifecycle bridge, and benchmark adapter readiness are verified."
     },
     "agent-orchestrator": {
       "installed": true,

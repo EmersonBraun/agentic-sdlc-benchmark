@@ -20,6 +20,7 @@ class OrcaAdapterTests(unittest.TestCase):
                     {"ok": True, "result": {"app": {"running": True}, "runtime": {"reachable": True, "state": "graph_not_ready", "appVersion": "x", "runtimeId": "private", "capabilities": ["a"]}, "graph": {"state": "unavailable"}}},
                     {"ok": True, "result": {"schemaVersion": "v1", "commands": [{"name": "status"}]}},
                     {"ok": False, "error": {"code": "selector_not_found"}},
+                    {"ok": True, "result": {"claude": {"accounts": []}, "codex": {"accounts": [], "systemDefault": {"hasAuth": True}}, "rateLimits": {"codex": {"status": "ok"}}}},
                 ]
             )
             adapter._json_command = lambda *args, **kwargs: next(outputs)  # type: ignore[method-assign]
@@ -27,6 +28,7 @@ class OrcaAdapterTests(unittest.TestCase):
             self.assertEqual(result.status["graph_state"], "unavailable")
             self.assertTrue(result.agent_context["machine_readable"])
             self.assertEqual(result.worktree["error_code"], "selector_not_found")
+            self.assertTrue(result.accounts["system_default_auth"])
             self.assertNotIn("private", json.dumps(result.to_dict()))
 
     def test_workflow_creation_fails_closed(self) -> None:
@@ -38,3 +40,5 @@ class OrcaAdapterTests(unittest.TestCase):
             )
             with self.assertRaises(OrcaNotReadyError):
                 adapter.start_workflow(objective="pilot")
+            events = (root / "ledger.jsonl").read_text(encoding="utf-8")
+            self.assertIn("lifecycle.workflow.start", events)

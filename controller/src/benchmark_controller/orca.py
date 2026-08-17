@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .adapters import ADE_DESCRIPTORS, ComponentDescriptor
-from .external import ControlledAdapter
+from .external import ControlledAdapter, LifecycleBridge
 from .ledger import Ledger
 
 DEFAULT_ORCA_CLI = "/usr/local/bin/orca"
@@ -20,12 +20,14 @@ class OrcaPreflight:
     status: dict[str, Any]
     agent_context: dict[str, Any]
     worktree: dict[str, Any]
+    accounts: dict[str, Any]
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "status": self.status,
             "agent_context": self.agent_context,
             "worktree": self.worktree,
+            "accounts": self.accounts,
             "agent_sessions_started": False,
         }
 
@@ -48,6 +50,7 @@ class OrcaAdapter:
         self.descriptor: ComponentDescriptor = ADE_DESCRIPTORS["orca"]
         self.runtime = ControlledAdapter(workspace, ledger, permission_mode=permission_mode)  # type: ignore[arg-type]
         self.cli_path = cli_path
+        self.lifecycle = LifecycleBridge(ledger, tool="orca")
 
     def read_only_preflight(self) -> OrcaPreflight:
         """Inspect ORCA without opening the app, graph, terminal, or session."""
@@ -55,10 +58,12 @@ class OrcaAdapter:
         status = self._json_command(("status", "--json"), stage_id="intake")
         agent_context = self._json_command(("agent-context", "--json"), stage_id="intake")
         worktree = self._json_command(("worktree", "current", "--json"), stage_id="intake", allow_failure=True)
+        accounts = self._json_command(("account", "list", "--json"), stage_id="intake")
         return OrcaPreflight(
             status=_status_summary(status),
             agent_context=_agent_context_summary(agent_context),
             worktree=_worktree_summary(worktree),
+            accounts=_account_summary(accounts),
         )
 
     def start_workflow(self, *, objective: str) -> dict[str, Any]:
@@ -71,6 +76,12 @@ class OrcaAdapter:
 
     def _assert_ready(self) -> None:
         if self.descriptor.implementation_status not in READY_STATUSES:
+            self.lifecycle.record(
+                stage_id="intake",
+                actor="infrastructure",
+                status="blocked",
+                event_name="workflow.start",
+            )
             raise OrcaNotReadyError(f"ORCA is {self.descriptor.implementation_status}; no workflow started")
 
     def _json_command(
@@ -134,4 +145,24 @@ def _worktree_summary(worktree: dict[str, Any]) -> dict[str, Any]:
         "ok": worktree.get("ok"),
         "current_worktree_found": bool(result) and worktree.get("ok") is True,
         "error_code": error.get("code") if isinstance(error, dict) else None,
+    }
+
+
+def _account_summary(accounts: dict[str, Any]) -> dict[str, Any]:
+    result = accounts.get("result", accounts)
+    if not isinstance(result, dict):
+        return {"auth_probe": "failed", "provider_states": {}}
+    rate_limits = result.get("rateLimits", {})
+    states: dict[str, int] = {}
+    if isinstance(rate_limits, dict):
+        for value in rate_limits.values():
+            if isinstance(value, dict) and isinstance(value.get("status"), str):
+                state = value["status"]
+                states[state] = states.get(state, 0) + 1
+    return {
+        "auth_probe": "passed",
+        "claude_account_count": len(result.get("claude", {}).get("accounts", [])) if isinstance(result.get("claude"), dict) else 0,
+        "codex_account_count": len(result.get("codex", {}).get("accounts", [])) if isinstance(result.get("codex"), dict) else 0,
+        "system_default_auth": bool(result.get("codex", {}).get("systemDefault", {}).get("hasAuth")) if isinstance(result.get("codex"), dict) else False,
+        "provider_states": states,
     }

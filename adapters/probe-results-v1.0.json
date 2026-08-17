@@ -95,8 +95,8 @@
       "returncode": 0,
       "timed_out": false,
       "passed": true,
-      "output_sha256": "256904d518402d898d70413ffb290d962bc2046f46172ff44abc2dd0c9823f82",
-      "assertions": ["runtime reachable", "228 command schema entries", "33 capabilities", "graph unavailable", "current worktree absent", "6 ledger events", "no agent sessions started"]
+      "output_sha256": "050afe211358e3acdc7a95275a6af96919e9770dc9f6ceb720b1808f6b4ec910",
+      "assertions": ["runtime reachable", "228 command schema entries", "33 capabilities", "graph unavailable", "current worktree absent", "account auth probe passed", "8 ledger events", "workflow guard ledgered", "no agent sessions started"]
     },
     {
       "probe_id": "mini-swe-agent.adapter-readonly-preflight",
