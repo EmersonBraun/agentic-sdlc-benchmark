@@ -1,0 +1,35 @@
+{
+  "schema_version": "compozy-session-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "source": "controller/scripts/probe_compozy_session.py --confirm",
+  "status": "partial-blocked",
+  "authorization": {"operator_confirmation": true},
+  "fixture": {
+    "product_id": "greenfield",
+    "workspace_policy": "ephemeral-copy-outside-repository",
+    "fixture_mutated": false,
+    "network_mode": "local",
+    "fixture_destroyed": true
+  },
+  "session": {
+    "created": true,
+    "session_id_sha256": "5a5e1cdeaf66aebd9bd93d51706fa9b6031e77552c27b9a6d396bb54b1be9450",
+    "initial_state": "active",
+    "runtime_status": "unbound",
+    "provider_execution_observed": false,
+    "stopped": true
+  },
+  "commands": {
+    "session_new": {"returncode": 0, "output_sha256": "e39b09649cb47db34cb4cf3b45f402d37c67dbd73f6634afa5cf2dd13303adfc"},
+    "session_list_before_cleanup": {"returncode": 0, "session_count": 1, "output_sha256": "ef648790c752d914ead30cdf524b4ad1fdac9dc1a7738807aa447d1feb889dad"},
+    "session_stop": {"returncode": 0},
+    "workspace_remove": {"returncode": 0},
+    "sessions_after_cleanup": {"session_count": 0}
+  },
+  "ledger": {
+    "controller_lifecycle_events": 0,
+    "compozy_event_bridge_verified": false
+  },
+  "decision": "Session creation and cleanup passed with local network participation, but the runtime was unbound, no provider execution occurred, and no Compozy lifecycle event bridge was verified. This does not satisfy semantic parity or authorize pilot collection."
+}

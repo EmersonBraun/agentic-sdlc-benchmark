@@ -22,8 +22,8 @@
     {
       "component": "ade:compozy",
       "evidence_refs": ["preflight-v1.0.json", "preflight-v1.0.md"],
-      "blocking_conditions": ["CLI not on PATH", "0 providers ready", "provider auth not verified", "live session lifecycle not verified"],
-      "resolution_gate": "Declare a stable CLI path, resolve workspace/config, authenticate at least one allowed provider in an isolated profile, and prove session lifecycle plus ledger emission.",
+      "blocking_conditions": ["CLI not on PATH", "0 providers ready", "provider auth not verified", "session is unbound", "live lifecycle ledger bridge not verified"],
+      "resolution_gate": "Declare a stable CLI path, resolve workspace/config, authenticate at least one allowed provider in an isolated profile, bind a session, and prove lifecycle plus ledger emission.",
       "safe_next_action": "Do not install or authenticate automatically; use the official installation/provider procedures and rerun read-only status/provider probes after operator setup."
     },
     {
