@@ -1,0 +1,41 @@
+{
+  "schema_version": "agent-orchestrator-session-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "source": "controller/scripts/probe_agent_orchestrator_session.py --confirm",
+  "status": "partial-blocked",
+  "authorization": {"operator_confirmation": true},
+  "fixture": {
+    "product_id": "greenfield",
+    "workspace_policy": "ephemeral-copy-outside-repository",
+    "fixture_mutated": false,
+    "fixture_destroyed": true,
+    "network_enabled": false
+  },
+  "side_effects": {
+    "benchmark_run_created": false,
+    "benchmark_task_started": false,
+    "agent_session_created": true,
+    "agent_session_terminated": true,
+    "temporary_project_removed": true,
+    "host_sessions_after": 0
+  },
+  "commands": {
+    "project_add": {"returncode": 0, "output_sha256": "a19119626b9ea3bf2ecc962a52673173ff7b8c4b32b9bddced34032e41e16d7f"},
+    "spawn": {"returncode": 0, "output_sha256": "494a4c84768a914e89293b3d0ea49ad6a2427c36546f205f44758edcb44793c2"},
+    "kill": {"returncode": 0, "output_sha256": "bda139ea8d406fade9a22212bbceece79b37503b0ae8a220ae560cb880163d57"},
+    "post_termination_list": {"returncode": 0, "count": 0, "output_sha256": "c1afb4d665b22dbb09bd9163b1dd5240be7b53b2736ff4eb3311ac2c38825a60"},
+    "project_remove": {"returncode": 0, "output_sha256": "4cfd69a644a2689a018f0b7aae4ab2309e868de777f4846cfc9f371e61fccc03"}
+  },
+  "session": {
+    "observed_count": 1,
+    "session_id_sha256": "464ef5f9be4c9af870567af9b9beee67352e9999b73a2453d92671c3fc1ea323",
+    "lifecycle_events_observed_from_AO": false
+  },
+  "ledger": {
+    "controller_normalized_events": 2,
+    "external_AO_event_bridge_verified": false
+  },
+  "decision": "Session creation and cleanup passed in an ephemeral fixture, but live AO lifecycle event emission was not observed. This does not satisfy semantic parity or authorize pilot collection.",
+  "first_attempt": {"status": "blocked-before-session", "reason": "DEFAULT_BRANCH_UNRESOLVED", "remediated_in_fixture_only": true}
+}

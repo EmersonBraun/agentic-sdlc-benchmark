@@ -14,6 +14,8 @@ The open blocker register is [`blocker-register-v1.0.json`](blocker-register-v1.
 
 The isolated session probe is specified in [`session-parity-test-v1.0.json`](session-parity-test-v1.0.json). It is preparation-only and requires explicit operator confirmation before any session or provider call.
 
+The first confirmed AO session probe is recorded in [`agent-orchestrator-session-attestation-v1.0.json`](agent-orchestrator-session-attestation-v1.0.json). Session creation and cleanup passed, but AO lifecycle event emission was not observed, so semantic parity remains blocked.
+
 The current catalog is declarative. It freezes names, adapter versions, entrypoints, and the no-fallback rule; it does not claim that the external tools are installed. Live integrations must pass the installation and semantic-parity gates before a pilot run can use them.
 
 See [`catalog-v1.0.json`](catalog-v1.0.json), [`runtime-contract-v1.0.json`](runtime-contract-v1.0.json), [`readiness-report-v1.0.json`](readiness-report-v1.0.json), [`preflight-v1.0.json`](preflight-v1.0.json), [`preflight-v1.0.md`](preflight-v1.0.md), [`probe-contract-v1.0.json`](probe-contract-v1.0.json), [`probe-results-v1.0.json`](probe-results-v1.0.json), and the controller contracts in [`../controller/src/benchmark_controller/adapters.py`](../controller/src/benchmark_controller/adapters.py), [`../controller/src/benchmark_controller/pilot_executor.py`](../controller/src/benchmark_controller/pilot_executor.py), and [`../controller/src/benchmark_controller/semantic_parity.py`](../controller/src/benchmark_controller/semantic_parity.py).

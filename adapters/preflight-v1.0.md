@@ -52,3 +52,5 @@ Agent Orchestrator's lifecycle surface was separately inspected in [`agent-orche
 The complete remediation matrix is maintained in [`blocker-register-v1.0.json`](blocker-register-v1.0.json). It distinguishes safe read-only probes from actions requiring operator approval, such as provider authentication or session creation.
 
 The next controlled action is fully specified, but not executed, in [`session-parity-test-v1.0.json`](session-parity-test-v1.0.json). It uses the greenfield fixture, Reference Harness, and AgentsKit OFF as fixed controls before any ADE-specific session test.
+
+The first confirmed Agent Orchestrator session test is documented in [`agent-orchestrator-session-attestation-v1.0.json`](agent-orchestrator-session-attestation-v1.0.json). It created and cleaned up one temporary session, but did not expose live lifecycle events to the ledger; the ADE remains not-ready.
