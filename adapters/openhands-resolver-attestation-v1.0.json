@@ -14,9 +14,15 @@
     "openhands-tools": "1.42.1",
     "openhands-workspace": "1.42.1"
   },
+  "resolver_attempts": [
+    {"sdk_version": "1.42.1", "result": "failed", "output_sha256": "e8722c1461b03a25719198319ecdbd3b8946e8d9eec29fc26611877a0fc8dec7"},
+    {"sdk_version": "1.42.0", "result": "failed", "output_sha256": "ab0a86b05da5368a7b0437850b7361b990cbebd7ab4008a312f8efe2989423a5"},
+    {"sdk_version": "1.40.1", "result": "failed"},
+    {"sdk_version": "1.29.3", "result": "failed"}
+  ],
   "returncode": 1,
   "failure_class": "dependency-resolution-conflict",
   "conflict_summary": "lmnr requires opentelemetry-semantic-conventions==0.60b1 while the resolved opentelemetry-instrumentation graph requires incompatible semantic-conventions versions",
   "output_sha256": "e8722c1461b03a25719198319ecdbd3b8946e8d9eec29fc26611877a0fc8dec7",
-  "decision": "Blocked: the declared OpenHands environment does not resolve under the pinned Python 3.12 runtime without weakening the resolver policy. No OpenHands session was started."
+  "decision": "Blocked: the declared OpenHands environment and the immediately previous SDK version do not resolve under the pinned Python 3.12 runtime without weakening the resolver policy. No OpenHands session was started."
 }

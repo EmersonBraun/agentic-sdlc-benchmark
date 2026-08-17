@@ -12,7 +12,7 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 | CompozyOS | 0.3.0-beta.16 | Read-only adapter probe passes: daemon/workspace/config/sessions/providers; provider auth summary derived; 0 sessions | Blocked until provider readiness, session lifecycle, and live ledger emission pass |
 | Agent Orchestrator | 0.12.6 | Read-only adapter, installed-agent authorization, spawn/cleanup probe, and polling ledger bridge pass; no native event stream exposed | Blocked until full worker session semantic parity is verified |
 | Reference Harness | v1.0 | Contract-ready and tested | Available for local contract tests |
-| OpenHands SDK | 1.42.1 | Correct Python 3.12 resolver attestation still fails between `lmnr` and OpenTelemetry constraints | Blocked; no dependency override accepted |
+| OpenHands SDK | 1.42.1 (1.42.0 recheck) | Correct Python 3.12 resolver attestation fails between `lmnr` and OpenTelemetry constraints in the current and immediately previous SDK versions | Blocked; no dependency override accepted |
 | mini-SWE-agent | 2.4.6 | Bounded attestation passes image, read-only workspace boundary, ledger bridge, and missing model/auth fail-closed probes; network disabled | Blocked until a declared model configuration and full task semantic parity are verified |
 | AgentsKit ON | public/local `0.3.0` source | Public core fixture emitted runtime events; memory, telemetry, redaction, and the full bridge contract are bounded-verified; Doc Bridge, playbook, and code-review remain evidence-only | Blocked until every declared component is materialized and exercised in the controlled task |
 | AgentsKit OFF | v1.0 | Neutral control contract-ready | Available for contract tests |
@@ -71,6 +71,6 @@ The integrated fixture is [`agentskit-integrated-fixture-attestation-v1.0.json`]
 
 ORCA workspace binding is recorded in [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json): an isolated worktree was created and removed successfully, but the graph remains unavailable. Compozy model connectivity is recorded in [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json): a read-only call succeeded only with `gpt-5.3-codex-spark`, while the exact protocol model `gpt-5.3-codex` remained rejected by the installed ACP provider after an official configuration attempt.
 
-The OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). It rechecks the declared SDK/tool/workspace versions in a clean Python 3.12 container with normal dependency resolution and records the conflict hash.
+The OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). It checks the declared SDK/tool/workspace versions and the immediately previous SDK version in a clean Python 3.12 container with normal dependency resolution and records the conflict hashes.
 
 The mini-SWE-agent bounded evidence is [`mini-swe-attestation-v1.0.json`](mini-swe-attestation-v1.0.json). It records eight redacted preflight ledger events, the pinned image identity, the read-only workspace boundary, and fail-closed model behavior; no task session was started.
