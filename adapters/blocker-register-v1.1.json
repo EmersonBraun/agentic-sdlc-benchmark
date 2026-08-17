@@ -15,7 +15,7 @@
     },
     {
       "component": "ade:agent-orchestrator",
-      "evidence_refs": ["preflight-v1.1.json", "agent-orchestrator-session-attestation-v1.0.json", "model-compatibility-v1.1.json"],
+      "evidence_refs": ["preflight-v1.1.json", "agent-orchestrator-session-attestation-v1.0.json", "agent-orchestrator-v1.1-session-probe-attestation.json", "model-compatibility-v1.1.json"],
       "blocking_conditions": ["native event stream/subscription is not exposed", "full worker session semantic parity remains unverified", "gpt-5.4 model execution is not verified"],
       "resolution_gate": "Approved isolated session test proves spawn, polling lifecycle transitions, ledger bridge, cleanup, zero cross-run state leakage, and gpt-5.4 execution; any native-event limitation is explicitly recorded.",
       "safe_next_action": "Keep polling bounded and redacted; run the approved isolated gpt-5.4 session probe only if its lifecycle and cleanup evidence can be captured."

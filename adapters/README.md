@@ -36,6 +36,8 @@ ORCA workspace and graph evidence is [`orca-workspace-attestation-v1.0.json`](or
 
 The first v1.1 lifecycle recheck is [`orca-v1.1-lifecycle-probe-attestation.json`](orca-v1.1-lifecycle-probe-attestation.json). ORCA accepted `gpt-5.4`, but the worker stalled during MCP bootstrap before task execution; the worker and coordinator terminals were stopped and released, and the pilot remains blocked.
 
+The v1.1 Agent Orchestrator session recheck is [`agent-orchestrator-v1.1-session-probe-attestation.json`](agent-orchestrator-v1.1-session-probe-attestation.json). Spawn, polling, termination, cleanup, and the redacted ledger bridge pass, but model-backed execution and native event-stream parity remain unverified.
+
 The cross-runtime model investigation is [`model-compatibility-v1.0.json`](model-compatibility-v1.0.json). `gpt-5.4` and `gpt-5.4-mini` execute in Compozy and the Codex CLI, but no replacement is adopted until the remaining ADE, harness, and AgentsKit parity is verified.
 
 OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). The pinned Python 3.12 environment still fails normal dependency resolution, so no session is started.

@@ -1,0 +1,14 @@
+{
+  "schema_version": "agent-orchestrator-v1.1-session-probe-attestation",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-17",
+  "source": "controller/scripts/probe_agent_orchestrator_session.py --confirm",
+  "status": "partial-blocked",
+  "authorization": {"operator_confirmation": true},
+  "runtime": {"workspace_boundary": "passed", "fixture_mutated": false, "fixture_destroyed": true},
+  "session": {"spawn": "passed", "observed_count": 1, "observed_states": ["idle"], "polling_bridge": "verified", "kill": "passed", "ledger_event_count": 2, "session_id_sha256": "5621af22e71f4714ae161169a7e6ad3813ee2da41405700ac8e93b1eaae17b9c"},
+  "commands": {"project_add_returncode": 0, "spawn_returncode": 0, "kill_returncode": 0, "project_remove_returncode": 0, "project_add_output_sha256": "1a1b886d6d52845c51d674d41b674aab0d161ba54b3b3c98f8ba9b446d3484ae", "spawn_output_sha256": "ea4c0dcca26341fbcf6e1940750a367e05ab98733e108e76b1fdae0004c8af11", "kill_output_sha256": "57f3d9cf4af8a762d183150c82096de343abadd06ef5abf92c2501deacea4236", "project_remove_output_sha256": "4cfd69a644a2689a018f0b7aae4ab2309e868de777f4846cfc9f371e61fccc03"},
+  "model": {"policy_model": "gpt-5.4", "execution": "not-verified"},
+  "native_event_stream": "not-exposed",
+  "decision": "The Agent Orchestrator bounded session lifecycle and cleanup pass, but this probe does not establish gpt-5.4 execution or native event-stream parity. The ADE remains blocked until model-backed execution and the accepted lifecycle-event treatment are verified."
+}
