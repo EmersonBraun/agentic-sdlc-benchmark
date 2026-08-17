@@ -9,12 +9,12 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 | Component | Version | Result | Collection decision |
 |---|---:|---|---|
 | Orca | 1.4.183 | App/runtime reachable, graph unavailable | Blocked until graph and adapter readiness are verified |
-| CompozyOS | 0.3.0-beta.16 | Daemon running; doctor reports provider/extension errors | Blocked until provider auth, permissions, and parity are verified |
-| Agent Orchestrator | 0.12.6 | App installed; core doctor passes, daemon not running | Blocked until daemon, project, worker, and ledger bridge checks pass |
+| CompozyOS | 0.3.0-beta.16 | Version and registered-workspace probes pass; doctor reports provider/extension errors | Blocked until provider auth, permissions, and parity are verified |
+| Agent Orchestrator | 0.12.6 | Core doctor, tmux, daemon, and project registration probes pass | Blocked until worker adapter and ledger bridge checks pass |
 | Reference Harness | v1.0 | Contract-ready and tested | Available for local contract tests |
 | OpenHands SDK | 1.42.1 | Dependency resolution fails between `lmnr` and OpenTelemetry constraints | Blocked; no dependency override accepted |
 | mini-SWE-agent | 2.4.6 | CLI help passes in Python 3.12.10 container | Blocked until semantic parity and model configuration are verified |
-| AgentsKit ON | local `0.3.0` / private-component-removed source | CLIs work from source; doctor has provider/environment failures | Blocked until isolated integration and ledger emission pass |
+| AgentsKit ON | local `0.3.0` / private-component-removed source | CLI probes pass; doctor has provider/environment failures | Blocked until isolated integration and ledger emission pass |
 | AgentsKit OFF | v1.0 | Neutral control contract-ready | Available for contract tests |
 
 ## Installation provenance
@@ -28,3 +28,7 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 The benchmark does not treat “installed” as “ready”. A component becomes collection-ready only after its adapter exposes the common workspace, tool, permission, context, oracle, Git, GitHub, browser, and ledger semantics. Missing dependencies are recorded as failures; they are not replaced by another factor level.
 
 The machine-local Compozy bootstrap now uses `approve-reads` in its global configuration. This is safer for the host but is not yet a complete benchmark execution policy: any future Compozy run must use an explicit isolated workspace/sandbox policy and record its effective permission mode.
+
+## Executable parity probes
+
+Five side-effect-free probes passed on 2026-08-17. The results and output hashes are recorded in [`probe-results-v1.0.json`](probe-results-v1.0.json), with the probe contract in [`probe-contract-v1.0.json`](probe-contract-v1.0.json). These probes validate executable boundaries and workspace/runtime discovery only; they do not authorize benchmark collection.

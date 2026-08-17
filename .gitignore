@@ -13,3 +13,4 @@ __pycache__/
 private/
 evaluation/private/
 runs/private/
+.compozy/

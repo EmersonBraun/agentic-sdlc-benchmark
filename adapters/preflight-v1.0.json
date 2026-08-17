@@ -2,6 +2,7 @@
   "schema_version": "adapter-preflight-v1.0",
   "protocol_version": "v1.0",
   "verified_on": "2026-08-17",
+  "parity_probe_results": "probe-results-v1.0.json",
   "host": {
     "platform": "macOS",
     "architecture": "arm64",
@@ -34,8 +35,11 @@
       "evidence": {
         "doctor_core": "pass",
         "doctor_tmux": "pass",
-        "doctor_daemon": "stopped",
-        "doctor_warnings": ["ao binary not on PATH", "sqlite database not initialized", "muse agent not found"]
+        "doctor_daemon": "pass",
+        "daemon_status": "ready",
+        "registered_project": "code-10x",
+        "doctor_warnings": ["ao binary not on PATH", "muse agent not found"],
+        "parity_probes": ["agent-orchestrator.core-doctor"]
       },
       "decision": "Do not use in pilot until the daemon, project registration, worker adapter, and ledger bridge are verified."
     },
@@ -51,7 +55,9 @@
         "daemon_socket": "/Users/rebecabraun/.compozy/daemon.sock",
         "global_permission_mode": "approve-reads",
         "doctor_status": "error",
-        "doctor_errors": ["missing tailscale extension environment", "missing native provider CLIs", "provider auth not verified"]
+        "doctor_errors": ["missing tailscale extension environment", "missing native provider CLIs", "provider auth not verified"],
+        "registered_workspace_id": "ws_d15ffee1d255378e",
+        "parity_probes": ["compozy.version", "compozy.workspace-resolution"]
       },
       "decision": "Do not use in pilot until the benchmark adapter, provider auth, and permission policy pass semantic-parity checks."
     }
@@ -93,7 +99,8 @@
         "agentskit_os_help": "passed from local source CLI",
         "doctor_status": "failed",
         "doctor_failures": ["ollama unreachable"],
-        "doctor_skips": ["provider API keys not configured"]
+        "doctor_skips": ["provider API keys not configured"],
+        "parity_probes": ["agentskit.cli-help", "private-component-removed.cli-help"]
       },
       "decision": "Do not use in pilot until the integration is isolated from local developer state and its declared components emit benchmark ledger events."
     },

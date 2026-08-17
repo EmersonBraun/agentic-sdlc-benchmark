@@ -1,0 +1,12 @@
+{
+  "schema_version": "adapter-probe-contract-v1.0",
+  "protocol_version": "v1.0",
+  "side_effect_policy": "Probes may inspect versions, help, health, configuration resolution, and workspace registration. They must not create agent sessions, mutate product files, call models, or access hidden task artifacts.",
+  "required_probe_groups": {
+    "ade": ["version", "health", "workspace-resolution", "permission-resolution"],
+    "harness": ["version", "workspace-boundary", "argv-execution", "timeout", "artifact-hash"],
+    "agentskit": ["version", "component-resolution", "ledger-emission", "off-control-separation"]
+  },
+  "pass_rule": "Every required probe for the selected adapter must pass. A missing probe is a failure, not an implicit pass.",
+  "output_policy": "Store command, exit code, status, timestamp, and output hash. Redact credentials and publish only bounded previews."
+}

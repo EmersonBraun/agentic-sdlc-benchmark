@@ -6,6 +6,8 @@ The adapter layer now freezes the provider-facing execution plan and fails close
 
 The neutral Reference Harness is executable for local argv commands and append-only ledger capture. Its capabilities are explicit and its filesystem boundary rejects path escapes.
 
+Side-effect-free adapter probes are implemented in `benchmark_controller.probes`. Their required groups are frozen in [`../adapters/probe-contract-v1.0.json`](../adapters/probe-contract-v1.0.json).
+
 ## Local validation
 
 ```bash

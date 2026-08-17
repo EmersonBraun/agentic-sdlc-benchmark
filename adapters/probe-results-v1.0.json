@@ -1,0 +1,70 @@
+{
+  "schema_version": "adapter-probe-results-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "probe_contract": "probe-contract-v1.0.json",
+  "side_effect_policy": {
+    "agent_sessions_started": false,
+    "product_mutations_performed": false,
+    "hidden_task_accessed": false,
+    "raw_output_published": false
+  },
+  "summary": {
+    "required": 5,
+    "passed": 5,
+    "failed": 0
+  },
+  "results": [
+    {
+      "probe_id": "agent-orchestrator.core-doctor",
+      "component": "agent-orchestrator",
+      "command_label": "Agent Orchestrator doctor core checks",
+      "returncode": 0,
+      "timed_out": false,
+      "passed": true,
+      "output_sha256": "7ad7e2c7062ef7b2f7a6173fcd045c91aca00daa63e8518db97583016cc1810b",
+      "assertions": ["config PASS", "tmux PASS", "daemon PASS"]
+    },
+    {
+      "probe_id": "compozy.version",
+      "component": "compozy",
+      "command_label": "Compozy version",
+      "returncode": 0,
+      "timed_out": false,
+      "passed": true,
+      "output_sha256": "6c70f7151561d55c94a8c9f4b21310e9f3d0b48aa862afee217db825933962de",
+      "assertions": ["0.3.0-beta.16"]
+    },
+    {
+      "probe_id": "compozy.workspace-resolution",
+      "component": "compozy",
+      "command_label": "Compozy registered workspace resolution",
+      "returncode": 0,
+      "timed_out": false,
+      "passed": true,
+      "output_sha256": "6de8cfbe951db3dfaea4ceb0de1d283fae4c06d63012aa1d34ce8266e3bb8120",
+      "assertions": ["agentic-sdlc-benchmark", "repository root resolved"]
+    },
+    {
+      "probe_id": "agentskit.cli-help",
+      "component": "agentskit",
+      "command_label": "AgentsKit source CLI help",
+      "returncode": 0,
+      "timed_out": false,
+      "passed": true,
+      "output_sha256": "078683559815a046f6aa8b555009cc7908368f377925abe30fe61025001f7d69",
+      "assertions": ["AgentsKit CLI", "doctor"]
+    },
+    {
+      "probe_id": "private-component-removed.cli-help",
+      "component": "private-component-removed",
+      "command_label": "private-component-removed source CLI help",
+      "returncode": 0,
+      "timed_out": false,
+      "passed": true,
+      "output_sha256": "29824706fa0d6945ff3a86d90e9ab420911de2b3f51177ddf0e9a02d0716f43f",
+      "assertions": ["private-component-removed", "config validate"]
+    }
+  ],
+  "interpretation": "The executable boundary and basic workspace/runtime probes pass. This does not establish semantic parity, provider readiness, ledger emission, or collection readiness."
+}
