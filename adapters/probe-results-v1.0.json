@@ -95,8 +95,8 @@
       "returncode": 0,
       "timed_out": false,
       "passed": true,
-      "output_sha256": "55faba45eeeaa1cc384dbfdc23b08e9d89da805bd6b0bfeabef019436951945a",
-      "assertions": ["image inspect passed", "mini 2.4.6 help passed", "network disabled", "workspace not mounted", "4 ledger events", "no agent sessions started"]
+      "output_sha256": "38e4343d4faa0190c478279c048e5ee6faa0f6693d6b251390fadf4ec21d67db",
+      "assertions": ["image inspect passed", "mini 2.4.6 help passed", "network disabled", "workspace mounted read-only", "approve-reads parity passed", "live ledger bridge", "no agent sessions started"]
     }
   ],
   "interpretation": "The executable boundary and basic workspace/runtime probes pass. This does not establish semantic parity, provider readiness, ledger emission, or collection readiness."

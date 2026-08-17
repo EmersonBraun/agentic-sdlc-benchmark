@@ -20,14 +20,18 @@ READY_STATUSES = {"contract-ready", "installed-ready"}
 class MiniSwePreflight:
     image: dict[str, Any]
     help_probe: dict[str, Any]
+    workspace_probe: dict[str, Any]
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "image": self.image,
             "help_probe": self.help_probe,
+            "workspace_probe": self.workspace_probe,
             "agent_sessions_started": False,
-            "workspace_mounted": False,
+            "workspace_mounted": self.workspace_probe["passed"],
             "network_enabled": False,
+            "permission_parity": "contract-tested" if self.workspace_probe["permission_mode"] == "approve-reads" else "failed",
+            "ledger_bridge": "live",
         }
 
 
@@ -69,7 +73,16 @@ class MiniSweAgentAdapter:
             access="read",
             time_category="orchestration_overhead",
         )
+        workspace_result = self.runtime.run(
+            self._workspace_probe_command(),
+            stage_id="intake",
+            actor="infrastructure",
+            access="read",
+            time_category="orchestration_overhead",
+            env={"BENCHMARK_PERMISSION_MODE": self.runtime.permissions.mode},
+        )
         image_id = image_result.stdout.strip() if image_result.returncode == 0 else None
+        workspace_passed = workspace_result.returncode == 0 and "mini-swe workspace boundary ok" in workspace_result.stdout
         return MiniSwePreflight(
             image={"image": self.image, "image_id": image_id, "inspect_passed": image_result.returncode == 0},
             help_probe={
@@ -78,6 +91,13 @@ class MiniSweAgentAdapter:
                 "version": "2.4.6" if "mini-swe-agent version 2.4.6" in help_result.stdout else None,
                 "network_enabled": False,
                 "workspace_mounted": False,
+            },
+            workspace_probe={
+                "returncode": workspace_result.returncode,
+                "passed": workspace_passed,
+                "permission_mode": self.runtime.permissions.mode,
+                "network_enabled": False,
+                "mount_read_only": True,
             },
         )
 
@@ -94,7 +114,24 @@ class MiniSweAgentAdapter:
             )
 
     def _container_command(self, argument: str) -> tuple[str, ...]:
-        return (
+        return self._base_container_command() + (argument,)
+
+    def _workspace_probe_command(self) -> tuple[str, ...]:
+        probe = (
+            "from pathlib import Path; import os; "
+            "assert Path('/workspace').is_dir(); "
+            "assert os.environ.get('BENCHMARK_PERMISSION_MODE') == 'approve-reads'; "
+            "print('mini-swe workspace boundary ok')"
+        )
+        return self._base_container_command(mount_workspace=True, entrypoint="python3") + ("-c", probe)
+
+    def _base_container_command(
+        self,
+        *,
+        mount_workspace: bool = False,
+        entrypoint: str | None = None,
+    ) -> tuple[str, ...]:
+        command = (
             self.docker_path,
             "run",
             "--rm",
@@ -107,6 +144,16 @@ class MiniSweAgentAdapter:
             "--security-opt=no-new-privileges",
             "--env",
             "HOME=/tmp",
-            self.image,
-            argument,
+            "--env",
+            f"BENCHMARK_PERMISSION_MODE={self.runtime.permissions.mode}",
         )
+        if entrypoint:
+            command += ("--entrypoint", entrypoint)
+        command += (self.image,)
+        if mount_workspace:
+            command = command[:-1] + (
+                "--mount",
+                f"type=bind,src={self.runtime.workspace},dst=/workspace,readonly",
+                self.image,
+            )
+        return command

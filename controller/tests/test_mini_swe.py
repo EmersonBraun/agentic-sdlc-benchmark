@@ -31,13 +31,26 @@ class MiniSweAdapterTests(unittest.TestCase):
                 [
                     type("Result", (), {"returncode": 0, "stdout": "sha256:image\n", "stderr": ""})(),
                     type("Result", (), {"returncode": 0, "stdout": "This is mini-swe-agent version 2.4.6\n", "stderr": ""})(),
+                    type("Result", (), {"returncode": 0, "stdout": "mini-swe workspace boundary ok\n", "stderr": ""})(),
                 ]
             )
             adapter.runtime.run = lambda *args, **kwargs: next(outputs)  # type: ignore[method-assign]
             result = adapter.read_only_preflight()
             self.assertTrue(result.help_probe["passed"])
-            self.assertFalse(result.to_dict()["workspace_mounted"])
+            self.assertTrue(result.to_dict()["workspace_mounted"])
             self.assertEqual(result.image["image_id"], "sha256:image")
+
+    def test_workspace_probe_mounts_read_only_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adapter = MiniSweAgentAdapter(
+                root / "workspace",
+                Ledger(root / "ledger.jsonl", run_id="run_mini_mount", task_id="pilot_smoke"),
+            )
+            command = adapter._workspace_probe_command()
+            self.assertIn("type=bind", " ".join(command))
+            self.assertIn("dst=/workspace,readonly", " ".join(command))
+            self.assertIn("BENCHMARK_PERMISSION_MODE", " ".join(command))
 
     def test_task_execution_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

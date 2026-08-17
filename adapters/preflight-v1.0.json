@@ -120,10 +120,11 @@
         "container_image_id": "sha256:b9315a5977bd1cc8c302fb0bd9e49a2f6b5f793b343b6633a1d5ac4b137af309",
         "adapter_readonly_probe": "passed",
         "network_enabled": false,
-        "workspace_mounted": false,
+        "workspace_mounted": true,
         "agent_sessions_started": false,
         "permission_parity": "contract-tested",
-        "ledger_bridge": "contract-tested"
+        "ledger_bridge": "live",
+        "workspace_boundary": "passed"
       },
       "decision": "Do not use in pilot until the harness adapter proves semantic parity and controlled model/auth configuration."
     }
