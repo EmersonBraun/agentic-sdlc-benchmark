@@ -5,7 +5,10 @@
   "host": {
     "platform": "macOS",
     "architecture": "arm64",
-    "machine_scope": "personal-local-machine"
+    "machine_scope": "personal-local-machine",
+    "node_version": "25.7.0",
+    "pnpm_version": "10.33.0",
+    "python_version": "3.14.6"
   },
   "ade": {
     "orca": {
@@ -27,14 +30,45 @@
       "status": "declared-not-installed"
     },
     "compozy": {
-      "installed": false,
-      "status": "declared-not-installed"
+      "installed": true,
+      "runtime_version": "0.3.0-beta.16",
+      "package_version": "0.3.0-beta.16",
+      "package_sha512_integrity": "xxOAo0wtAfoQ8ptsYJphxhMYDTrdaPXgvIapjCo/wMdP63iWqz9//Nodn8eZ0uOrZETo1GEeRQUz1a9MKtRCeA==",
+      "status": "installed-not-ready",
+      "evidence": {
+        "daemon_status": "running",
+        "daemon_version": "0.3.0-beta.16",
+        "daemon_socket": "/Users/rebecabraun/.compozy/daemon.sock",
+        "global_permission_mode": "approve-all",
+        "doctor_status": "error",
+        "doctor_errors": ["missing tailscale extension environment", "missing native provider CLIs", "provider auth not verified"]
+      },
+      "decision": "Do not use in pilot until the benchmark adapter, provider auth, and permission policy pass semantic-parity checks."
     }
   },
   "harness": {
     "reference": {"installed": true, "status": "contract-ready"},
-    "openhands-sdk": {"installed": false, "status": "declared-not-installed"},
-    "mini-swe-agent": {"installed": false, "status": "declared-not-installed"}
+    "openhands-sdk": {
+      "installed": false,
+      "requested_versions": {"openhands-sdk": "1.42.1", "openhands-tools": "1.42.1", "openhands-workspace": "1.42.1"},
+      "wheel_sha256": {
+        "openhands-sdk": "10af3d6caf1075ecbb8520db1150c0ec0179ee352b19f0395d2273afda6004d2",
+        "openhands-tools": "38d63c8f316fdd27364a96a2a87e1c090fcd4d1056de02699e4a160345985106",
+        "openhands-workspace": "7f632cab1b0005c7a623eae1a3ffd2e1b9156ffc95d87e3bcf7098f82eae1e5d"
+      },
+      "status": "dependency-resolution-failed",
+      "failure": "pip dependency resolution conflicts between lmnr 0.7.56 and opentelemetry semantic-conventions versions"
+    },
+    "mini-swe-agent": {
+      "installed": true,
+      "runtime_image": "python:3.12.10-slim",
+      "runtime_image_digest": "sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db",
+      "version": "2.4.6",
+      "wheel_sha256": "a35463c553ac825c7773b03cfa69cd44958e3af20155dcc5711fdf9e4c67cd54",
+      "status": "installed-not-ready",
+      "evidence": "mini --help passed in the pinned container",
+      "decision": "Do not use in pilot until the harness adapter proves semantic parity and controlled model/auth configuration."
+    }
   },
   "agentskit": {
     "on": {"installed": false, "status": "declared-not-installed"},
@@ -42,4 +76,3 @@
   },
   "policy": "This is a preflight record, not a benchmark result. Missing or not-ready integrations remain explicit and are not replaced by another factor level."
 }
-

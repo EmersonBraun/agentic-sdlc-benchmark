@@ -96,7 +96,7 @@ def _ade_descriptors() -> dict[str, ComponentDescriptor]:
             lifecycle,
         ),
         "compozy": ComponentDescriptor(
-            "ade", "compozy", "compozy-adapter-v1.0", "declared-not-installed", "external:compozy", lifecycle
+            "ade", "compozy", "compozy-0.3.0-beta.16", "installed-not-ready", "external:compozy", lifecycle
         ),
     }
 
@@ -114,16 +114,16 @@ def _harness_descriptors() -> dict[str, ComponentDescriptor]:
         "openhands-sdk": ComponentDescriptor(
             "harness",
             "openhands-sdk",
-            "openhands-sdk-adapter-v1.0",
-            "declared-not-installed",
+            "openhands-sdk-1.42.1",
+            "dependency-resolution-failed",
             "external:openhands-sdk",
             COMMON_HARNESS_CAPABILITIES,
         ),
         "mini-swe-agent": ComponentDescriptor(
             "harness",
             "mini-swe-agent",
-            "mini-swe-agent-adapter-v1.0",
-            "declared-not-installed",
+            "mini-swe-agent-2.4.6",
+            "installed-not-ready",
             "external:mini-swe-agent",
             COMMON_HARNESS_CAPABILITIES,
         ),
