@@ -1,0 +1,27 @@
+{
+  "schema_version": "orca-workspace-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "status": "workspace-boundary-verified",
+  "source": "orca repo add; orca worktree create; orca status; orca worktree rm",
+  "repository": {
+    "display_name": "Code 10x",
+    "path_scope": "benchmark-repository",
+    "head": "9f0540467b5dda38cf7775d58c67a80543010582"
+  },
+  "worktree": {
+    "created": true,
+    "branch": "refs/heads/pilot-readiness",
+    "isolated_path_scope": "orca-managed-pilot-readiness-worktree",
+    "removed": true,
+    "fixture_mutated": false,
+    "agent_started": false
+  },
+  "runtime": {
+    "reachable": true,
+    "runtime_state": "graph_not_ready",
+    "graph_state": "unavailable",
+    "codex_system_auth": true
+  },
+  "decision": "ORCA can create and remove an isolated benchmark worktree and reaches the local runtime. Collection remains blocked because the runtime graph and live workflow lifecycle are not ready."
+}

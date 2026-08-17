@@ -1,0 +1,34 @@
+{
+  "schema_version": "compozy-model-connectivity-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "status": "connectivity-verified-excluded-from-pilot",
+  "source": "temporary Compozy session prompt/events probe",
+  "fixture": {
+    "product_id": "greenfield",
+    "network_mode": "local",
+    "fixture_mutated": false,
+    "fixture_destroyed": true
+  },
+  "runtime": {
+    "provider": "codex",
+    "model": "gpt-5.3-codex-spark",
+    "reasoning_effort": "high",
+    "provider_execution_observed": true,
+    "prompt_returncode": 0,
+    "event_count": 10,
+    "event_types": ["agent_message", "done", "hook.dispatch.complete", "hook.dispatch.start", "system", "usage", "user_message"],
+    "session_stop_returncode": 0,
+    "workspace_cleanup_observed": true,
+    "session_id_sha256": "c5b7358622bfe11c6211bc4539c194555f6dfbad5127a652bcdbcdfc4f9ddb30",
+    "workspace_id_sha256": "04b5c3ec584a14d62cadf27f0fc11f81e9fa48f1b257d2a35b5f16781e2b7151",
+    "prompt_output_sha256": "16dd25ee43d7b4c79d6fb9b1549da70491ae1900689b18483926c1b3acc73cee",
+    "events_output_sha256": "1922e5dc67aa5da110bc7c77b8f327effe3322145bf33333dc492b106f0f5a74"
+  },
+  "protocol_model_check": {
+    "requested_model": "gpt-5.3-codex",
+    "result": "unavailable-in-compozy-config",
+    "valid_config_choices_observed": ["gpt-5.3-codex-spark", "gpt-5.4", "gpt-5.4-mini", "gpt-5.5", "gpt-5.6-luna", "gpt-5.6-sol", "gpt-5.6-terra"]
+  },
+  "decision": "Compozy can execute a read-only model-backed connectivity probe with gpt-5.3-codex-spark, but that model is explicitly excluded from the pilot. The protocol snapshot gpt-5.3-codex must be made available or the protocol must be explicitly revised before collection."
+}

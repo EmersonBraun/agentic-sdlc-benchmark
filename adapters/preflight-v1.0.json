@@ -47,6 +47,8 @@
         "current_worktree_found": false,
         "worktree_catalog_count": 46,
         "benchmark_workspace_registered": false,
+        "workspace_attestation": "orca-workspace-attestation-v1.0.json",
+        "workspace_probe": "created-and-removed-isolated-worktree",
         "worktree_error_code": "selector_not_found",
         "agent_sessions_started": false,
         "permission_mode": "controller-approve-reads",
@@ -115,6 +117,8 @@
         "provider_execution_observed": false,
         "lifecycle_attestation": "compozy-session-attestation-v1.0.json",
         "binding_attestation": "compozy-binding-attestation-v1.0.json",
+        "model_connectivity_attestation": "compozy-model-connectivity-attestation-v1.0.json",
+        "model_connectivity_probe": "alternate-model-excluded-from-pilot",
         "agent_catalog_count": 4,
         "agent_provider_bound_count": 0,
         "doctor_error_count": 19,
@@ -123,7 +127,7 @@
         "registered_workspace_id": "ws_d15ffee1d255378e",
         "parity_probes": ["compozy.version", "compozy.workspace-resolution", "compozy.adapter-readonly-preflight", "compozy.provider-auth-summary"]
       },
-      "decision": "A local unbound session can be created and stopped; do not use in pilot until provider auth, bound session lifecycle, and live ledger emission pass semantic-parity checks."
+      "decision": "A local session and an alternate-model read-only connectivity probe pass, but the required gpt-5.3-codex snapshot is unavailable in Compozy configuration; do not use in pilot until the protocol model is available and bound-session ledger parity passes."
     }
   },
   "harness": {

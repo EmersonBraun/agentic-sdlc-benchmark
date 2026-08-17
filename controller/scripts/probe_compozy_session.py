@@ -33,8 +33,12 @@ def _json(value: str) -> object:
 
 def _sessions(value: str) -> list[dict[str, object]]:
     payload = _json(value)
+    if isinstance(payload, list):
+        return [record for record in payload if isinstance(record, dict)]
     if not isinstance(payload, dict):
         return []
+    if payload.get("id"):
+        return [payload]
     records = payload.get("sessions", payload.get("data", []))
     return [record for record in records if isinstance(record, dict)] if isinstance(records, list) else []
 
@@ -61,6 +65,8 @@ def main() -> int:
         }
         session_id: str | None = None
         workspace_id: str | None = None
+        stopped = False
+        workspace_removed = False
         try:
             code, output = _run("session", "new", "--cwd", str(fixture), "--agent", "general", "--network", "local", "--json")
             result["commands"]["session_new"] = {"returncode": code, "output_sha256": _hash(output)}
@@ -83,15 +89,24 @@ def main() -> int:
             result["commands"]["session_stop"] = {"returncode": code, "output_sha256": _hash(output)}
             if code != 0:
                 raise RuntimeError("Compozy session stop failed")
+            stopped = True
             if workspace_id:
                 code, output = _run("workspace", "remove", workspace_id, "--json")
                 result["cleanup"]["workspace_remove"] = {"returncode": code, "output_sha256": _hash(output)}
                 if code != 0:
                     raise RuntimeError("Compozy workspace removal failed")
+                workspace_removed = True
         except Exception as exc:
             result["error_type"] = type(exc).__name__
             result["error"] = str(exc)
         finally:
+            if session_id and not stopped:
+                code, output = _run("session", "stop", session_id, "--json")
+                result["cleanup"]["emergency_session_stop"] = {"returncode": code, "output_sha256": _hash(output)}
+                stopped = code == 0
+            if workspace_id and stopped and not workspace_removed:
+                code, output = _run("workspace", "remove", workspace_id, "--json")
+                result["cleanup"]["emergency_workspace_remove"] = {"returncode": code, "output_sha256": _hash(output)}
             result["cleanup"]["fixture_destroyed"] = True
         print(json.dumps(result, indent=2, sort_keys=True))
     return 0 if result.get("error_type") is None else 1

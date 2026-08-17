@@ -30,6 +30,8 @@ The benchmark-side action mapping is [`agentskit-component-action-attestation-v1
 
 The integrated provider-free fixture is [`agentskit-integrated-fixture-attestation-v1.0.json`](agentskit-integrated-fixture-attestation-v1.0.json). It combines 15 public-core runtime events and six mapped component actions in one stable ledger fingerprint; it does not authorize a provider-backed pilot.
 
+ORCA workspace binding evidence is [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json). Compozy's alternate-model connectivity evidence is [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json); it is explicitly excluded from pilot results because the protocol model is unavailable there.
+
 OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). The pinned Python 3.12 environment still fails normal dependency resolution, so no session is started.
 
 mini-SWE-agent bounded runtime evidence is [`mini-swe-attestation-v1.0.json`](mini-swe-attestation-v1.0.json). Its isolated image, read-only workspace boundary, ledger bridge, and fail-closed model probe pass; model-backed task parity remains blocked.

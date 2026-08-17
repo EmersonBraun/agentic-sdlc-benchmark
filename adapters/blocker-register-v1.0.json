@@ -7,9 +7,9 @@
   "blockers": [
     {
       "component": "ade:orca",
-      "evidence_refs": ["preflight-v1.0.json", "live-parity-attestation-v1.0.json"],
-      "blocking_conditions": ["runtime graph unavailable", "benchmark workspace not registered", "live workflow lifecycle not verified"],
-      "resolution_gate": "Registered isolated benchmark workspace, reachable graph, live lifecycle events normalized into the ledger, and no session leakage.",
+      "evidence_refs": ["preflight-v1.0.json", "orca-workspace-attestation-v1.0.json", "live-parity-attestation-v1.0.json"],
+      "blocking_conditions": ["runtime graph unavailable", "live workflow lifecycle not verified"],
+      "resolution_gate": "Registered isolated benchmark workspace, reachable ready graph, live lifecycle events normalized into the ledger, and no session leakage.",
       "safe_next_action": "Use the ORCA workspace-registration flow only after explicit operator approval; then rerun read-only probes before any workflow test."
     },
     {
@@ -21,9 +21,9 @@
     },
     {
       "component": "ade:compozy",
-      "evidence_refs": ["preflight-v1.0.json", "preflight-v1.0.md", "compozy-binding-attestation-v1.0.json"],
-      "blocking_conditions": ["CLI not on PATH", "0 providers ready", "4 agents with 0 provider bindings", "provider auth not verified", "session is unbound", "live lifecycle ledger bridge not verified"],
-      "resolution_gate": "Declare a stable CLI path, resolve workspace/config, authenticate at least one allowed provider in an isolated profile, bind a session, and prove lifecycle plus ledger emission.",
+      "evidence_refs": ["preflight-v1.0.json", "preflight-v1.0.md", "compozy-binding-attestation-v1.0.json", "compozy-model-connectivity-attestation-v1.0.json"],
+      "blocking_conditions": ["0 providers ready in provider catalog", "required gpt-5.3-codex snapshot unavailable in Compozy config", "session is unbound at creation", "live lifecycle ledger bridge not verified"],
+      "resolution_gate": "Declare a stable CLI path, make the protocol model available, resolve workspace/config, authenticate an allowed provider in an isolated profile, bind a session, and prove lifecycle plus ledger emission.",
       "safe_next_action": "Do not install or authenticate automatically; use the official installation/provider procedures and rerun read-only status/provider probes after operator setup."
     },
     {
