@@ -32,7 +32,7 @@
     },
     "harness:mini-swe-agent": {
       "ready": false,
-      "blockers": ["implementation-status", "workspace-boundary", "permission-parity", "ledger-bridge"]
+      "blockers": ["implementation-status", "workspace-boundary"]
     },
     "agentskit:on": {
       "ready": false,

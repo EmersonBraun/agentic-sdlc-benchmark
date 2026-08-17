@@ -13,7 +13,7 @@
     "required": 4,
     "passed": 4,
     "failed": 0,
-    "additional_passed": 3
+    "additional_passed": 4
   },
   "results": [
     {
@@ -87,6 +87,16 @@
       "passed": true,
       "output_sha256": "256904d518402d898d70413ffb290d962bc2046f46172ff44abc2dd0c9823f82",
       "assertions": ["runtime reachable", "228 command schema entries", "33 capabilities", "graph unavailable", "current worktree absent", "6 ledger events", "no agent sessions started"]
+    },
+    {
+      "probe_id": "mini-swe-agent.adapter-readonly-preflight",
+      "component": "mini-swe-agent",
+      "command_label": "mini-SWE-agent isolated container preflight",
+      "returncode": 0,
+      "timed_out": false,
+      "passed": true,
+      "output_sha256": "55faba45eeeaa1cc384dbfdc23b08e9d89da805bd6b0bfeabef019436951945a",
+      "assertions": ["image inspect passed", "mini 2.4.6 help passed", "network disabled", "workspace not mounted", "4 ledger events", "no agent sessions started"]
     }
   ],
   "interpretation": "The executable boundary and basic workspace/runtime probes pass. This does not establish semantic parity, provider readiness, ledger emission, or collection readiness."

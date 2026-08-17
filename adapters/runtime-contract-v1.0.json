@@ -20,6 +20,9 @@
     "compozy": "controller:benchmark_controller.compozy",
     "orca": "controller:benchmark_controller.orca"
   },
+  "harness_specific_bindings": {
+    "mini-swe-agent": "controller:benchmark_controller.mini_swe"
+  },
   "ledger_requirements": [
     "workspace.prepared",
     "command.executed",

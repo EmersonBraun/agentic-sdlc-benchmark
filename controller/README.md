@@ -22,6 +22,8 @@ The Compozy adapter exposes read-only daemon/workspace/config/session/provider s
 
 The ORCA adapter exposes redacted runtime, command-schema, and current-worktree probes and protects workflow creation behind the `installed-ready` gate. Unrelated local ORCA state is never persisted into benchmark evidence.
 
+The mini-SWE-agent adapter uses a pinned container with `--network none`, read-only root filesystem, no workspace mount during preflight, and a temporary HOME. Task execution remains protected by the `installed-ready` gate.
+
 ## Local validation
 
 ```bash
