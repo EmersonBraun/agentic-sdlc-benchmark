@@ -66,4 +66,8 @@ identity, task-manifest binding, ledger sequence, and public event fields.
 
 `scripts/plan_pilot_matrix.py` emits the seeded 18-condition schedule without
 starting collection. The schedule is the handoff consumed by the eventual
-live executor after the complete readiness gate passes.
+live executor after the complete readiness gate passes. The
+`benchmark_controller.collection.PilotCollectionCoordinator` then requires a
+real ADE/harness/AgentsKit backend, finalizes every outcome, and converts
+backend exceptions into `INFRASTRUCTURE_FAILURE`; it never substitutes a fake
+executor.
