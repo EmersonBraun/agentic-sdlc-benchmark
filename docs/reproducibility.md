@@ -6,6 +6,8 @@ Durations use monotonic clocks; timestamps use UTC. Prompts and responses are re
 
 Public releases include schemas, scripts, processed datasets, analysis code, dashboard data, and reproducibility instructions. Hidden tests remain private during collection and are released later when safe.
 
+The pilot's hidden oracle, black-box evaluator, and reference solution are pinned in the access-controlled companion repository [`EmersonBraun/agentic-sdlc-benchmark-private`](https://github.com/EmersonBraun/agentic-sdlc-benchmark-private). The public task manifest and preflight record the linkage without exposing evaluator contents.
+
 ## Local validation
 
 ```bash

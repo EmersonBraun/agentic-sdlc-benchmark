@@ -4,6 +4,12 @@
   "model_policy": "../protocol/model-policy-v1.1.json",
   "machine_inventory": "machine-inventory-v1.1.json",
   "derived_from": "preflight-v1.0.json",
+  "private_companion": {
+    "repository": "EmersonBraun/agentic-sdlc-benchmark-private",
+    "status": "provisioned",
+    "manifest": "manifest-v1.1.json",
+    "public_task_manifest_sha256": "c1519a12c2d44360321b4033bd35e0cd7436ac7ab579f8faa07046b72651f8bd"
+  },
   "decision": "v1.1 model topology is approved, but collection remains fail-closed until every external ADE, harness, and AgentsKit parity gate passes.",
   "semantic_parity": {
     "contract": "semantic-parity-v1.0.json",
@@ -55,9 +61,9 @@
       "decision": "Polling lifecycle and cleanup are bounded-verified; full semantic parity remains blocked."
     },
     "compozy": {
-      "installed": true,
+      "installed": false,
       "version": "0.3.0-beta.16",
-      "status": "installed-not-ready",
+      "status": "unavailable-in-current-shell",
       "evidence": {
         "daemon_reachable": true,
         "workspace_resolution": "passed",
@@ -66,6 +72,7 @@
         "candidate_model_execution": "passed",
         "required_model": "gpt-5.4",
         "required_model_provider_result": "passed",
+        "current_shell_command": "not-found",
         "provider_bound_session": "not-verified",
         "live_lifecycle_ledger": "not-verified"
       },
