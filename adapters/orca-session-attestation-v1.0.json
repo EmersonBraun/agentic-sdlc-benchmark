@@ -47,5 +47,17 @@
     "worker_terminal_closed": true,
     "workspace_mutated": false
   },
-  "decision": "The ORCA runtime graph and lightweight Run creation are reachable. With hooks pretrusted, a worker dispatch accepted the required model but the Codex provider rejected gpt-5.3-codex for the ChatGPT account before task execution; the worker and terminal were stopped cleanly, so normalized live lifecycle parity remains unverified and no pilot condition is authorized."
+  "candidate_model_attempt": {
+    "dispatch_id_sha256": "aa9833a91d91b0e27e66c8161534aa5dc50e10160552aa5c233d78d9be3bfca0",
+    "worker_terminal_sha256": "254a519e0cac5770f895bf1aeffea7b776ba2c89ce4f516c6c5290fedb14e248",
+    "model": "gpt-5.4",
+    "provider": "codex",
+    "provider_execution_observed": true,
+    "worker_response_sha256": "0f8058da191e0bb35cd67465f90d15845be6b66ed037f529f448275e4b220149",
+    "worker_response_contract": "ORCA_CANDIDATE_READY",
+    "task_files_modified": false,
+    "worker_stopped": true,
+    "worker_terminal_closed": true
+  },
+  "decision": "The ORCA runtime graph and lightweight Run creation are reachable. The required gpt-5.3-codex was rejected by the ChatGPT provider account, while a separate candidate probe executed gpt-5.4 and returned the bounded response contract without file changes. This is candidate evidence only; protocol v1.0 and pilot readiness remain unchanged."
 }

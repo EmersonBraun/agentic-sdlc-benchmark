@@ -81,8 +81,11 @@
     },
     "orca": {
       "codex_auth": "verified",
-      "model_execution": "not-verified",
-      "reason": "ORCA graph is ready, but a provider-backed worker probe rejected gpt-5.3-codex for the ChatGPT account before task execution."
+      "model_execution": "candidate-gpt-5.4-executed-required-gpt-5.3-codex-rejected",
+      "candidate_model": "gpt-5.4",
+      "candidate_result": "bounded worker response returned; no files modified",
+      "required_model_result": "rejected-by-provider-for-chatgpt-account",
+      "reason": "ORCA graph is ready. A provider-backed worker probe executed gpt-5.4, while the required gpt-5.3-codex was rejected before task execution."
     },
     "mini_swe_agent": {
       "model_execution": "not-verified",
