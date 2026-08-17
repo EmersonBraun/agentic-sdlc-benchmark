@@ -1,0 +1,38 @@
+{
+  "schema_version": "session-parity-test-v1.0",
+  "protocol_version": "v1.0",
+  "purpose": "Validate one ADE's session lifecycle and ledger bridge in an isolated disposable fixture before pilot collection.",
+  "target_ades": ["orca", "agent-orchestrator", "compozy"],
+  "fixed_factors": {
+    "harness": "reference",
+    "agentskit": "off"
+  },
+  "fixture": {
+    "product_id": "greenfield",
+    "source_manifest": "products/greenfield/snapshot-v1.0.json",
+    "workspace_policy": "ephemeral-copy-outside-repository",
+    "network_policy": "deny-by-default",
+    "hidden_artifacts_access": false
+  },
+  "probe_task": {
+    "task_id": "pilot_session-parity",
+    "objective": "Create the smallest observable session lifecycle, emit one bounded event, and terminate cleanly without changing the product fixture.",
+    "product_mutation_allowed": false,
+    "model_calls_allowed": "only if explicitly approved for the selected ADE"
+  },
+  "required_evidence": [
+    "session_created",
+    "lifecycle_started_and_completed",
+    "external_event_normalized",
+    "ledger_event_parenting_preserved",
+    "session_terminated",
+    "no_product_mutation",
+    "no_cross_run_state_leakage"
+  ],
+  "authorization": {
+    "operator_confirmation_required": true,
+    "default_executable": false,
+    "forbidden_without_confirmation": ["session creation", "provider authentication", "network enablement", "product mutation", "real benchmark task execution"]
+  },
+  "decision": "Prepared only. The pilot remains blocked until each selected ADE passes this probe with fresh redacted evidence."
+}

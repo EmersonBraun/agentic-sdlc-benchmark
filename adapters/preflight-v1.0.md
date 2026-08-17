@@ -50,3 +50,5 @@ The latest bounded ADE probe is recorded in [`live-parity-attestation-v1.0.json`
 Agent Orchestrator's lifecycle surface was separately inspected in [`agent-orchestrator-lifecycle-attestation-v1.0.json`](agent-orchestrator-lifecycle-attestation-v1.0.json). The CLI exposes session listing but no event stream/subscription command, so the adapter remains blocked pending an explicitly approved session-level parity test.
 
 The complete remediation matrix is maintained in [`blocker-register-v1.0.json`](blocker-register-v1.0.json). It distinguishes safe read-only probes from actions requiring operator approval, such as provider authentication or session creation.
+
+The next controlled action is fully specified, but not executed, in [`session-parity-test-v1.0.json`](session-parity-test-v1.0.json). It uses the greenfield fixture, Reference Harness, and AgentsKit OFF as fixed controls before any ADE-specific session test.
