@@ -87,6 +87,41 @@ class RunBundleWriterTests(unittest.TestCase):
             self.assertEqual((bundle.directory / "ledger.jsonl").read_text(encoding="utf-8"), "")
             self.assertEqual(bundle.condition.plan.protocol_version, "v1.1")
 
+    def test_finalize_records_terminal_state_and_rejects_second_close(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tasks = root / "tasks"
+            tasks.mkdir()
+            (tasks / "pilot_greenfield_service_readiness.manifest.json").write_text(json.dumps({
+                "task_id": "pilot_greenfield_service_readiness",
+                "product_id": "greenfield",
+                "phase": "pilot",
+            }), encoding="utf-8")
+            writer = RunBundleWriter(_ready_preflight(), root / "runs", tasks)
+            bundle = writer.create(
+                run_id="run_finalize-bundle",
+                task_id="pilot_greenfield_service_readiness",
+                product_id="greenfield",
+                ade="orca",
+                harness="reference",
+                agentskit="off",
+                replicate=1,
+                randomization_seed=7,
+                base_commit="a" * 40,
+                model_snapshots={"planner": "gpt-5.4"},
+                component_versions={"protocol": "v1.1"},
+            )
+            final = writer.finalize(
+                bundle,
+                terminal_state="MERGED",
+                artifacts=[{"path": "result.patch", "sha256": "a" * 64, "visibility": "redacted"}],
+            )
+            self.assertEqual(final["terminal_state"], "MERGED")
+            events = (bundle.directory / "ledger.jsonl").read_text(encoding="utf-8").splitlines()
+            self.assertEqual(json.loads(events[-1])["event_type"], "run.terminal")
+            with self.assertRaisesRegex(RuntimeError, "already finalized"):
+                writer.finalize(bundle, terminal_state="FAILED")
+
 
 if __name__ == "__main__":
     unittest.main()

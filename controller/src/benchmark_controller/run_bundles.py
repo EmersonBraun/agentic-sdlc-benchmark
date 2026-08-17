@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -14,6 +15,16 @@ from .pilot_executor import ConditionedPilotExecutor, PreparedCondition
 
 
 _COMMIT = re.compile(r"^[a-f0-9]{40}$")
+_ARTIFACT_SHA256 = re.compile(r"^[a-f0-9]{64}$")
+_TERMINAL_STATES = {
+    "MERGED",
+    "FAILED",
+    "TIMEOUT",
+    "BUDGET_EXCEEDED",
+    "HUMAN_REQUIRED",
+    "INFRASTRUCTURE_FAILURE",
+    "INVALID_MEASUREMENT",
+}
 
 
 class RunBundleError(RuntimeError):
@@ -131,3 +142,77 @@ class RunBundleWriter:
         ledger = Ledger(ledger_path, run_id=run_id, task_id=task_id)
         ledger_path.touch(exist_ok=True)
         return PreparedRunBundle(directory=directory, manifest=manifest, ledger=ledger, condition=prepared)
+
+    def finalize(
+        self,
+        bundle: PreparedRunBundle,
+        *,
+        terminal_state: str,
+        artifacts: list[dict[str, str]] | None = None,
+        failure: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Close one prepared bundle and record its terminal state exactly once."""
+
+        if terminal_state not in _TERMINAL_STATES:
+            raise RunBundleError(f"Invalid terminal state: {terminal_state!r}")
+        current = json.loads((bundle.directory / "manifest.json").read_text(encoding="utf-8"))
+        if current.get("terminal_state") != "NOT_APPLICABLE":
+            raise RunBundleError("Run bundle is already finalized")
+        normalized_artifacts = _validate_artifacts(artifacts or [])
+        if failure is not None and not isinstance(failure, dict):
+            raise RunBundleError("failure must be an object or null")
+        final_manifest = {
+            **current,
+            "terminal_state": terminal_state,
+            "artifacts": normalized_artifacts,
+            "failure": dict(failure) if failure else None,
+        }
+        _atomic_json_write(bundle.directory / "manifest.json", final_manifest)
+        _atomic_json_write(
+            bundle.directory / "artifact-index.json",
+            {"run_id": current["run_id"], "artifacts": normalized_artifacts},
+        )
+        bundle.ledger.record(
+            stage_id="documentation",
+            actor="controller",
+            event_type="run.terminal",
+            time_category="instrumentation_overhead",
+            duration_ms=0,
+            status="completed" if terminal_state == "MERGED" else "failed",
+            payload={
+                "terminal_state": terminal_state,
+                "artifact_count": len(normalized_artifacts),
+                "failure_present": bool(failure),
+            },
+            tool="benchmark-controller",
+        )
+        return final_manifest
+
+
+def _validate_artifacts(artifacts: list[dict[str, str]]) -> list[dict[str, str]]:
+    normalized: list[dict[str, str]] = []
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            raise RunBundleError("artifact must be an object")
+        path = artifact.get("path")
+        digest = artifact.get("sha256")
+        visibility = artifact.get("visibility")
+        if not isinstance(path, str) or not path or Path(path).is_absolute() or ".." in Path(path).parts:
+            raise RunBundleError("artifact path must be a relative non-escaping path")
+        if not isinstance(digest, str) or not _ARTIFACT_SHA256.fullmatch(digest):
+            raise RunBundleError("artifact sha256 must be a lowercase SHA-256")
+        if visibility not in {"public", "private", "redacted"}:
+            raise RunBundleError("artifact visibility is invalid")
+        normalized.append({"path": path, "sha256": digest, "visibility": visibility})
+    return normalized
+
+
+def _atomic_json_write(path: Path, value: dict[str, Any]) -> None:
+    """Replace a JSON file atomically within its existing directory."""
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", delete=False
+    ) as stream:
+        temporary = Path(stream.name)
+        stream.write(json.dumps(value, indent=2, sort_keys=True) + "\n")
+    temporary.replace(path)
