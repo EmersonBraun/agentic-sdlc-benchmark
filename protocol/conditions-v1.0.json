@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "protocol_version": "v1.0",
+  "factors": {
+    "ade": ["orca", "agent-orchestrator", "compozy"],
+    "harness": ["reference", "openhands-sdk", "mini-swe-agent"],
+    "agentskit": ["off", "on"]
+  },
+  "conditions": [
+    {"condition_id":"orca__reference__off","ade":"orca","harness":"reference","agentskit":"off"},
+    {"condition_id":"orca__reference__on","ade":"orca","harness":"reference","agentskit":"on"},
+    {"condition_id":"orca__openhands-sdk__off","ade":"orca","harness":"openhands-sdk","agentskit":"off"},
+    {"condition_id":"orca__openhands-sdk__on","ade":"orca","harness":"openhands-sdk","agentskit":"on"},
+    {"condition_id":"orca__mini-swe-agent__off","ade":"orca","harness":"mini-swe-agent","agentskit":"off"},
+    {"condition_id":"orca__mini-swe-agent__on","ade":"orca","harness":"mini-swe-agent","agentskit":"on"},
+    {"condition_id":"agent-orchestrator__reference__off","ade":"agent-orchestrator","harness":"reference","agentskit":"off"},
+    {"condition_id":"agent-orchestrator__reference__on","ade":"agent-orchestrator","harness":"reference","agentskit":"on"},
+    {"condition_id":"agent-orchestrator__openhands-sdk__off","ade":"agent-orchestrator","harness":"openhands-sdk","agentskit":"off"},
+    {"condition_id":"agent-orchestrator__openhands-sdk__on","ade":"agent-orchestrator","harness":"openhands-sdk","agentskit":"on"},
+    {"condition_id":"agent-orchestrator__mini-swe-agent__off","ade":"agent-orchestrator","harness":"mini-swe-agent","agentskit":"off"},
+    {"condition_id":"agent-orchestrator__mini-swe-agent__on","ade":"agent-orchestrator","harness":"mini-swe-agent","agentskit":"on"},
+    {"condition_id":"compozy__reference__off","ade":"compozy","harness":"reference","agentskit":"off"},
+    {"condition_id":"compozy__reference__on","ade":"compozy","harness":"reference","agentskit":"on"},
+    {"condition_id":"compozy__openhands-sdk__off","ade":"compozy","harness":"openhands-sdk","agentskit":"off"},
+    {"condition_id":"compozy__openhands-sdk__on","ade":"compozy","harness":"openhands-sdk","agentskit":"on"},
+    {"condition_id":"compozy__mini-swe-agent__off","ade":"compozy","harness":"mini-swe-agent","agentskit":"off"},
+    {"condition_id":"compozy__mini-swe-agent__on","ade":"compozy","harness":"mini-swe-agent","agentskit":"on"}
+  ]
+}

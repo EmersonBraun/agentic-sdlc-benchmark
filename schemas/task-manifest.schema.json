@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-sdlc-benchmark.org/schemas/task-manifest.schema.json",
+  "title": "Task Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "task_id", "product_id", "phase", "category", "difficulty", "public_issue_sha256", "ambiguities", "baseline", "private_artifacts"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "task_id": {"type": "string", "pattern": "^(pilot|main|holdout)_[A-Za-z0-9_-]+$"},
+    "product_id": {"type": "string", "enum": ["greenfield", "umami"]},
+    "phase": {"type": "string", "enum": ["pilot", "main", "holdout"]},
+    "category": {"type": "string", "enum": ["feature", "bug-regression", "refactor", "security-operations"]},
+    "difficulty": {"type": "string", "enum": ["small", "medium", "large"]},
+    "public_issue_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "ambiguities": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "object", "additionalProperties": false, "required": ["ambiguity_id", "kind", "impact"], "properties": {"ambiguity_id": {"type": "string"}, "kind": {"type": "string", "enum": ["functional", "edge-case", "technical-operational"]}, "impact": {"type": "string", "minLength": 1}}}},
+    "baseline": {"type": "object", "additionalProperties": false, "required": ["minimum_hours", "most_likely_hours", "maximum_hours", "pert_expected_hours"], "properties": {"minimum_hours": {"type": "number", "exclusiveMinimum": 0}, "most_likely_hours": {"type": "number", "exclusiveMinimum": 0}, "maximum_hours": {"type": "number", "exclusiveMinimum": 0}, "pert_expected_hours": {"type": "number", "exclusiveMinimum": 0}}},
+    "private_artifacts": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  }
+}

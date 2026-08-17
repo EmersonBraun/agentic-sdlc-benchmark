@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-sdlc-benchmark.org/schemas/evaluation-result.schema.json",
+  "title": "Evaluation Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run_id", "quality_pass", "product_quality_score", "process_score", "hard_gates", "evaluator_status"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "run_id": {"type": "string", "pattern": "^run_[A-Za-z0-9_-]+$"},
+    "quality_pass": {"type": "boolean"},
+    "product_quality_score": {"type": "number", "minimum": 0, "maximum": 100},
+    "process_score": {"type": "number", "minimum": 0, "maximum": 100},
+    "hard_gates": {"type": "object", "additionalProperties": {"type": "boolean"}},
+    "hidden_test_summary": {"type": "object"},
+    "review_summary": {"type": "object"},
+    "evaluator_status": {"type": "string", "enum": ["complete", "abstain", "invalid"]},
+    "evaluator_notes": {"type": "array", "items": {"type": "string"}},
+    "scores": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0, "maximum": 100}}
+  }
+}

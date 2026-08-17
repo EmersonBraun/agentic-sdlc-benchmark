@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-sdlc-benchmark.org/schemas/ledger-event.schema.json",
+  "title": "Ledger Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event_id", "run_id", "task_id", "stage_id", "actor", "event_type", "time_category", "occurred_at", "duration_ms", "status", "payload_sha256"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "event_id": {"type": "string", "pattern": "^evt_[A-Za-z0-9_-]+$"},
+    "run_id": {"type": "string", "pattern": "^run_[A-Za-z0-9_-]+$"},
+    "task_id": {"type": "string", "pattern": "^(pilot|main|holdout)_[A-Za-z0-9_-]+$"},
+    "stage_id": {"type": "string", "enum": ["intake", "requirements", "planning", "decomposition", "implementation", "local-testing", "pull-request", "ci-qa", "review", "merge", "documentation"]},
+    "actor": {"type": "string", "enum": ["controller", "planner", "executor", "fixer", "reviewer-functional", "reviewer-security", "reviewer-qa", "oracle", "evaluator", "human-operator", "infrastructure"]},
+    "event_type": {"type": "string", "minLength": 1},
+    "time_category": {"type": "string", "enum": ["effective_work", "human_touch", "orchestration_overhead", "harness_overhead", "instrumentation_overhead", "external_wait"]},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "monotonic_start_ns": {"type": "integer", "minimum": 0},
+    "monotonic_end_ns": {"type": "integer", "minimum": 0},
+    "duration_ms": {"type": "number", "minimum": 0},
+    "parent_event_id": {"type": ["string", "null"]},
+    "tool": {"type": ["string", "null"]},
+    "status": {"type": "string", "enum": ["started", "completed", "failed", "blocked", "redacted"]},
+    "tokens": {"type": "object", "additionalProperties": false, "properties": {"input": {"type": "integer", "minimum": 0}, "output": {"type": "integer", "minimum": 0}, "cached": {"type": "integer", "minimum": 0}, "reasoning": {"type": "integer", "minimum": 0}}},
+    "cost_usd": {"type": ["number", "null"], "minimum": 0},
+    "artifact_refs": {"type": "array", "items": {"type": "string"}},
+    "payload_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "redacted": {"type": "boolean"}
+  }
+}
