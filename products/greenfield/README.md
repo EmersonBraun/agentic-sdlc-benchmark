@@ -31,5 +31,10 @@ pnpm test
 pnpm build
 ```
 
-The benchmark controller records the exact runtime, dependency lockfile, source commit, and verification outputs for every product snapshot.
+The pinned verification container runs the same checks with Node 22.13.0:
 
+```bash
+docker build --tag agentic-sdlc-greenfield:preflight-v1.0 .
+```
+
+The benchmark controller records the exact runtime, dependency lockfile, source commit, and verification outputs for every product snapshot.
