@@ -16,5 +16,18 @@
     "severity_counts": {"error": 19, "warn": 8, "ok": 10},
     "output_sha256": "e44192f856cfb8068794857987b29bd1b305cee392940229fbe273a4b276d5a7"
   },
-  "decision": "Blocked: an agent catalog without provider binding cannot establish a comparable model runtime. Provider setup and authentication must be performed explicitly in an isolated profile before any bound session test."
+  "latest_operator_recheck": {
+    "source": "operator-provided compozy agent info and provider diagnostics",
+    "agent": "general",
+    "definition_digest": "8275016d1e00076b1b5af97c50b6c5aefe96a1eda6b9983a6dbc72b71e8be408",
+    "declared_provider": "codex",
+    "declared_model": "gpt-5.3-codex",
+    "workspace_binding": "absent",
+    "provider_auth_classification": "unknown",
+    "native_codex_cli_login": "verified",
+    "required_model_in_catalog": false,
+    "compozy_release_update": "current",
+    "session_execution_verified": false
+  },
+  "decision": "Blocked: the general agent declares the required provider and model, but it has no workspace binding, the provider catalog does not contain gpt-5.3-codex, and no bound provider-backed session has been verified."
 }
