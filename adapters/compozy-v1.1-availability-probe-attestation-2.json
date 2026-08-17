@@ -1,0 +1,16 @@
+{
+  "schema_version": "compozy-v1.1-availability-probe-attestation",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-17",
+  "source": "read-only command availability probe",
+  "status": "unavailable-in-current-shell",
+  "command": "compozy",
+  "command_resolution": "not-found",
+  "side_effect_policy": {
+    "sessions_started": false,
+    "workspaces_created": false,
+    "tasks_started": false,
+    "raw_payloads_published": false
+  },
+  "decision": "A prior Compozy session probe remains historical evidence, but the executable is not available in the current shell. Provider-bound session and lifecycle parity must be revalidated after installation or PATH restoration; collection remains blocked."
+}
