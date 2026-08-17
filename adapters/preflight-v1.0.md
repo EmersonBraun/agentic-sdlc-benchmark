@@ -10,7 +10,7 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 |---|---:|---|---|
 | Orca | 1.4.183 | Read-only adapter probe passes: runtime/schema observed; graph unavailable and no current worktree | Blocked until graph, workspace binding, and lifecycle adapter are verified |
 | CompozyOS | 0.3.0-beta.16 | Read-only adapter probe passes: daemon/workspace/config/sessions/providers; 0 sessions | Blocked until provider readiness, workflow adapter, and live lifecycle emission pass |
-| Agent Orchestrator | 0.12.6 | Read-only adapter probe passes: daemon/project resolved, zero sessions; ledger bridge contract-tested | Blocked until worker session adapter and live lifecycle emission pass |
+| Agent Orchestrator | 0.12.6 | Read-only adapter, installed-agent authorization, and spawn-guard ledger probes pass; 4 authorized agents, 0 sessions | Blocked until worker session adapter and live lifecycle emission pass |
 | Reference Harness | v1.0 | Contract-ready and tested | Available for local contract tests |
 | OpenHands SDK | 1.42.1 | Dependency resolution fails between `lmnr` and OpenTelemetry constraints | Blocked; no dependency override accepted |
 | mini-SWE-agent | 2.4.6 | Container image, read-only workspace-boundary, and missing model/auth fail-closed probes pass; network disabled | Blocked until a declared model configuration and full task semantic parity are verified |

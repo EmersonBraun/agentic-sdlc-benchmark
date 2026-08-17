@@ -30,6 +30,7 @@ class AgentOrchestratorAdapterTests(unittest.TestCase):
             )()
             result = adapter.read_only_preflight(project_id="code-10x")
             self.assertEqual(result.daemon, {"status": "ok"})
+            self.assertEqual(result.agents["auth_probe"], "passed")
             self.assertFalse(result.to_dict()["agent_sessions_started"])
 
     def test_spawn_fails_closed_before_command_execution(self) -> None:
@@ -38,3 +39,5 @@ class AgentOrchestratorAdapterTests(unittest.TestCase):
             adapter = self._adapter(root)
             with self.assertRaises(AgentOrchestratorNotReadyError):
                 adapter.spawn(project_id="code-10x", name="pilot", issue="pilot-1", prompt="run")
+            events = (root / "ledger.jsonl").read_text(encoding="utf-8")
+            self.assertIn("lifecycle.session.spawn", events)

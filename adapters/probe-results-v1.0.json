@@ -13,7 +13,7 @@
     "required": 4,
     "passed": 4,
     "failed": 0,
-    "additional_passed": 5
+    "additional_passed": 6
   },
   "results": [
     {
@@ -66,7 +66,7 @@
       "timed_out": false,
       "passed": true,
       "output_sha256": "53da58b9bdbb5ed25b3893fe31eafe0fd52d5727da12f2d1e50c068c5d5211f9",
-      "assertions": ["daemon ready", "project code-10x resolved", "zero sessions", "doctor ok", "8 ledger events", "no agent sessions started"]
+      "assertions": ["daemon ready", "project code-10x resolved", "zero sessions", "doctor ok", "4 authorized agents", "6 installed agents", "10 ledger events", "spawn guard ledgered", "no agent sessions started"]
     },
     {
       "probe_id": "compozy.adapter-readonly-preflight",
@@ -77,6 +77,16 @@
       "passed": true,
       "output_sha256": "e8a941c0be809c1cb0adeed91bcc7d99852e68668b1e6277c19f698d846846a6",
       "assertions": ["daemon healthy", "workspace resolved", "approve-reads", "zero sessions", "26 providers summarized", "10 ledger events", "no agent sessions started"]
+    },
+    {
+      "probe_id": "agent-orchestrator.agent-auth",
+      "component": "agent-orchestrator",
+      "command_label": "Agent Orchestrator installed-agent authorization probe",
+      "returncode": 0,
+      "timed_out": false,
+      "passed": true,
+      "output_sha256": "7548f3459e292bd8a6cc05256ecfbe6bf120c42674b404b79022e62cd4c236af",
+      "assertions": ["daemon ready", "doctor ok", "4 authorized agents", "6 installed agents", "zero sessions", "no agent sessions started"]
     },
     {
       "probe_id": "orca.adapter-readonly-preflight",

@@ -56,10 +56,14 @@
         "permission_mode": "controller-approve-reads",
         "lifecycle_bridge": "contract-tested",
         "ledger_bridge": "contract-tested",
+        "auth_probe": "passed",
+        "authorized_agent_count": 4,
+        "installed_agent_count": 6,
+        "spawn_guard": "blocked-and-ledgered",
         "doctor_warnings": ["ao binary not on PATH", "muse agent not found"],
-        "parity_probes": ["agent-orchestrator.core-doctor", "agent-orchestrator.adapter-readonly-preflight"]
+        "parity_probes": ["agent-orchestrator.core-doctor", "agent-orchestrator.adapter-readonly-preflight", "agent-orchestrator.agent-auth"]
       },
-      "decision": "Do not use in pilot until the daemon, project registration, worker adapter, and ledger bridge are verified."
+      "decision": "Do not use in pilot until the worker session lifecycle adapter and live event bridge are verified."
     },
     "compozy": {
       "installed": true,

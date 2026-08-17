@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .adapters import ADE_DESCRIPTORS, ComponentDescriptor
-from .external import ControlledAdapter
+from .external import ControlledAdapter, LifecycleBridge
 from .ledger import Ledger
 
 DEFAULT_AO_CLI = "/Applications/Agent Orchestrator.app/Contents/Resources/daemon/ao"
@@ -21,6 +21,7 @@ class AgentOrchestratorPreflight:
     project: dict[str, Any]
     sessions: dict[str, Any]
     doctor: dict[str, Any]
+    agents: dict[str, Any]
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -28,6 +29,7 @@ class AgentOrchestratorPreflight:
             "project": self.project,
             "sessions": self.sessions,
             "doctor": self.doctor,
+            "agents": self.agents,
             "agent_sessions_started": False,
         }
 
@@ -50,6 +52,7 @@ class AgentOrchestratorAdapter:
         self.descriptor: ComponentDescriptor = ADE_DESCRIPTORS["agent-orchestrator"]
         self.runtime = ControlledAdapter(workspace, ledger, permission_mode=permission_mode)  # type: ignore[arg-type]
         self.cli_path = cli_path
+        self.lifecycle = LifecycleBridge(ledger, tool="agent-orchestrator")
 
     def read_only_preflight(self, *, project_id: str) -> AgentOrchestratorPreflight:
         """Inspect AO health and registration; this method never spawns a session."""
@@ -58,7 +61,14 @@ class AgentOrchestratorAdapter:
         daemon = self._json_command(("status", "--json"), stage_id="intake")
         project = self._json_command(("project", "get", project_id, "--json"), stage_id="intake")
         sessions = self._json_command(("session", "ls", "--json"), stage_id="intake")
-        return AgentOrchestratorPreflight(daemon=daemon, project=project, sessions=sessions, doctor=doctor)
+        agents = self._json_command(("agent", "ls", "--json"), stage_id="intake")
+        return AgentOrchestratorPreflight(
+            daemon=daemon,
+            project=project,
+            sessions=sessions,
+            doctor=doctor,
+            agents=_agent_auth_summary(agents),
+        )
 
     def spawn(self, *, project_id: str, name: str, issue: str, prompt: str) -> dict[str, Any]:
         self._assert_ready()
@@ -84,6 +94,12 @@ class AgentOrchestratorAdapter:
 
     def _assert_ready(self) -> None:
         if self.descriptor.implementation_status not in READY_STATUSES:
+            self.lifecycle.record(
+                stage_id="intake",
+                actor="infrastructure",
+                status="blocked",
+                event_name="session.spawn",
+            )
             raise AgentOrchestratorNotReadyError(
                 f"Agent Orchestrator is {self.descriptor.implementation_status}; no session started"
             )
@@ -111,3 +127,20 @@ class AgentOrchestratorAdapter:
         if not isinstance(parsed, dict):
             raise RuntimeError(f"Agent Orchestrator returned unexpected JSON: {args[0]}")
         return parsed
+
+
+def _agent_auth_summary(payload: dict[str, Any]) -> dict[str, Any]:
+    supported = payload.get("supported", [])
+    installed = payload.get("installed", [])
+    authorized = payload.get("authorized", [])
+    return {
+        "supported_count": len(supported) if isinstance(supported, list) else 0,
+        "installed_count": len(installed) if isinstance(installed, list) else 0,
+        "authorized_count": len(authorized) if isinstance(authorized, list) else 0,
+        "authorized_ids": sorted(
+            str(agent.get("id"))
+            for agent in authorized
+            if isinstance(agent, dict) and agent.get("id")
+        ),
+        "auth_probe": "passed",
+    }
