@@ -39,7 +39,7 @@
         "daemon_status": "running",
         "daemon_version": "0.3.0-beta.16",
         "daemon_socket": "/Users/rebecabraun/.compozy/daemon.sock",
-        "global_permission_mode": "approve-all",
+        "global_permission_mode": "approve-reads",
         "doctor_status": "error",
         "doctor_errors": ["missing tailscale extension environment", "missing native provider CLIs", "provider auth not verified"]
       },

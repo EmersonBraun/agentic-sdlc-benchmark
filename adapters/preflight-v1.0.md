@@ -27,5 +27,4 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 
 The benchmark does not treat “installed” as “ready”. A component becomes collection-ready only after its adapter exposes the common workspace, tool, permission, context, oracle, Git, GitHub, browser, and ledger semantics. Missing dependencies are recorded as failures; they are not replaced by another factor level.
 
-The machine-local Compozy bootstrap currently uses `approve-all` in its global configuration. This configuration is not acceptable for benchmark collection and must be replaced or isolated behind the benchmark permission boundary before any Compozy run.
-
+The machine-local Compozy bootstrap now uses `approve-reads` in its global configuration. This is safer for the host but is not yet a complete benchmark execution policy: any future Compozy run must use an explicit isolated workspace/sandbox policy and record its effective permission mode.
