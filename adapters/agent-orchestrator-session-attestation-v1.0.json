@@ -21,20 +21,22 @@
     "host_sessions_after": 0
   },
   "commands": {
-    "project_add": {"returncode": 0, "output_sha256": "a19119626b9ea3bf2ecc962a52673173ff7b8c4b32b9bddced34032e41e16d7f"},
-    "spawn": {"returncode": 0, "output_sha256": "494a4c84768a914e89293b3d0ea49ad6a2427c36546f205f44758edcb44793c2"},
-    "kill": {"returncode": 0, "output_sha256": "bda139ea8d406fade9a22212bbceece79b37503b0ae8a220ae560cb880163d57"},
-    "post_termination_list": {"returncode": 0, "count": 0, "output_sha256": "c1afb4d665b22dbb09bd9163b1dd5240be7b53b2736ff4eb3311ac2c38825a60"},
+    "project_add": {"returncode": 0, "output_sha256": "cf1d04832f4954b67055ca167f886abc8ba324f230668f620ea2be5dc712f22b"},
+    "spawn": {"returncode": 0, "output_sha256": "2558e25c11a0a5a4cdefdc4a5bcacb68037e0bbbed5b0e866a38d8452a013023"},
+    "kill": {"returncode": 0, "output_sha256": "1214559edb4842d63a2e4664335d7f2f4765ce512036060bba8716cd390d403a"},
     "project_remove": {"returncode": 0, "output_sha256": "4cfd69a644a2689a018f0b7aae4ab2309e868de777f4846cfc9f371e61fccc03"}
   },
   "session": {
     "observed_count": 1,
-    "session_id_sha256": "464ef5f9be4c9af870567af9b9beee67352e9999b73a2453d92671c3fc1ea323",
-    "lifecycle_events_observed_from_AO": false
+    "session_id_sha256": "10a5a0638b6ac089886baf788e089f773f350202ad0e930e2ad96f6a5acf5317",
+    "observed_states": ["idle"],
+    "polling_bridge_verified": true,
+    "native_event_stream_exposed": false
   },
   "ledger": {
     "controller_normalized_events": 2,
-    "external_AO_event_bridge_verified": false
+    "external_AO_event_bridge_verified": false,
+    "polling_state_bridge_verified": true
   },
   "decision": "Session creation and cleanup passed in an ephemeral fixture, but live AO lifecycle event emission was not observed. This does not satisfy semantic parity or authorize pilot collection.",
   "first_attempt": {"status": "blocked-before-session", "reason": "DEFAULT_BRANCH_UNRESOLVED", "remediated_in_fixture_only": true}

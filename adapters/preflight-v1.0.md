@@ -10,7 +10,7 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 |---|---:|---|---|
 | Orca | 1.4.183 | Read-only adapter, account-auth, and workflow-guard probes pass; runtime reachable, graph unavailable, benchmark workspace absent from 46 inspected worktrees | Blocked until graph, workspace binding, and live lifecycle adapter are verified |
 | CompozyOS | 0.3.0-beta.16 | Read-only adapter probe passes: daemon/workspace/config/sessions/providers; provider auth summary derived; 0 sessions | Blocked until provider readiness, session lifecycle, and live ledger emission pass |
-| Agent Orchestrator | 0.12.6 | Read-only adapter, installed-agent authorization, and spawn-guard ledger probes pass; 4 authorized agents, 0 sessions | Blocked until worker session adapter and live lifecycle emission pass |
+| Agent Orchestrator | 0.12.6 | Read-only adapter, installed-agent authorization, spawn/cleanup probe, and polling ledger bridge pass; no native event stream exposed | Blocked until full worker session semantic parity is verified |
 | Reference Harness | v1.0 | Contract-ready and tested | Available for local contract tests |
 | OpenHands SDK | 1.42.1 | Dependency resolution fails between `lmnr` and OpenTelemetry constraints | Blocked; no dependency override accepted |
 | mini-SWE-agent | 2.4.6 | Container image, read-only workspace-boundary, and missing model/auth fail-closed probes pass; network disabled | Blocked until a declared model configuration and full task semantic parity are verified |
@@ -47,10 +47,10 @@ Pilot preparation is separately gated by [`semantic-parity-v1.0.json`](semantic-
 
 The latest bounded ADE probe is recorded in [`live-parity-attestation-v1.0.json`](live-parity-attestation-v1.0.json). ORCA and Agent Orchestrator passed read-only inspection, but their live lifecycle and session semantics remain unverified.
 
-Agent Orchestrator's lifecycle surface was separately inspected in [`agent-orchestrator-lifecycle-attestation-v1.0.json`](agent-orchestrator-lifecycle-attestation-v1.0.json). The CLI exposes session listing but no event stream/subscription command, so the adapter remains blocked pending an explicitly approved session-level parity test.
+Agent Orchestrator's lifecycle surface was separately inspected in [`agent-orchestrator-lifecycle-attestation-v1.0.json`](agent-orchestrator-lifecycle-attestation-v1.0.json). The CLI exposes session listing but no native event stream/subscription command; the controller polling bridge is live-verified, while full semantic parity remains blocked.
 
 The complete remediation matrix is maintained in [`blocker-register-v1.0.json`](blocker-register-v1.0.json). It distinguishes safe read-only probes from actions requiring operator approval, such as provider authentication or session creation.
 
 The next controlled action is fully specified, but not executed, in [`session-parity-test-v1.0.json`](session-parity-test-v1.0.json). It uses the greenfield fixture, Reference Harness, and AgentsKit OFF as fixed controls before any ADE-specific session test.
 
-The first confirmed Agent Orchestrator session test is documented in [`agent-orchestrator-session-attestation-v1.0.json`](agent-orchestrator-session-attestation-v1.0.json). It created and cleaned up one temporary session, but did not expose live lifecycle events to the ledger; the ADE remains not-ready.
+The first confirmed Agent Orchestrator session test is documented in [`agent-orchestrator-session-attestation-v1.0.json`](agent-orchestrator-session-attestation-v1.0.json). It created and cleaned up one temporary session and verified two polling transitions, but did not expose native lifecycle events; the ADE remains not-ready.

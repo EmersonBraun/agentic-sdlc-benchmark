@@ -15,9 +15,9 @@
     {
       "component": "ade:agent-orchestrator",
       "evidence_refs": ["preflight-v1.0.json", "agent-orchestrator-lifecycle-attestation-v1.0.json"],
-      "blocking_conditions": ["worker session lifecycle not verified", "CLI exposes no event stream/subscription surface"],
-      "resolution_gate": "Approved isolated session test proves spawn, lifecycle transitions, ledger bridge, cleanup, and zero cross-run state leakage.",
-      "safe_next_action": "Do not spawn in the pilot repository; identify a disposable fixture and obtain explicit approval for the first session-level parity test."
+      "blocking_conditions": ["native event stream/subscription is not exposed", "full worker session semantic parity remains unverified"],
+      "resolution_gate": "Approved isolated session test proves spawn, polling lifecycle transitions, ledger bridge, cleanup, and zero cross-run state leakage; any native-event limitation is recorded as a protocol decision.",
+      "safe_next_action": "Keep polling bridge bounded and redacted; do not use the adapter in the pilot until the remaining lifecycle semantics and protocol treatment are reviewed."
     },
     {
       "component": "ade:compozy",

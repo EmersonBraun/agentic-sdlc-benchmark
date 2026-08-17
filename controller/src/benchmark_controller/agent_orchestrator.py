@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .adapters import ADE_DESCRIPTORS, ComponentDescriptor
+from .ao_lifecycle import SessionLifecycleObserver
 from .external import ControlledAdapter, LifecycleBridge
 from .ledger import Ledger
 
@@ -53,6 +54,7 @@ class AgentOrchestratorAdapter:
         self.runtime = ControlledAdapter(workspace, ledger, permission_mode=permission_mode)  # type: ignore[arg-type]
         self.cli_path = cli_path
         self.lifecycle = LifecycleBridge(ledger, tool="agent-orchestrator")
+        self.session_lifecycle = SessionLifecycleObserver(self.lifecycle)
 
     def read_only_preflight(self, *, project_id: str) -> AgentOrchestratorPreflight:
         """Inspect AO health and registration; this method never spawns a session."""
@@ -103,6 +105,23 @@ class AgentOrchestratorAdapter:
         self._assert_ready()
         return self.lifecycle.record_external(
             event,
+            stage_id=stage_id,
+            actor=actor,
+            parent_event_id=parent_event_id,
+        )
+
+    def record_observed_session_state(
+        self,
+        snapshot: dict[str, Any],
+        *,
+        stage_id: str = "intake",
+        actor: str = "infrastructure",
+        parent_event_id: str | None = None,
+    ) -> dict[str, object] | None:
+        """Record a public read-only session-state transition before full readiness."""
+
+        return self.session_lifecycle.observe(
+            snapshot,
             stage_id=stage_id,
             actor=actor,
             parent_event_id=parent_event_id,

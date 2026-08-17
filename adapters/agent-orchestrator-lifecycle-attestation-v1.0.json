@@ -17,5 +17,11 @@
     "orchestrator_help": {"returncode": 0, "event_command_exposed": false, "output_sha256": "bcb2d23a287e2a02766954de01199f103f2d84a53bba769be5de5f7ed74ee16b"},
     "session_help": {"returncode": 0, "event_command_exposed": false, "output_sha256": "ae3812f85fc44994ae5f965bb61e5c92381c58ec2f2eeeb6ebf2a6b1a668358b"}
   },
-  "decision": "Blocked: session listing is available, but the inspected CLI exposes no lifecycle event stream or subscription surface. Live lifecycle parity requires a separately approved session test and must not be inferred from empty listings."
+  "polling_bridge": {
+    "status": "verified",
+    "source": "agent-orchestrator-session-attestation-v1.0.json",
+    "transitions_recorded": 2,
+    "raw_session_ids_persisted": false
+  },
+  "decision": "Partial: session listing is available and the controller polling bridge is verified, but the inspected CLI exposes no native lifecycle event stream or subscription surface. Full semantic parity remains blocked."
 }

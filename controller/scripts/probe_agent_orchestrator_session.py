@@ -13,6 +13,8 @@ import time
 from pathlib import Path
 
 from benchmark_controller.ledger import Ledger
+from benchmark_controller.ao_lifecycle import SessionLifecycleObserver
+from benchmark_controller.external import LifecycleBridge
 
 CLI = "/Applications/Agent Orchestrator.app/Contents/Resources/daemon/ao"
 
@@ -79,6 +81,7 @@ def main() -> int:
 
         ledger_path = root / "ledger.jsonl"
         ledger = Ledger(ledger_path, run_id="run_session-parity-ao", task_id="pilot_session-parity")
+        observer = SessionLifecycleObserver(LifecycleBridge(ledger, tool="agent-orchestrator"))
         result: dict[str, object] = {
             "schema_version": "agent-orchestrator-session-attestation-v1.0",
             "agent_sessions_started": False,
@@ -88,6 +91,7 @@ def main() -> int:
             "cleanup": {},
         }
         session_id: str | None = None
+        terminated = False
         try:
             code, output = _run("project", "add", "--id", project_id, "--name", "parity-probe", "--path", str(fixture), "--worker-agent", "codex", "--orchestrator-agent", "codex")
             result["commands"]["project_add"] = {"returncode": code, "output_sha256": _hash(output)}
@@ -99,7 +103,6 @@ def main() -> int:
             if code != 0:
                 raise RuntimeError("session spawn failed")
             result["agent_sessions_started"] = True
-            ledger.record(stage_id="intake", actor="infrastructure", event_type="lifecycle.session.created", time_category="orchestration_overhead", duration_ms=0, status="completed", payload={"spawn_output_sha256": _hash(output)}, tool="agent-orchestrator")
             observed: list[dict[str, object]] = []
             for _ in range(15):
                 code, output = _run("session", "ls", "--all", "--project", project_id, "--json")
@@ -108,19 +111,26 @@ def main() -> int:
                     break
                 time.sleep(1)
             result["session"]["observed_count"] = len(observed)
+            result["session"]["observed_states"] = sorted({str(item.get("status", item.get("state", "unknown"))) for item in observed})
             session_id = next((str(item.get("id")) for item in observed if item.get("id")), None)
             if not session_id:
                 raise RuntimeError("session id was not exposed by read-only listing")
             result["session"]["session_id_sha256"] = _hash(session_id)
+            for item in observed:
+                observer.observe(item)
             code, output = _run("session", "kill", session_id, "-p", project_id)
             result["commands"]["kill"] = {"returncode": code, "output_sha256": _hash(output)}
-            ledger.record(stage_id="intake", actor="infrastructure", event_type="lifecycle.session.terminated", time_category="orchestration_overhead", duration_ms=0, status="completed" if code == 0 else "failed", payload={"session_id_sha256": _hash(session_id)}, tool="agent-orchestrator")
             if code != 0:
                 raise RuntimeError("session termination failed")
+            terminated = True
+            observer.observe({"id": session_id, "status": "terminated"})
         except Exception as exc:
             result["error_type"] = type(exc).__name__
             result["error"] = str(exc)
         finally:
+            if session_id and not terminated:
+                code, output = _run("session", "kill", session_id, "-p", project_id)
+                result["cleanup"]["emergency_kill"] = {"returncode": code, "output_sha256": _hash(output)}
             code, output = _run("project", "rm", project_id, "-y", "--json")
             result["cleanup"]["project_remove"] = {"returncode": code, "output_sha256": _hash(output)}
             result["cleanup"]["fixture_destroyed"] = True

@@ -50,8 +50,8 @@
         "worktree_error_code": "selector_not_found",
         "agent_sessions_started": false,
         "permission_mode": "controller-approve-reads",
-        "lifecycle_bridge": "contract-tested",
-        "ledger_bridge": "contract-tested",
+        "lifecycle_bridge": "polling-live",
+        "ledger_bridge": "polling-live",
         "auth_probe": "passed",
         "system_default_auth": true,
         "provider_states": {"error": 1, "ok": 1, "unavailable": 6},
@@ -85,7 +85,7 @@
         "doctor_warnings": ["ao binary not on PATH", "muse agent not found"],
         "parity_probes": ["agent-orchestrator.core-doctor", "agent-orchestrator.adapter-readonly-preflight", "agent-orchestrator.agent-auth"]
       },
-      "decision": "Do not use in pilot until the worker session lifecycle adapter and live event bridge are verified."
+      "decision": "Polling lifecycle and ledger bridges are live-verified; do not use in pilot until full worker lifecycle parity and an explicit event-stream decision are recorded."
     },
     "compozy": {
       "installed": true,
