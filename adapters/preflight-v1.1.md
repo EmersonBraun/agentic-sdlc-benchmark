@@ -32,6 +32,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 - [Condition readiness snapshot](condition-readiness-v1.1.json)
 - [v1.1 blocker register](blocker-register-v1.1.json)
 - [ORCA lifecycle probe](orca-v1.1-lifecycle-probe-attestation.json)
+- [Latest ORCA lifecycle probe](orca-v1.1-lifecycle-probe-attestation-2.json)
 - [Agent Orchestrator session probe](agent-orchestrator-v1.1-session-probe-attestation.json)
 - [Compozy session probe](compozy-v1.1-session-probe-attestation.json)
 - [mini-SWE boundary probe](mini-swe-v1.1-preflight-attestation.json)
