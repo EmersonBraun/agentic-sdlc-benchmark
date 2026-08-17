@@ -36,3 +36,5 @@ Five side-effect-free probes passed on 2026-08-17. The results and output hashes
 The AgentsKit event bridge is contract-tested against the public `AgentEvent` shape. It records bounded metadata and token counts while excluding raw prompts, model content, tool arguments, and tool results. This is an adapter contract result, not a live agent execution result.
 
 The shared external runtime boundary is contract-tested in [`runtime-contract-v1.0.json`](runtime-contract-v1.0.json). It provides the common argv, permission, workspace, timeout, lifecycle, and ledger semantics. The individual ORCA, Agent Orchestrator, Compozy, OpenHands, and mini-SWE-agent integrations remain not-ready until they are wired to this boundary and pass live semantic-parity checks.
+
+The catalog registry is now wired to the shared boundary: the Reference Harness is executable; all external ADE and non-reference harness entries fail closed until their recorded status becomes `installed-ready`.

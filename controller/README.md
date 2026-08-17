@@ -12,6 +12,8 @@ The public AgentsKit event bridge is implemented in `benchmark_controller.agents
 
 The shared ADE/harness runtime boundary is implemented in `benchmark_controller.external`. It provides argv-only execution, explicit permission modes, workspace containment, lifecycle events, and ledger redaction for every external adapter.
 
+The registry layers in `benchmark_controller.ade_adapters` and `benchmark_controller.harness_adapters` bind the catalog entries to that boundary. External entries fail closed until their preflight status is `installed-ready`; the Reference Harness is the only executable adapter at this stage.
+
 ## Local validation
 
 ```bash

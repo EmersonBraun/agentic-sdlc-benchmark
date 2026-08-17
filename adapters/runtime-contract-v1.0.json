@@ -10,6 +10,10 @@
     "argv_hash_persisted": true
   },
   "permission_modes": ["deny-all", "approve-reads", "approve-all"],
+  "registry_bindings": {
+    "ade": "controller:benchmark_controller.ade_adapters",
+    "harness": "controller:benchmark_controller.harness_adapters"
+  },
   "ledger_requirements": [
     "workspace.prepared",
     "command.executed",
