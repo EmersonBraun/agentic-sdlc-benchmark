@@ -8,6 +8,8 @@ The neutral Reference Harness is executable for local argv commands and append-o
 
 Side-effect-free adapter probes are implemented in `benchmark_controller.probes`. Their required groups are frozen in [`../adapters/probe-contract-v1.0.json`](../adapters/probe-contract-v1.0.json).
 
+The public AgentsKit event bridge is implemented in `benchmark_controller.agentskit`. It redacts event content and emits ledger-compatible metadata without starting an agent session.
+
 ## Local validation
 
 ```bash

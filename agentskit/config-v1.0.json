@@ -8,6 +8,7 @@
     "source_commits": {
       "agentskit": "353d6e38a60deebd6556cddb58d322d242f4df0d"
     },
+    "event_contract": "event-contract-v1.0.json",
     "components": ["doc-bridge", "playbook", "specialized-agents", "code-review", "versioned-memory", "telemetry"]
   },
   "off": {

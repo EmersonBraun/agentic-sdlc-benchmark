@@ -76,6 +76,8 @@ class Ledger:
         tool: str | None = None,
         parent_event_id: str | None = None,
         artifact_refs: list[str] | None = None,
+        tokens: dict[str, int] | None = None,
+        cost_usd: float | None = None,
     ) -> dict[str, Any]:
         if stage_id not in STAGES:
             raise ValueError(f"Unknown stage: {stage_id!r}")
@@ -87,6 +89,14 @@ class Ledger:
             raise ValueError(f"Unknown event status: {status!r}")
         if duration_ms < 0:
             raise ValueError("duration_ms must be non-negative")
+        if tokens is not None:
+            allowed_token_fields = {"input", "output", "cached", "reasoning"}
+            if set(tokens) - allowed_token_fields:
+                raise ValueError("tokens contains an unknown field")
+            if any(not isinstance(value, int) or value < 0 for value in tokens.values()):
+                raise ValueError("token counts must be non-negative integers")
+        if cost_usd is not None and cost_usd < 0:
+            raise ValueError("cost_usd must be non-negative")
 
         self._sequence += 1
         event_id = f"evt_{self._sequence:06d}"
@@ -110,6 +120,10 @@ class Ledger:
             "artifact_refs": artifact_refs or [],
             "payload_sha256": _sha256_payload(event_payload),
         }
+        if tokens is not None:
+            event["tokens"] = dict(tokens)
+        if cost_usd is not None:
+            event["cost_usd"] = round(cost_usd, 8)
         with self.path.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(event, sort_keys=True) + "\n")
         return event
@@ -154,4 +168,3 @@ class Ledger:
                 payload={**(payload or {}), **{key: value for key, value in result.items() if key != "status"}},
                 tool=tool,
             )
-

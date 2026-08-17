@@ -1,0 +1,37 @@
+{
+  "schema_version": "agentskit-event-contract-v1.0",
+  "protocol_version": "v1.0",
+  "source": "public AgentsKit AgentEvent observer contract",
+  "enabled_components": [
+    "doc-bridge",
+    "playbook",
+    "specialized-agents",
+    "code-review",
+    "versioned-memory",
+    "telemetry"
+  ],
+  "accepted_event_types": {
+    "llm:start": "external_wait",
+    "llm:first-token": "external_wait",
+    "llm:end": "external_wait",
+    "tool:start": "effective_work",
+    "tool:end": "effective_work",
+    "memory:load": "instrumentation_overhead",
+    "memory:save": "instrumentation_overhead",
+    "agent:step": "orchestration_overhead",
+    "agent:delegate:start": "orchestration_overhead",
+    "agent:delegate:end": "effective_work",
+    "progress": "effective_work",
+    "error": "orchestration_overhead",
+    "run-aborted": "orchestration_overhead"
+  },
+  "redaction_policy": {
+    "persist_raw_content": false,
+    "persist_tool_arguments": false,
+    "persist_tool_results": false,
+    "persist_prompts": false,
+    "persist_bounded_metadata": true,
+    "persist_token_counts": true
+  },
+  "off_control": "The bridge rejects AgentsKit events when the factor is OFF."
+}
