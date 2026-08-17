@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -32,9 +33,10 @@ class PreparedRunBundle:
 class RunBundleWriter:
     """Create a run bundle only after all pilot gates and parity checks pass."""
 
-    def __init__(self, preflight: Mapping[str, Any], output_root: Path) -> None:
+    def __init__(self, preflight: Mapping[str, Any], output_root: Path, tasks_root: Path | None = None) -> None:
         self._preflight = dict(preflight)
         self._output_root = output_root
+        self._tasks_root = tasks_root
 
     def create(
         self,
@@ -76,6 +78,22 @@ class RunBundleWriter:
         if not _COMMIT.fullmatch(base_commit):
             raise RunBundleError("base_commit must be a 40-character lowercase SHA-1")
 
+        if self._tasks_root is None:
+            raise RunBundleError("tasks_root is required for task-manifest binding")
+        task_manifest_path = self._tasks_root / f"{task_id}.manifest.json"
+        if not task_manifest_path.is_file():
+            raise RunBundleError(f"Task manifest not found: {task_id}")
+        try:
+            task_manifest = json.loads(task_manifest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise RunBundleError(f"Task manifest is unreadable: {task_id}") from exc
+        if task_manifest.get("task_id") != task_id or task_manifest.get("product_id") != product_id:
+            raise RunBundleError("Task manifest identity does not match the requested run")
+        expected_phase = "pilot" if task_id.startswith("pilot_") else "main" if task_id.startswith("main_") else "holdout"
+        if task_manifest.get("phase") != expected_phase:
+            raise RunBundleError("Task manifest phase does not match the task identifier")
+        task_manifest_sha256 = hashlib.sha256(task_manifest_path.read_bytes()).hexdigest()
+
         directory = (self._output_root / run_id).resolve()
         root = self._output_root.resolve()
         if root not in directory.parents:
@@ -88,6 +106,7 @@ class RunBundleWriter:
             "protocol_version": prepared.plan.protocol_version,
             "run_id": run_id,
             "task_id": task_id,
+            "task_manifest_sha256": task_manifest_sha256,
             "product_id": product_id,
             "condition_id": f"{ade}__{harness}__{agentskit}",
             "replicate": replicate,

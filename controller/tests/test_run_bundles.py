@@ -36,8 +36,10 @@ class RunBundleWriterTests(unittest.TestCase):
         preflight = json.loads((root / "adapters" / "preflight-v1.1.json").read_text(encoding="utf-8"))
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "runs"
+            tasks = Path(directory) / "tasks"
+            tasks.mkdir()
             with self.assertRaises(PilotNotReadyError):
-                RunBundleWriter(preflight, output).create(
+                RunBundleWriter(preflight, output, tasks).create(
                     run_id="run_blocked-bundle",
                     task_id="pilot_greenfield_service_readiness",
                     product_id="greenfield",
@@ -54,7 +56,15 @@ class RunBundleWriterTests(unittest.TestCase):
 
     def test_ready_v1_1_bundle_has_manifest_and_empty_ledger(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            bundle = RunBundleWriter(_ready_preflight(), Path(directory)).create(
+            root = Path(directory)
+            tasks = root / "tasks"
+            tasks.mkdir()
+            (tasks / "pilot_greenfield_service_readiness.manifest.json").write_text(json.dumps({
+                "task_id": "pilot_greenfield_service_readiness",
+                "product_id": "greenfield",
+                "phase": "pilot",
+            }), encoding="utf-8")
+            bundle = RunBundleWriter(_ready_preflight(), root / "runs", tasks).create(
                 run_id="run_ready-bundle",
                 task_id="pilot_greenfield_service_readiness",
                 product_id="greenfield",
@@ -68,6 +78,7 @@ class RunBundleWriterTests(unittest.TestCase):
                 component_versions={"protocol": "v1.1"},
             )
             self.assertEqual(bundle.manifest["protocol_version"], "v1.1")
+            self.assertEqual(len(bundle.manifest["task_manifest_sha256"]), 64)
             self.assertEqual(bundle.manifest["terminal_state"], "NOT_APPLICABLE")
             self.assertTrue((bundle.directory / "manifest.json").is_file())
             self.assertTrue((bundle.directory / "artifact-index.json").is_file())

@@ -57,4 +57,4 @@ prepared = ConditionedPilotExecutor(preflight).prepare_condition(
 )
 ```
 
-Once the gate and semantic-parity evidence are verified, [`benchmark_controller.run_bundles.RunBundleWriter`](src/benchmark_controller/run_bundles.py) creates the immutable run directory with `manifest.json`, an append-only `ledger.jsonl`, `artifact-index.json`, and `evaluation-refs.json`. It performs all gate checks before touching the output root; the current v1.1 preflight therefore creates no run bundle.
+Once the gate and semantic-parity evidence are verified, [`benchmark_controller.run_bundles.RunBundleWriter`](src/benchmark_controller/run_bundles.py) validates the frozen task manifest and creates the immutable run directory with `manifest.json`, an append-only `ledger.jsonl`, `artifact-index.json`, and `evaluation-refs.json`. It records the task-manifest SHA-256, performs all gate checks before touching the output root, and therefore creates no bundle from the current blocked v1.1 preflight.
