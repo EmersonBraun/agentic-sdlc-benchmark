@@ -84,12 +84,12 @@
     {
       "condition_id": "compozy__mini-swe-agent__off",
       "factor_statuses": {
-        "ade": "unavailable-in-current-shell",
+        "ade": "installed-not-ready",
         "agentskit": "contract-ready",
         "harness": "installed-not-ready"
       },
       "missing_components": [
-        "ade:compozy:unavailable-in-current-shell",
+        "ade:compozy:installed-not-ready",
         "harness:mini-swe-agent:installed-not-ready"
       ],
       "ready": false
@@ -97,12 +97,12 @@
     {
       "condition_id": "compozy__mini-swe-agent__on",
       "factor_statuses": {
-        "ade": "unavailable-in-current-shell",
+        "ade": "installed-not-ready",
         "agentskit": "installed-not-ready",
         "harness": "installed-not-ready"
       },
       "missing_components": [
-        "ade:compozy:unavailable-in-current-shell",
+        "ade:compozy:installed-not-ready",
         "harness:mini-swe-agent:installed-not-ready",
         "agentskit:on:installed-not-ready"
       ],
@@ -111,12 +111,12 @@
     {
       "condition_id": "compozy__openhands-sdk__off",
       "factor_statuses": {
-        "ade": "unavailable-in-current-shell",
+        "ade": "installed-not-ready",
         "agentskit": "contract-ready",
         "harness": "dependency-resolution-failed"
       },
       "missing_components": [
-        "ade:compozy:unavailable-in-current-shell",
+        "ade:compozy:installed-not-ready",
         "harness:openhands-sdk:dependency-resolution-failed"
       ],
       "ready": false
@@ -124,12 +124,12 @@
     {
       "condition_id": "compozy__openhands-sdk__on",
       "factor_statuses": {
-        "ade": "unavailable-in-current-shell",
+        "ade": "installed-not-ready",
         "agentskit": "installed-not-ready",
         "harness": "dependency-resolution-failed"
       },
       "missing_components": [
-        "ade:compozy:unavailable-in-current-shell",
+        "ade:compozy:installed-not-ready",
         "harness:openhands-sdk:dependency-resolution-failed",
         "agentskit:on:installed-not-ready"
       ],
@@ -138,24 +138,24 @@
     {
       "condition_id": "compozy__reference__off",
       "factor_statuses": {
-        "ade": "unavailable-in-current-shell",
+        "ade": "installed-not-ready",
         "agentskit": "contract-ready",
         "harness": "contract-ready"
       },
       "missing_components": [
-        "ade:compozy:unavailable-in-current-shell"
+        "ade:compozy:installed-not-ready"
       ],
       "ready": false
     },
     {
       "condition_id": "compozy__reference__on",
       "factor_statuses": {
-        "ade": "unavailable-in-current-shell",
+        "ade": "installed-not-ready",
         "agentskit": "installed-not-ready",
         "harness": "contract-ready"
       },
       "missing_components": [
-        "ade:compozy:unavailable-in-current-shell",
+        "ade:compozy:installed-not-ready",
         "agentskit:on:installed-not-ready"
       ],
       "ready": false

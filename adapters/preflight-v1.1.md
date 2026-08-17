@@ -19,7 +19,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 |---|---|---|---|
 | ORCA 1.4.184 | installed-not-ready | Runtime, graph, workspace, and candidate `gpt-5.4` launch | Worker stalled during MCP bootstrap; normalized lifecycle parity is unverified |
 | Agent Orchestrator 0.12.6 | installed-not-ready | Isolated spawn, polling, termination, cleanup, and redacted ledger bridge | `gpt-5.4` execution and native event treatment are unverified |
-| Compozy 0.3.0-beta.16 | unavailable-in-current-shell | Historical local workspace/session creation and cleanup; candidate model connectivity | Executable is not available in the current shell; provider-bound `gpt-5.4` session and lifecycle ledger bridge must be revalidated |
+| Compozy 0.3.0-beta.16 | installed-not-ready | Exact `gpt-5.4` provider-bound prompt, isolated workspace cleanup, and redacted event-to-ledger bridge | Cross-ADE/harness/AgentsKit semantic parity is still unverified |
 | Reference Harness | contract-ready | Common argv, workspace, permissions, and ledger contract | External ADE readiness still gates every primary condition |
 | OpenHands SDK | dependency-resolution-failed | Normal resolver failure is reproduced for tested versions | Upstream-compatible dependency graph |
 | mini-SWE-agent 2.4.6 | installed-not-ready | Isolated image, read-only workspace, network boundary, and CLI startup | Non-production model/auth boundary and task parity |
@@ -37,6 +37,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 - [Agent Orchestrator session probe](agent-orchestrator-v1.1-session-probe-attestation.json)
 - [Compozy session probe](compozy-v1.1-session-probe-attestation.json)
 - [Latest Compozy availability probe](compozy-v1.1-availability-probe-attestation-2.json)
+- [Compozy provider/lifecycle bridge probe](compozy-v1.1-session-probe-attestation.json)
 - [mini-SWE boundary probe](mini-swe-v1.1-preflight-attestation.json)
 - [AgentsKit pinned preflight](agentskit-v1.1-preflight-attestation.json)
 - [Private evaluation companion](https://github.com/EmersonBraun/agentic-sdlc-benchmark-private) (access-controlled; manifest hash is recorded in the preflight JSON)

@@ -22,10 +22,10 @@
     },
     {
       "component": "ade:compozy",
-      "evidence_refs": ["preflight-v1.1.json", "compozy-binding-attestation-v1.0.json", "compozy-session-attestation-v1.0.json", "compozy-v1.1-session-probe-attestation.json", "model-compatibility-v1.1.json"],
-      "blocking_conditions": ["provider-bound session not verified", "live lifecycle ledger bridge not verified"],
+      "evidence_refs": ["preflight-v1.1.json", "compozy-binding-attestation-v1.0.json", "compozy-session-attestation-v1.0.json", "compozy-v1.1-session-probe-attestation.json", "compozy-v1.1-availability-probe-attestation-3.json", "model-compatibility-v1.1.json"],
+      "blocking_conditions": ["full cross-component semantic parity remains unverified"],
       "resolution_gate": "Declare a stable CLI path, resolve workspace/config, authenticate an allowed provider in an isolated profile, bind a gpt-5.4 session, and prove lifecycle plus ledger emission.",
-      "safe_next_action": "Do not authenticate automatically; after operator/provider setup, rerun the read-only status, binding, and lifecycle probes under the v1.1 model policy."
+      "safe_next_action": "Keep the exact-model/provider evidence pinned and complete parity probes for ORCA, Agent Orchestrator, harnesses, and AgentsKit before collection."
     },
     {
       "component": "harness:openhands-sdk",

@@ -38,7 +38,7 @@ The first v1.1 lifecycle recheck is [`orca-v1.1-lifecycle-probe-attestation.json
 
 The v1.1 Agent Orchestrator session recheck is [`agent-orchestrator-v1.1-session-probe-attestation.json`](agent-orchestrator-v1.1-session-probe-attestation.json). Spawn, polling, termination, cleanup, and the redacted ledger bridge pass, but model-backed execution and native event-stream parity remain unverified.
 
-The v1.1 Compozy session recheck is [`compozy-v1.1-session-probe-attestation.json`](compozy-v1.1-session-probe-attestation.json). Local session creation and cleanup pass, but the session is unbound and provider-backed lifecycle parity remains unverified.
+The v1.1 Compozy session recheck is [`compozy-v1.1-session-probe-attestation.json`](compozy-v1.1-session-probe-attestation.json). Exact `gpt-5.4` execution, isolated cleanup, and the live event-stream-to-redacted-ledger bridge pass; full cross-component semantic parity remains unverified.
 
 The pinned public AgentsKit v1.1 preflight is [`agentskit-v1.1-preflight-attestation.json`](agentskit-v1.1-preflight-attestation.json). Core, bridge, integrated fixture, and external offline checks pass without `agentskit-os`, provider, or session; model-backed ON parity remains intentionally unverified.
 

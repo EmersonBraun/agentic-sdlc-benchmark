@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .adapters import ADE_DESCRIPTORS, ComponentDescriptor
+from .compozy_lifecycle import normalize_compozy_events
 from .external import ControlledAdapter, LifecycleBridge
 from .ledger import Ledger
 
@@ -91,6 +92,21 @@ class CompozyAdapter:
             actor=actor,
             parent_event_id=parent_event_id,
         )
+
+    def record_event_stream(
+        self,
+        events: list[dict[str, Any]],
+        *,
+        stage_id: str,
+        actor: str,
+    ) -> list[dict[str, object]]:
+        """Normalize and append a Compozy event stream without persisting content."""
+
+        self._assert_ready()
+        return [
+            self.lifecycle.record_external(event, stage_id=stage_id, actor=actor)
+            for event in normalize_compozy_events(events)
+        ]
 
     def _assert_ready(self) -> None:
         if self.descriptor.implementation_status not in READY_STATUSES:

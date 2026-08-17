@@ -61,9 +61,9 @@
       "decision": "Polling lifecycle and cleanup are bounded-verified; full semantic parity remains blocked."
     },
     "compozy": {
-      "installed": false,
+      "installed": true,
       "version": "0.3.0-beta.16",
-      "status": "unavailable-in-current-shell",
+      "status": "installed-not-ready",
       "evidence": {
         "daemon_reachable": true,
         "workspace_resolution": "passed",
@@ -72,11 +72,13 @@
         "candidate_model_execution": "passed",
         "required_model": "gpt-5.4",
         "required_model_provider_result": "passed",
-        "current_shell_command": "not-found",
-        "provider_bound_session": "not-verified",
-        "live_lifecycle_ledger": "not-verified"
+        "current_shell_command": "resolved",
+        "provider_bound_session": "passed",
+        "provider_model_execution": "passed",
+        "live_lifecycle_ledger": "controller-bridge-probed",
+        "unknown_event_policy": "fail-closed"
       },
-      "decision": "The v1.1 candidate model has connectivity evidence, but provider binding and lifecycle parity remain blocked."
+      "decision": "The exact v1.1 model executes in an isolated Compozy session and the public controller bridge produces a redacted ledger. Full cross-component semantic parity remains blocked."
     }
   },
   "harness": {
@@ -99,6 +101,7 @@
     "compozy-session-attestation-v1.0.json",
     "compozy-v1.1-session-probe-attestation.json",
     "compozy-v1.1-availability-probe-attestation-2.json",
+    "compozy-v1.1-availability-probe-attestation-3.json",
     "openhands-resolver-attestation-v1.0.json",
     "mini-swe-attestation-v1.0.json",
     "mini-swe-v1.1-preflight-attestation.json",

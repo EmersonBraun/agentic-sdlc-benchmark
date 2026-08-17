@@ -1,0 +1,17 @@
+{
+  "schema_version": "compozy-v1.1-availability-probe-attestation",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-17",
+  "source": "official public npm beta installation and read-only version probe",
+  "status": "available-in-current-shell",
+  "command": "compozy",
+  "version": "0.3.0-beta.16",
+  "installation_channel": "@compozy/cli@beta",
+  "side_effect_policy": {
+    "sessions_started": false,
+    "workspaces_created": false,
+    "tasks_started": false,
+    "raw_payloads_published": false
+  },
+  "decision": "The public Compozy CLI is now available in the current shell. Provider-bound lifecycle evidence is recorded separately; full semantic parity remains a collection gate."
+}
