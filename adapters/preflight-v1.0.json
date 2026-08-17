@@ -45,6 +45,8 @@
         "agent_context_command_count": 228,
         "capability_count": 33,
         "current_worktree_found": false,
+        "worktree_catalog_count": 46,
+        "benchmark_workspace_registered": false,
         "worktree_error_code": "selector_not_found",
         "agent_sessions_started": false,
         "permission_mode": "controller-approve-reads",

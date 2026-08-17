@@ -20,6 +20,7 @@ class OrcaPreflight:
     status: dict[str, Any]
     agent_context: dict[str, Any]
     worktree: dict[str, Any]
+    worktree_catalog: dict[str, Any]
     accounts: dict[str, Any]
 
     def to_dict(self) -> dict[str, Any]:
@@ -27,6 +28,7 @@ class OrcaPreflight:
             "status": self.status,
             "agent_context": self.agent_context,
             "worktree": self.worktree,
+            "worktree_catalog": self.worktree_catalog,
             "accounts": self.accounts,
             "agent_sessions_started": False,
         }
@@ -58,11 +60,13 @@ class OrcaAdapter:
         status = self._json_command(("status", "--json"), stage_id="intake")
         agent_context = self._json_command(("agent-context", "--json"), stage_id="intake")
         worktree = self._json_command(("worktree", "current", "--json"), stage_id="intake", allow_failure=True)
+        worktree_catalog = self._json_command(("worktree", "list", "--limit", "50", "--json"), stage_id="intake")
         accounts = self._json_command(("account", "list", "--json"), stage_id="intake")
         return OrcaPreflight(
             status=_status_summary(status),
             agent_context=_agent_context_summary(agent_context),
             worktree=_worktree_summary(worktree),
+            worktree_catalog=_worktree_catalog_summary(worktree_catalog, self.runtime.workspace),
             accounts=_account_summary(accounts),
         )
 
@@ -161,6 +165,18 @@ def _worktree_summary(worktree: dict[str, Any]) -> dict[str, Any]:
         "ok": worktree.get("ok"),
         "current_worktree_found": bool(result) and worktree.get("ok") is True,
         "error_code": error.get("code") if isinstance(error, dict) else None,
+    }
+
+
+def _worktree_catalog_summary(catalog: dict[str, Any], workspace: Path) -> dict[str, Any]:
+    result = catalog.get("result", catalog)
+    items = result.get("worktrees", result.get("data", [])) if isinstance(result, dict) else []
+    paths = [item.get("path") for item in items if isinstance(item, dict)] if isinstance(items, list) else []
+    workspace_text = str(workspace.resolve())
+    return {
+        "ok": catalog.get("ok", True),
+        "count": len(paths),
+        "benchmark_workspace_registered": workspace_text in paths,
     }
 
 
