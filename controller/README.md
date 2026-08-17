@@ -56,3 +56,5 @@ prepared = ConditionedPilotExecutor(preflight).prepare_condition(
     agentskit="off",
 )
 ```
+
+Once the gate and semantic-parity evidence are verified, [`benchmark_controller.run_bundles.RunBundleWriter`](src/benchmark_controller/run_bundles.py) creates the immutable run directory with `manifest.json`, an append-only `ledger.jsonl`, `artifact-index.json`, and `evaluation-refs.json`. It performs all gate checks before touching the output root; the current v1.1 preflight therefore creates no run bundle.

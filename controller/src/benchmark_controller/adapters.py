@@ -1,4 +1,4 @@
-"""Declarative adapter contracts for the protocol-v1.0 condition matrix.
+"""Declarative adapter contracts for the versioned condition matrix.
 
 This module intentionally does not invoke external ADEs or harnesses. It builds
 an immutable execution plan and refuses to substitute an unavailable adapter.
