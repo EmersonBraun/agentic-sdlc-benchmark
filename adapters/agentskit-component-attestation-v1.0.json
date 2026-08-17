@@ -63,5 +63,5 @@
     "raw_content_persisted": false,
     "synthetic_bridge_events": 8
   },
-  "decision": "Telemetry and versioned-memory events were observed in a provider-free public-core fixture, and the full bridge contract was exercised with bounded synthetic agent events. Doc Bridge, playbook, and code-review remain evidence-only because their external runtimes were not materialized in this controlled workspace; full AgentsKit ON semantic parity is therefore not claimed."
+  "decision": "Telemetry and versioned-memory events were observed in a provider-free public-core fixture, and the full bridge contract was exercised with bounded synthetic agent events. Doc Bridge, playbook, and code-review were not executed through this benchmark-side runtime probe; their separate offline materialization is recorded in agentskit-external-attestation-v1.0.json. Full AgentsKit ON semantic parity is therefore not claimed."
 }

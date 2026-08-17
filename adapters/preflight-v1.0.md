@@ -63,6 +63,8 @@ The provider-free AgentsKit bridge evidence is [`agentskit-live-attestation-v1.0
 
 The component boundary evidence is [`agentskit-component-attestation-v1.0.json`](agentskit-component-attestation-v1.0.json): 15 public-core runtime events and 23 normalized ledger events were observed/provider-free or contract-tested, with no provider or session. External Doc Bridge, playbook, and code-review runtimes were not materialized, so full ON parity is not claimed.
 
+The external materialization evidence is [`agentskit-external-attestation-v1.0.json`](agentskit-external-attestation-v1.0.json): temporary public clones pass bounded offline checks. This closes repository-health evidence only; benchmark-ledger action mapping remains blocked.
+
 The OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). It rechecks the declared SDK/tool/workspace versions in a clean Python 3.12 container with normal dependency resolution and records the conflict hash.
 
 The mini-SWE-agent bounded evidence is [`mini-swe-attestation-v1.0.json`](mini-swe-attestation-v1.0.json). It records eight redacted preflight ledger events, the pinned image identity, the read-only workspace boundary, and fail-closed model behavior; no task session was started.

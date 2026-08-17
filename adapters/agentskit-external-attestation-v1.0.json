@@ -1,0 +1,44 @@
+{
+  "schema_version": "agentskit-external-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "status": "offline-verified",
+  "runtime": {
+    "node": "22.22.2",
+    "provider_called": false,
+    "agent_session_started": false,
+    "install_scripts": false,
+    "source_scope": "temporary-clones-of-public-repositories"
+  },
+  "repositories": {
+    "doc-bridge": {
+      "repo": "AgentsKit-io/doc-bridge",
+      "commit": "9a03016932b9e3024604712183152025c0577fe4",
+      "package_manager": "pnpm",
+      "preparation": {"build": "passed", "typecheck": "passed"},
+      "offline_checks": {
+        "test:readme-standard": "passed: 2",
+        "test:portable-skill": "passed: 4"
+      }
+    },
+    "playbook": {
+      "repo": "AgentsKit-io/agents-playbook",
+      "commit": "0818d860655c2d367f4d8b8c281c9b73ec5adad2",
+      "package_manager": "pnpm",
+      "preparation": {"fumadocs-mdx": "passed"},
+      "offline_checks": {
+        "lint": "passed",
+        "test:readme-standard": "passed: 3",
+        "test:playbook-package": "passed: 15"
+      }
+    },
+    "code-review": {
+      "repo": "AgentsKit-io/code-review-cli",
+      "commit": "467cfa570a6b5f1076098b3c76be4e812562f23e",
+      "package_manager": "npm",
+      "preparation": {"typecheck": "passed"},
+      "offline_checks": {"test:readme-standard": "passed: 2"}
+    }
+  },
+  "decision": "The three public external repositories are materialized and pass bounded offline checks. Their actions are not yet connected to the benchmark ledger as semantic AgentsKit components, so this attestation does not close full AgentsKit ON parity."
+}

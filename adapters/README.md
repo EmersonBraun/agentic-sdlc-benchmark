@@ -22,7 +22,9 @@ Compozy agent/provider binding evidence is recorded in [`compozy-binding-attesta
 
 AgentsKit's provider-free live bridge evidence is [`agentskit-live-attestation-v1.0.json`](agentskit-live-attestation-v1.0.json). It validates Observer delivery and ledger redaction, not the full ON component stack.
 
-The public component boundary is [`agentskit-component-attestation-v1.0.json`](agentskit-component-attestation-v1.0.json). Public core runtime events, memory, telemetry, redaction, and the complete bridge contract are bounded-verified; Doc Bridge, playbook, and code-review are explicitly marked evidence-only until their public runtimes are materialized.
+The public component boundary is [`agentskit-component-attestation-v1.0.json`](agentskit-component-attestation-v1.0.json). Public core runtime events, memory, telemetry, redaction, and the complete bridge contract are bounded-verified; Doc Bridge, playbook, and code-review are not yet connected to the benchmark-side runtime.
+
+The materialized external component checks are [`agentskit-external-attestation-v1.0.json`](agentskit-external-attestation-v1.0.json). The temporary clones pass bounded offline checks, but repository health is not the same as benchmark-ledger semantic parity.
 
 OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). The pinned Python 3.12 environment still fails normal dependency resolution, so no session is started.
 

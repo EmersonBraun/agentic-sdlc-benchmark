@@ -42,10 +42,10 @@
     },
     {
       "component": "agentskit:on",
-      "evidence_refs": ["preflight-v1.0.json", "agentskit-component-attestation-v1.0.json", "agentskit/event-contract-v1.0.json"],
-      "blocking_conditions": ["full component/runtime integration not verified", "provider-free observer bridge is insufficient for task parity"],
-      "resolution_gate": "Public source is isolated and version-pinned, all declared ON components emit ledger-compatible events in a controlled task, and the matched OFF control remains unchanged.",
-      "safe_next_action": "Complete provider-free component coverage and isolation checks before any model-backed session."
+      "evidence_refs": ["preflight-v1.0.json", "agentskit-component-attestation-v1.0.json", "agentskit-external-attestation-v1.0.json", "agentskit/event-contract-v1.0.json"],
+      "blocking_conditions": ["external component repositories pass offline checks but are not connected to the benchmark ledger", "provider-free observer bridge is insufficient for task parity"],
+      "resolution_gate": "Public source is isolated and version-pinned, all declared ON component actions are mapped to ledger-compatible events in a controlled task, and the matched OFF control remains unchanged.",
+      "safe_next_action": "Implement the benchmark-side component action mapping and test it with deterministic fixtures before any model-backed session."
     }
   ],
   "external_references": {
