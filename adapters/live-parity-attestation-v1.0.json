@@ -14,10 +14,11 @@
     "orca": {
       "probe_status": "passed",
       "ledger_events": 10,
-      "summary_sha256": "c44332bf87699bf7dfa708423beebff073d3e4b0fdf39882095960335d8f6a65",
+      "summary_sha256": "afc2f34896f4f957e03990e3b707a2c1097c4f4a8a55ddcb2764fa06b1d095e3",
       "semantic_parity": "blocked",
-      "blockers": ["runtime graph unavailable", "live workflow lifecycle not verified"],
-      "workspace_attestation": "orca-workspace-attestation-v1.0.json"
+      "blockers": ["live workflow lifecycle not verified"],
+      "workspace_attestation": "orca-workspace-attestation-v1.0.json",
+      "session_attestation": "orca-session-attestation-v1.0.json"
     },
     "agent-orchestrator": {
       "probe_status": "passed",

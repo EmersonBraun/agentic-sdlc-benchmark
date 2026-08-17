@@ -8,7 +8,7 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 
 | Component | Version | Result | Collection decision |
 |---|---:|---|---|
-| Orca | 1.4.183 | Read-only adapter, account-auth, and workflow-guard probes pass; runtime reachable, graph unavailable, benchmark workspace absent from 46 inspected worktrees | Blocked until graph, workspace binding, and live lifecycle adapter are verified |
+| Orca | 1.4.184 | Read-only adapter and graph probes pass; isolated workspace is registered and a lightweight Run was created without workers or file changes | Blocked until live workflow/worker lifecycle is normalized into the ledger |
 | CompozyOS | 0.3.0-beta.16 | Read-only adapter probe passes: daemon/workspace/config/sessions/providers; provider auth summary derived; 0 sessions | Blocked until provider readiness, session lifecycle, and live ledger emission pass |
 | Agent Orchestrator | 0.12.6 | Read-only adapter, installed-agent authorization, spawn/cleanup probe, and polling ledger bridge pass; no native event stream exposed | Blocked until full worker session semantic parity is verified |
 | Reference Harness | v1.0 | Contract-ready and tested | Available for local contract tests |
@@ -71,7 +71,7 @@ The action mapping contract is now covered by [`agentskit-component-action-attes
 
 The integrated fixture is [`agentskit-integrated-fixture-attestation-v1.0.json`](agentskit-integrated-fixture-attestation-v1.0.json): 21 events share one stable redacted ledger fingerprint without provider or session. This is the final provider-free gate; it does not establish model-backed task parity.
 
-ORCA workspace binding is recorded in [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json): an isolated worktree was created and removed successfully, but the graph remains unavailable. Compozy model connectivity is recorded in [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json): a read-only call succeeded only with `gpt-5.3-codex-spark`, while the exact protocol model `gpt-5.3-codex` remained rejected by the installed ACP provider after an official configuration attempt.
+ORCA workspace and graph evidence is recorded in [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json), with the controlled Run probe in [`orca-session-attestation-v1.0.json`](orca-session-attestation-v1.0.json): the graph is ready, but live workflow/worker lifecycle normalization remains unverified. Compozy model connectivity is recorded in [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json): a read-only call succeeded only with `gpt-5.3-codex-spark`, while the exact protocol model `gpt-5.3-codex` remained rejected by the installed ACP provider after an official configuration attempt.
 
 The OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). It checks the declared SDK/tool/workspace versions and the immediately previous SDK version in a clean Python 3.12 container with normal dependency resolution and records the conflict hashes.
 

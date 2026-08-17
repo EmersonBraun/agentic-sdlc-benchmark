@@ -1,0 +1,20 @@
+{
+  "schema_version": "orca-session-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "source": "orca terminal create; orca orchestration run-create --from; orca orchestration run-show; orca terminal close",
+  "status": "partial-blocked",
+  "authorization": {"operator_confirmation": true},
+  "workspace": {"path_scope": "benchmark-repository", "display_name": "Code 10x", "fixture_mutated": false},
+  "runtime": {"app_version": "1.4.184", "runtime_state": "ready", "graph_state": "ready", "runtime_reachable": true},
+  "terminal": {"created": true, "handle_sha256": "cfa5d25b1bc4baddd3f9e7e8a3d98e77c383e3080b069bc7257a2edd15409df2", "closed": true},
+  "run": {
+    "created": true,
+    "run_id_sha256": "c2fd23fc92e8153efec6a6edcc1073dbbc2e1cf7a614d4b91c40b8c6abdf9ea2",
+    "worker_started": false,
+    "task_created": false,
+    "provider_called": false,
+    "files_modified": false
+  },
+  "decision": "The ORCA runtime graph and lightweight Run creation are reachable in the benchmark workspace. A worker/workflow lifecycle was not started, so normalized live lifecycle parity and cleanup remain unverified; no pilot condition is authorized."
+}

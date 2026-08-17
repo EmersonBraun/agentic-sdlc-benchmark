@@ -32,14 +32,14 @@
     "orca": {
       "command": "orca",
       "installed": true,
-      "runtime_version": "1.4.183",
+      "runtime_version": "1.4.184",
       "status_command": "orca status --json",
       "status": "installed-not-ready",
       "evidence": {
         "app_running": true,
         "runtime_reachable": true,
-        "graph_state": "unavailable",
-        "runtime_state": "graph_not_ready",
+        "graph_state": "ready",
+        "runtime_state": "ready",
         "adapter_readonly_probe": "passed",
         "agent_context_schema": "passed",
         "agent_context_command_count": 228,
@@ -60,7 +60,7 @@
         "provider_states": {"error": 1, "ok": 1, "unavailable": 6},
         "workflow_guard": "blocked-and-ledgered"
       },
-      "decision": "Do not use in pilot until the runtime graph, workspace binding, live lifecycle bridge, and benchmark adapter readiness are verified."
+      "decision": "The runtime graph and workspace boundary are ready. Do not use in the pilot until a live workflow/worker lifecycle is normalized into the ledger and benchmark adapter readiness is verified."
     },
     "agent-orchestrator": {
       "installed": true,

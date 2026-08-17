@@ -32,7 +32,7 @@ The benchmark-side action mapping is [`agentskit-component-action-attestation-v1
 
 The integrated provider-free fixture is [`agentskit-integrated-fixture-attestation-v1.0.json`](agentskit-integrated-fixture-attestation-v1.0.json). It combines 15 public-core runtime events and six mapped component actions in one stable ledger fingerprint; it does not authorize a provider-backed pilot.
 
-ORCA workspace binding evidence is [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json). Compozy's model connectivity evidence is [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json); the alternate model is excluded, and the exact protocol model remains blocked by the installed ACP provider despite an official configuration attempt.
+ORCA workspace and graph evidence is [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json), with the controlled Run probe in [`orca-session-attestation-v1.0.json`](orca-session-attestation-v1.0.json). The graph is ready, but worker/workflow lifecycle parity is still blocked. Compozy's model connectivity evidence is [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json); the alternate model is excluded, and the exact protocol model remains blocked by the installed ACP provider despite an official configuration attempt.
 
 The cross-runtime model investigation is [`model-compatibility-v1.0.json`](model-compatibility-v1.0.json). `gpt-5.4` and `gpt-5.4-mini` execute in Compozy and the Codex CLI, but no replacement is adopted until the remaining ADE, harness, and AgentsKit parity is verified.
 

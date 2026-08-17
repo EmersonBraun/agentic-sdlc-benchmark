@@ -19,29 +19,29 @@
   },
   "runtime": {
     "reachable": true,
-    "runtime_state": "graph_not_ready",
-    "graph_state": "unavailable",
+    "runtime_state": "ready",
+    "graph_state": "ready",
     "codex_system_auth": true
   },
   "read_only_recheck": {
     "source": "controller/scripts/probe_ade_readonly.py; orca status --json",
     "probe_status": "passed",
     "ledger_events": 10,
-    "summary_sha256": "c44332bf87699bf7dfa708423beebff073d3e4b0fdf39882095960335d8f6a65",
-    "graph_state": "unavailable",
-    "runtime_state": "graph_not_ready",
+    "summary_sha256": "afc2f34896f4f957e03990e3b707a2c1097c4f4a8a55ddcb2764fa06b1d095e3",
+    "graph_state": "ready",
+    "runtime_state": "ready",
     "workflows_started": false
   },
   "latest_operator_recheck": {
     "source": "orca open; orca status --json",
     "app_running": true,
     "desktop_window_status": "available",
-    "app_version": "1.4.183",
+    "app_version": "1.4.184",
     "runtime_reachable": true,
-    "runtime_state": "graph_not_ready",
-    "graph_state": "unavailable",
+    "runtime_state": "ready",
+    "graph_state": "ready",
     "workflows_started": false,
     "update_state": "interactive-update-available"
   },
-  "decision": "ORCA can create and remove an isolated benchmark worktree and reaches the local runtime. Collection remains blocked because the runtime graph and live workflow lifecycle are not ready."
+  "decision": "ORCA can create and remove an isolated benchmark worktree and reaches a ready local runtime graph. Collection remains blocked because live workflow lifecycle normalization is not yet verified."
 }

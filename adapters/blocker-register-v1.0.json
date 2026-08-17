@@ -7,8 +7,8 @@
   "blockers": [
     {
       "component": "ade:orca",
-      "evidence_refs": ["preflight-v1.0.json", "orca-workspace-attestation-v1.0.json", "live-parity-attestation-v1.0.json"],
-      "blocking_conditions": ["runtime graph unavailable", "live workflow lifecycle not verified"],
+      "evidence_refs": ["preflight-v1.0.json", "orca-workspace-attestation-v1.0.json", "orca-session-attestation-v1.0.json", "live-parity-attestation-v1.0.json"],
+      "blocking_conditions": ["live workflow lifecycle not verified"],
       "resolution_gate": "Registered isolated benchmark workspace, reachable ready graph, live lifecycle events normalized into the ledger, and no session leakage.",
       "safe_next_action": "Use the ORCA workspace-registration flow only after explicit operator approval; then rerun read-only probes before any workflow test."
     },
