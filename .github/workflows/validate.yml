@@ -44,3 +44,26 @@ jobs:
           node --check dashboard/app.js
           python3 analysis/aggregate_runs.py --runs-root runs --tasks-root tasks/public --protocol v1.1 --output /tmp/processed-results-v1.1.json
           test "$(python3 -c 'import json; print(json.load(open("/tmp/processed-results-v1.1.json"))["status"])')" = "no-results"
+
+      - name: Set up product fixture toolchain
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.21.0
+
+      - name: Set up product Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: products/greenfield/pnpm-lock.yaml
+
+      - name: Validate product fixture
+        working-directory: products/greenfield
+        env:
+          DATABASE_URL: postgresql://benchmark:benchmark@127.0.0.1:5432/benchmark
+        run: |
+          pnpm install --frozen-lockfile --ignore-scripts
+          pnpm test
+          pnpm prisma:validate
+          pnpm lint
+          pnpm build
