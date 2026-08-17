@@ -157,7 +157,9 @@ HARNESS_DESCRIPTORS = _harness_descriptors()
 AGENTSKIT_DESCRIPTORS = _agentskit_descriptors()
 
 
-def build_execution_plan(*, run_id: str, ade: str, harness: str, agentskit: str) -> ExecutionPlan:
+def build_execution_plan(
+    *, run_id: str, ade: str, harness: str, agentskit: str, protocol_version: str = "v1.0"
+) -> ExecutionPlan:
     """Resolve a condition without changing any factor or using a fallback."""
 
     validate_id(run_id, "run")
@@ -167,6 +169,8 @@ def build_execution_plan(*, run_id: str, ade: str, harness: str, agentskit: str)
         raise ValueError(f"Unknown harness adapter: {harness!r}")
     if agentskit not in EXPECTED_AGENTSKIT:
         raise ValueError(f"Unknown AgentsKit factor: {agentskit!r}")
+    if protocol_version not in {"v1.0", "v1.1"}:
+        raise ValueError(f"Unsupported protocol version: {protocol_version!r}")
 
     ade_descriptor = ADE_DESCRIPTORS[ade]
     harness_descriptor = HARNESS_DESCRIPTORS[harness]
@@ -174,7 +178,7 @@ def build_execution_plan(*, run_id: str, ade: str, harness: str, agentskit: str)
     semantic_parity = harness_descriptor.capabilities == COMMON_HARNESS_CAPABILITIES
     return ExecutionPlan(
         run_id=run_id,
-        protocol_version="v1.0",
+        protocol_version=protocol_version,
         ade=ade_descriptor,
         harness=harness_descriptor,
         agentskit=agentskit_descriptor,

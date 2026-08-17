@@ -76,6 +76,7 @@ class ConditionedPilotExecutor:
             ade=ade,
             harness=harness,
             agentskit=agentskit,
+            protocol_version=str(self._preflight.get("protocol_version", "v1.0")),
         )
         if not plan.semantic_parity:
             raise PilotNotReadyError("Resolved execution plan failed semantic-parity validation")
