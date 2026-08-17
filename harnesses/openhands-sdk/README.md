@@ -8,8 +8,8 @@ resolves cleanly in the same pinned environment.
 
 ## Preflight result
 
-As of 2026-08-17, the normal resolver fails for both SDK versions tested here
-(`1.42.1` and `1.40.1`). The conflict is between `lmnr`'s pinned
+As of 2026-08-17, the normal resolver fails for all SDK versions tested here
+(`1.42.1`, `1.40.1`, and `1.29.3`). The conflict is between `lmnr`'s pinned
 `opentelemetry-semantic-conventions==0.60b1` requirement and the available
 `opentelemetry-instrumentation` releases. This harness is therefore recorded
 as `dependency-resolution-failed`; no session adapter is exposed and no

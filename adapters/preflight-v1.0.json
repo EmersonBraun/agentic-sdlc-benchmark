@@ -115,7 +115,8 @@
       "failure": "pip dependency resolution conflicts between lmnr 0.7.56 and opentelemetry semantic-conventions versions",
       "resolver_attempts": [
         {"openhands_sdk": "1.42.1", "result": "failed"},
-        {"openhands_sdk": "1.40.1", "result": "failed"}
+        {"openhands_sdk": "1.40.1", "result": "failed"},
+        {"openhands_sdk": "1.29.3", "result": "failed"}
       ],
       "dependency_override_used": false,
       "agent_sessions_started": false
