@@ -18,6 +18,8 @@ Deterministic live-readiness evaluation is implemented in `benchmark_controller.
 
 The Agent Orchestrator adapter exposes read-only daemon/project/session preflight and protects `spawn` behind the `installed-ready` gate.
 
+The Compozy adapter exposes read-only daemon/workspace/config/session/provider summaries and protects session creation behind the `installed-ready` gate.
+
 ## Local validation
 
 ```bash

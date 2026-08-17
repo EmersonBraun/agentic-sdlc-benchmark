@@ -13,7 +13,7 @@
     "required": 4,
     "passed": 4,
     "failed": 0,
-    "additional_passed": 1
+    "additional_passed": 2
   },
   "results": [
     {
@@ -67,6 +67,16 @@
       "passed": true,
       "output_sha256": "53da58b9bdbb5ed25b3893fe31eafe0fd52d5727da12f2d1e50c068c5d5211f9",
       "assertions": ["daemon ready", "project code-10x resolved", "zero sessions", "doctor ok", "8 ledger events", "no agent sessions started"]
+    },
+    {
+      "probe_id": "compozy.adapter-readonly-preflight",
+      "component": "compozy",
+      "command_label": "Compozy read-only adapter preflight",
+      "returncode": 0,
+      "timed_out": false,
+      "passed": true,
+      "output_sha256": "e8a941c0be809c1cb0adeed91bcc7d99852e68668b1e6277c19f698d846846a6",
+      "assertions": ["daemon healthy", "workspace resolved", "approve-reads", "zero sessions", "26 providers summarized", "10 ledger events", "no agent sessions started"]
     }
   ],
   "interpretation": "The executable boundary and basic workspace/runtime probes pass. This does not establish semantic parity, provider readiness, ledger emission, or collection readiness."

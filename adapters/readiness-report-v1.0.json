@@ -20,7 +20,7 @@
     },
     "ade:compozy": {
       "ready": false,
-      "blockers": ["implementation-status", "lifecycle-bridge", "ledger-bridge"]
+      "blockers": ["implementation-status"]
     },
     "harness:reference": {
       "ready": true,
