@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Public evidence dashboard for the Agentic SDLC Benchmark." />
+    <title>Agentic SDLC Benchmark — Evidence Dashboard</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to evidence</a>
+    <header class="masthead shell">
+      <a class="wordmark" href="./">AGENTIC SDLC <span>BENCHMARK</span></a>
+      <nav aria-label="Primary navigation">
+        <a href="#readiness">Readiness</a>
+        <a href="#conditions">Conditions</a>
+        <a href="#method">Method</a>
+        <a href="../README.md">Repository</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero shell" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Public evidence / controlled study / protocol <span id="protocol-label">v1.1</span></p>
+          <h1 id="page-title">How much of the SDLC can an agentic system actually carry?</h1>
+          <p class="dek">A reproducible comparison of ADEs, harnesses, AgentsKit, and a Senior Engineer Reference Baseline — measured by effective work, quality, and traceable intervention.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#readiness">Inspect readiness <span aria-hidden="true">↓</span></a>
+            <a class="button button-quiet" href="../protocol/protocol-v1.1.md">Read protocol <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+        <aside class="hero-note" aria-label="Current decision">
+          <p class="eyebrow">Current decision</p>
+          <strong id="decision-title">Collection is fail-closed.</strong>
+          <p id="decision-copy">Preflight evidence is visible here. No benchmark run is counted until every factor passes the readiness gate.</p>
+          <span class="status-pill status-blocked"><i></i><span id="decision-status">Pilot blocked</span></span>
+        </aside>
+      </section>
+
+      <section id="readiness" class="shell section-block" aria-labelledby="readiness-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">01 / Gate</p>
+            <h2 id="readiness-title">Readiness before results</h2>
+          </div>
+          <p class="section-caption">The study reports blocked states as evidence. A partial setup never becomes a performance result.</p>
+        </div>
+        <div class="readiness-layout">
+          <div class="readiness-score" aria-live="polite">
+            <div class="score-ring"><span id="ready-count">0</span><small>/ <span id="condition-count">18</span></small></div>
+            <p class="score-label">conditions ready</p>
+            <p class="score-detail"><span id="blocked-count">18</span> remain blocked</p>
+          </div>
+          <div class="component-panel">
+            <div class="panel-topline"><span>Component readiness</span><span id="component-summary">2 / 8 ready</span></div>
+            <div id="component-list" class="component-list" aria-label="Component readiness list"></div>
+          </div>
+          <div class="readiness-aside">
+            <p class="eyebrow">Why this matters</p>
+            <p>Readiness is a validity control, not a score. It prevents a convenient tool combination from quietly changing the treatment being studied.</p>
+            <a class="source-link" href="../adapters/preflight-v1.1.json">Open preflight evidence <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section id="conditions" class="shell section-block" aria-labelledby="conditions-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">02 / Matrix</p>
+            <h2 id="conditions-title">The 18-condition design</h2>
+          </div>
+          <div class="matrix-controls">
+            <label for="ade-filter">Filter ADE</label>
+            <select id="ade-filter">
+              <option value="all">All ADEs</option>
+              <option value="orca">ORCA</option>
+              <option value="agent-orchestrator">Agent Orchestrator</option>
+              <option value="compozy">Compozy</option>
+            </select>
+          </div>
+        </div>
+        <div class="matrix-key" aria-label="Condition factors">
+          <span><i class="key-dot key-ade"></i>ADE</span>
+          <span><i class="key-dot key-harness"></i>Harness</span>
+          <span><i class="key-dot key-agentskit"></i>AgentsKit</span>
+          <span><i class="key-dot key-state"></i>State</span>
+        </div>
+        <div class="condition-table-wrap">
+          <table class="condition-table">
+            <thead>
+              <tr><th>Condition</th><th>ADE</th><th>Harness</th><th>AgentsKit</th><th>Gate</th></tr>
+            </thead>
+            <tbody id="condition-rows"></tbody>
+          </table>
+        </div>
+        <p id="condition-empty" class="empty-state" hidden>No conditions match this filter.</p>
+        <p class="table-note">Each row maps to one issue, one run manifest, one redacted ledger, hidden tests, and one evaluator record. The matrix is identical across protocol cohorts.</p>
+      </section>
+
+      <section id="method" class="shell section-block method-block" aria-labelledby="method-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">03 / Measurement</p>
+            <h2 id="method-title">What the study counts</h2>
+          </div>
+          <a class="source-link" href="../docs/evaluation-methodology.md">Evaluation methodology <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="method-grid">
+          <article><span class="method-index">A</span><h3>Effective work</h3><p>Actions that advance the task: requirements, implementation, tests, review fixes, and delivery artifacts.</p></article>
+          <article><span class="method-index">B</span><h3>Quality under holdout</h3><p>Visible checks, hidden tests, security and isolation gates, regression behavior, and evaluator agreement.</p></article>
+          <article><span class="method-index">C</span><h3>Traceability</h3><p>Every consequential action is tied to a stage, actor, tool, duration, artifact hash, and redacted event record.</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer shell">
+      <div><span class="wordmark">AGENTIC SDLC <span>BENCHMARK</span></span><p>Open methods. Redacted evidence. No silent substitutions.</p></div>
+      <div class="footer-meta"><span>Dataset: <strong id="dataset-label">preflight-v1.1</strong></span><span>Updated: <strong>2026-08-17</strong></span><a href="../adapters/condition-readiness-v1.1.json">Raw matrix ↗</a></div>
+    </footer>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
