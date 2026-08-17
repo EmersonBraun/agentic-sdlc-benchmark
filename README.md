@@ -24,6 +24,12 @@ The benchmark compares ADEs, harnesses, model coordination policies, and AgentsK
 - `dashboard/` — static public dashboard
 - `runs/` — immutable run bundles and manifests
 
+The public dashboard is published at `/dashboard/` by
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml) after the
+validation workflow passes. It currently reports readiness and evidence, not
+performance results; the dashboard will only show measured outcomes after
+versioned run bundles and evaluator records exist.
+
 ## Research question
 
 Can an agentic SDLC system deliver production-quality software with less effective work than a Senior Engineer Reference Baseline, while preserving reliability and reducing human intervention?

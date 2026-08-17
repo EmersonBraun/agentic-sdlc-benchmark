@@ -1,0 +1,41 @@
+name: Validate benchmark contracts
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate JSON documents
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do python -m json.tool "$file" >/dev/null; done < <(find . -name '*.json' -not -path './.git/*' -print0)
+
+      - name: Run controller tests
+        run: PYTHONPATH=controller/src python -m unittest discover -s controller/tests -p 'test_*.py'
+
+      - name: Run analysis and evaluation tests
+        run: |
+          PYTHONPATH=controller/src:analysis:. python -m unittest discover -s analysis -p 'test_*.py'
+          PYTHONPATH=controller/src:evaluation:. python -m unittest discover -s evaluation -p 'test_*.py'
+
+      - name: Validate dashboard and empty-result analysis
+        run: |
+          node --check dashboard/app.js
+          python3 analysis/aggregate_runs.py --runs-root runs --tasks-root tasks/public --protocol v1.1 --output /tmp/processed-results-v1.1.json
+          test "$(python3 -c 'import json; print(json.load(open("/tmp/processed-results-v1.1.json"))["status"])')" = "no-results"
