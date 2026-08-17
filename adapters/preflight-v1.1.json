@@ -18,8 +18,8 @@
         "read_only_probe": "passed",
         "candidate_model": "gpt-5.4",
         "candidate_provider_execution": "passed",
-        "required_model": "gpt-5.3-codex",
-        "required_model_provider_result": "rejected",
+        "required_model": "gpt-5.4",
+        "required_model_provider_result": "passed",
         "live_lifecycle_ledger": "not-verified"
       },
       "decision": "Graph and candidate model execution are verified; v1.1 collection remains blocked until normalized lifecycle parity is verified."
@@ -49,8 +49,8 @@
         "session_cleanup": "passed",
         "candidate_model": "gpt-5.4",
         "candidate_model_execution": "passed",
-        "required_model": "gpt-5.3-codex",
-        "required_model_provider_result": "rejected",
+        "required_model": "gpt-5.4",
+        "required_model_provider_result": "passed",
         "provider_bound_session": "not-verified",
         "live_lifecycle_ledger": "not-verified"
       },
