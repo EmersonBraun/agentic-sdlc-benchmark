@@ -10,6 +10,8 @@ Side-effect-free adapter probes are implemented in `benchmark_controller.probes`
 
 The public AgentsKit event bridge is implemented in `benchmark_controller.agentskit`. It redacts event content and emits ledger-compatible metadata without starting an agent session.
 
+The shared ADE/harness runtime boundary is implemented in `benchmark_controller.external`. It provides argv-only execution, explicit permission modes, workspace containment, lifecycle events, and ledger redaction for every external adapter.
+
 ## Local validation
 
 ```bash

@@ -1,0 +1,21 @@
+{
+  "schema_version": "external-adapter-runtime-v1.0",
+  "protocol_version": "v1.0",
+  "command_boundary": {
+    "argv_only": true,
+    "shell": false,
+    "workspace_containment": true,
+    "stdout_and_stderr_persisted": false,
+    "argv_persisted": false,
+    "argv_hash_persisted": true
+  },
+  "permission_modes": ["deny-all", "approve-reads", "approve-all"],
+  "ledger_requirements": [
+    "workspace.prepared",
+    "command.executed",
+    "command.blocked",
+    "artifact.hashed",
+    "lifecycle.transition"
+  ],
+  "failure_policy": "Timeouts, permission denials, path escapes, and unknown lifecycle states fail closed and remain ledger-visible."
+}
