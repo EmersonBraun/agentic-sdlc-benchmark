@@ -63,3 +63,7 @@ The operational entrypoints are `scripts/prepare_run_bundle.py` and
 `scripts/validate_run_bundle.py`. The former is fail-closed and creates no
 directory while the readiness gate is blocked; the latter validates run
 identity, task-manifest binding, ledger sequence, and public event fields.
+
+`scripts/plan_pilot_matrix.py` emits the seeded 18-condition schedule without
+starting collection. The schedule is the handoff consumed by the eventual
+live executor after the complete readiness gate passes.

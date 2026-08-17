@@ -47,3 +47,21 @@ class AdapterContractTests(unittest.TestCase):
                 agentskit="off",
             )
 
+    def test_ready_plan_binds_status_and_version_from_preflight(self) -> None:
+        preflight = {
+            "protocol_version": "v1.1",
+            "ade": {"orca": {"status": "installed-ready", "runtime_version": "1.4.184"}},
+            "harness": {"reference": {"status": "contract-ready"}},
+            "agentskit": {"off": {"status": "contract-ready"}},
+        }
+        plan = build_execution_plan(
+            run_id="run_ready-plan",
+            ade="orca",
+            harness="reference",
+            agentskit="off",
+            protocol_version="v1.1",
+            preflight=preflight,
+        )
+        assert_live_adapter_ready(plan)
+        self.assertEqual(plan.ade.implementation_status, "installed-ready")
+        self.assertEqual(plan.ade.adapter_version, "orca:1.4.184")

@@ -7,8 +7,8 @@ Live integrations are added behind the same contract in a later step.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
-from typing import Literal
+from dataclasses import asdict, dataclass, replace
+from typing import Any, Literal, Mapping
 
 from .conditions import EXPECTED_ADE, EXPECTED_AGENTSKIT, EXPECTED_HARNESSES
 from .ids import validate_id
@@ -85,7 +85,7 @@ def _ade_descriptors() -> dict[str, ComponentDescriptor]:
     )
     return {
         "orca": ComponentDescriptor(
-            "ade", "orca", "orca-runtime-1.4.183", "installed-not-ready", "external:orca", lifecycle
+            "ade", "orca", "orca-runtime-1.4.184", "installed-not-ready", "external:orca", lifecycle
         ),
         "agent-orchestrator": ComponentDescriptor(
             "ade",
@@ -158,7 +158,13 @@ AGENTSKIT_DESCRIPTORS = _agentskit_descriptors()
 
 
 def build_execution_plan(
-    *, run_id: str, ade: str, harness: str, agentskit: str, protocol_version: str = "v1.0"
+    *,
+    run_id: str,
+    ade: str,
+    harness: str,
+    agentskit: str,
+    protocol_version: str = "v1.0",
+    preflight: Mapping[str, Any] | None = None,
 ) -> ExecutionPlan:
     """Resolve a condition without changing any factor or using a fallback."""
 
@@ -172,9 +178,9 @@ def build_execution_plan(
     if protocol_version not in {"v1.0", "v1.1"}:
         raise ValueError(f"Unsupported protocol version: {protocol_version!r}")
 
-    ade_descriptor = ADE_DESCRIPTORS[ade]
-    harness_descriptor = HARNESS_DESCRIPTORS[harness]
-    agentskit_descriptor = AGENTSKIT_DESCRIPTORS[agentskit]
+    ade_descriptor = _descriptor_from_preflight(ADE_DESCRIPTORS[ade], preflight, ade)
+    harness_descriptor = _descriptor_from_preflight(HARNESS_DESCRIPTORS[harness], preflight, harness)
+    agentskit_descriptor = _descriptor_from_preflight(AGENTSKIT_DESCRIPTORS[agentskit], preflight, agentskit)
     semantic_parity = harness_descriptor.capabilities == COMMON_HARNESS_CAPABILITIES
     return ExecutionPlan(
         run_id=run_id,
@@ -184,6 +190,36 @@ def build_execution_plan(
         agentskit=agentskit_descriptor,
         semantic_parity=semantic_parity,
     )
+
+
+def _descriptor_from_preflight(
+    descriptor: ComponentDescriptor,
+    preflight: Mapping[str, Any] | None,
+    key: str,
+) -> ComponentDescriptor:
+    """Bind the immutable plan to the exact readiness snapshot used by the gate."""
+
+    if preflight is None:
+        return descriptor
+    document = preflight.get(descriptor.kind, {})
+    if not isinstance(document, Mapping):
+        return descriptor
+    component = document.get(key, {})
+    if not isinstance(component, Mapping):
+        return descriptor
+    status = component.get("status")
+    if not isinstance(status, str):
+        status = descriptor.implementation_status
+    version = component.get("version")
+    if not isinstance(version, str):
+        version = component.get("runtime_version")
+    if not isinstance(version, str):
+        version = component.get("source_commit")
+    if isinstance(version, str) and version:
+        version = f"{descriptor.key}:{version}"
+    else:
+        version = descriptor.adapter_version
+    return replace(descriptor, adapter_version=version, implementation_status=status)
 
 
 def assert_live_adapter_ready(plan: ExecutionPlan) -> None:
