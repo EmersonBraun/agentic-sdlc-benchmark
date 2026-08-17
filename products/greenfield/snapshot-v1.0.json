@@ -1,0 +1,50 @@
+{
+  "schema_version": "product-snapshot-v1.0",
+  "product_id": "greenfield-project-operations",
+  "snapshot_id": "greenfield-v1.0",
+  "status": "accepted",
+  "source_commit": "4f2ba7a746f588a35c8e7b62e2c53708c16a6243",
+  "source_policy": "The product source, dependency lockfile, schema, and verification container are immutable inputs for protocol-v1.0 task snapshots.",
+  "stack": {
+    "application": "Next.js 16.3.0 / React 19.2.8 / TypeScript 5.9.3",
+    "database": "PostgreSQL 17.6 / Prisma 7.9.1",
+    "automation": "Docker / GitHub Actions-compatible commands"
+  },
+  "runtime": {
+    "node_image": "node:22.13.0-bookworm-slim",
+    "node_image_digest": "sha256:f5a0871ab03b035c58bdb3007c3d177b001c2145c18e81817b71624dcf7d8bff",
+    "node_version": "22.13.0",
+    "pnpm_version": "11.21.0",
+    "verification_image": "agentic-sdlc-greenfield:preflight-v1.0",
+    "verification_image_id": "sha256:437f9f730d5aeae089461f4949504277637ca1b72b769449d7ebc62402497a1a",
+    "architecture": "linux/arm64"
+  },
+  "integrity": {
+    "package_json_sha256": "24c85d6a13286acf13b92505e249df02873d4a956d2ee885b72403f6ce89a6c2",
+    "pnpm_lock_sha256": "5f9c8126ffe37953d6ad28fe9cd3ccdd97985670321a60e5704e380d9bb29e0c",
+    "prisma_schema_sha256": "c7f4d1b69e9a1096692f1276654c5b777cbbf87a9f4655e754400f5b9077c5fe",
+    "dockerfile_sha256": "53ef307d24f5e8cbe9098c3ba8f207d043f35cf62ebfafdc4f3ab1b82f6bafcb",
+    "dockerignore_sha256": "d55e2b4bc3d56d907d8da72d872f35e0789aa5e6a849d2380ebf6cd472a1c527"
+  },
+  "preflight": {
+    "verified_on": "2026-08-17",
+    "commands": [
+      "pnpm install --frozen-lockfile",
+      "pnpm prisma:validate",
+      "pnpm prisma:generate",
+      "pnpm lint",
+      "pnpm test",
+      "pnpm build"
+    ],
+    "result": "passed",
+    "tests": "1 test passed",
+    "routes": ["/", "/health"],
+    "health_contract": {
+      "service": "greenfield-product",
+      "status": "ok"
+    }
+  },
+  "host_note": "The verification result is container-based. The host machine runs Node 25.8.0 and is not the benchmark product runtime.",
+  "benchmark_role": "greenfield_product_fixture"
+}
+
