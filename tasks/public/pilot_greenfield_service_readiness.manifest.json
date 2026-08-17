@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "task_id": "pilot_greenfield_service_readiness",
+  "product_id": "greenfield",
+  "phase": "pilot",
+  "category": "feature",
+  "difficulty": "small",
+  "public_issue_sha256": "cca91955cd4c5e1df81673d627062cc43b7b7ca534aaada3da4eff2b991d71a6",
+  "ambiguities": [
+    {
+      "ambiguity_id": "A1",
+      "kind": "functional",
+      "impact": "The final readiness response contract and status semantics must be made explicit."
+    },
+    {
+      "ambiguity_id": "A2",
+      "kind": "edge-case",
+      "impact": "Behavior when a required dependency cannot be reached must be defined and testable."
+    },
+    {
+      "ambiguity_id": "A3",
+      "kind": "technical-operational",
+      "impact": "The dependency check strategy must balance deployment usefulness, latency, and safe failure."
+    }
+  ],
+  "baseline": {
+    "minimum_hours": 4,
+    "most_likely_hours": 6,
+    "maximum_hours": 8,
+    "pert_expected_hours": 6
+  },
+  "private_artifacts": [
+    "private/tasks/pilot_greenfield_service_readiness/canonical-requirements.json",
+    "private/tasks/pilot_greenfield_service_readiness/oracle-truth-table.json",
+    "private/tasks/pilot_greenfield_service_readiness/hidden-tests/",
+    "private/tasks/pilot_greenfield_service_readiness/reference-solution.patch"
+  ]
+}
+
