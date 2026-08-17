@@ -22,7 +22,7 @@
     "agent-orchestrator": {
       "probe_status": "passed",
       "ledger_events": 10,
-      "summary_sha256": "ccaa5f03794761077fd4bcb837a1324901697d2e91c5b78199842d3fb65970e2",
+      "summary_sha256": "4a16f176b4fa3ba3ffd5002326d8e3cf7ef9cf9d06d2fc61e2e3445dd1aadb15",
       "semantic_parity": "blocked",
       "blockers": ["native lifecycle event stream is not exposed", "full worker session semantic parity remains unverified"],
       "polling_bridge": "verified"

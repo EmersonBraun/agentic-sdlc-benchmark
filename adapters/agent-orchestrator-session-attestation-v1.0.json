@@ -21,14 +21,14 @@
     "host_sessions_after": 0
   },
   "commands": {
-    "project_add": {"returncode": 0, "output_sha256": "cf1d04832f4954b67055ca167f886abc8ba324f230668f620ea2be5dc712f22b"},
-    "spawn": {"returncode": 0, "output_sha256": "2558e25c11a0a5a4cdefdc4a5bcacb68037e0bbbed5b0e866a38d8452a013023"},
-    "kill": {"returncode": 0, "output_sha256": "1214559edb4842d63a2e4664335d7f2f4765ce512036060bba8716cd390d403a"},
+    "project_add": {"returncode": 0, "output_sha256": "94c5d6fb0003aa0781b113ea211d6a42d88887060060149e146782b056cd5109"},
+    "spawn": {"returncode": 0, "output_sha256": "f63ae9802949275fa7613a3b97c1fbbbd649eb2fed8551da196086c888d94ae8"},
+    "kill": {"returncode": 0, "output_sha256": "f30ccb7deaf3230b1b1ebee97b81c286bdeec8f4f533bc158dd1faaabd5ed6d1"},
     "project_remove": {"returncode": 0, "output_sha256": "4cfd69a644a2689a018f0b7aae4ab2309e868de777f4846cfc9f371e61fccc03"}
   },
   "session": {
     "observed_count": 1,
-    "session_id_sha256": "10a5a0638b6ac089886baf788e089f773f350202ad0e930e2ad96f6a5acf5317",
+    "session_id_sha256": "71400b717e38820cd4892114aef4f64b4919150d532173aafde87315cbda1e52",
     "observed_states": ["idle"],
     "polling_bridge_verified": true,
     "native_event_stream_exposed": false
