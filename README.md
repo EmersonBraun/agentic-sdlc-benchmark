@@ -23,6 +23,7 @@ The benchmark compares ADEs, harnesses, model coordination policies, and AgentsK
 - `analysis/` — processing, statistics, charts, and content inputs
 - `dashboard/` — static public dashboard
 - `runs/` — immutable run bundles and manifests
+- [`docs/data-lineage.md`](docs/data-lineage.md) — readiness evidence, public ledger, and private-data boundary
 
 The public dashboard is published at `/dashboard/` by
 [`.github/workflows/pages.yml`](.github/workflows/pages.yml) after the

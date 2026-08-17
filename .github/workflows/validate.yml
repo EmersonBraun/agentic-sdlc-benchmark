@@ -34,6 +34,11 @@ jobs:
           PYTHONPATH=controller/src:analysis:. python -m unittest discover -s analysis -p 'test_*.py'
           PYTHONPATH=controller/src:evaluation:. python -m unittest discover -s evaluation -p 'test_*.py'
 
+      - name: Validate collected run bundles
+        run: |
+          PYTHONPATH=controller/src python3 controller/scripts/validate_run_bundle.py \
+            --runs-root runs --tasks-root tasks/public --protocol v1.1
+
       - name: Validate dashboard and empty-result analysis
         run: |
           node --check dashboard/app.js
