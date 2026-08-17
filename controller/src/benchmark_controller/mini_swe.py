@@ -21,12 +21,14 @@ class MiniSwePreflight:
     image: dict[str, Any]
     help_probe: dict[str, Any]
     workspace_probe: dict[str, Any]
+    model_probe: dict[str, Any]
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "image": self.image,
             "help_probe": self.help_probe,
             "workspace_probe": self.workspace_probe,
+            "model_probe": self.model_probe,
             "agent_sessions_started": False,
             "workspace_mounted": self.workspace_probe["passed"],
             "network_enabled": False,
@@ -81,8 +83,16 @@ class MiniSweAgentAdapter:
             time_category="orchestration_overhead",
             env={"BENCHMARK_PERMISSION_MODE": self.runtime.permissions.mode},
         )
+        model_result = self.runtime.run(
+            self._model_probe_command(),
+            stage_id="intake",
+            actor="infrastructure",
+            access="read",
+            time_category="orchestration_overhead",
+        )
         image_id = image_result.stdout.strip() if image_result.returncode == 0 else None
         workspace_passed = workspace_result.returncode == 0 and "mini-swe workspace boundary ok" in workspace_result.stdout
+        model_fail_closed = model_result.returncode == 1 and "Aborted." in (model_result.stdout + model_result.stderr)
         return MiniSwePreflight(
             image={"image": self.image, "image_id": image_id, "inspect_passed": image_result.returncode == 0},
             help_probe={
@@ -99,6 +109,13 @@ class MiniSweAgentAdapter:
                 "network_enabled": False,
                 "mount_read_only": True,
             },
+            model_probe={
+                "returncode": model_result.returncode,
+                "fail_closed": model_fail_closed,
+                "task_argument_accepted": "No such option: --task" not in model_result.stderr,
+                "network_enabled": False,
+                "agent_session_started": False,
+            },
         )
 
     def run_task(self, *, issue_text: str) -> dict[str, Any]:
@@ -113,8 +130,10 @@ class MiniSweAgentAdapter:
                 f"mini-SWE-agent is {self.descriptor.implementation_status}; no task session started"
             )
 
-    def _container_command(self, argument: str) -> tuple[str, ...]:
-        return self._base_container_command() + (argument,)
+    def _container_command(self, *arguments: str) -> tuple[str, ...]:
+        if not arguments or any(not argument for argument in arguments):
+            raise ValueError("container command requires non-empty arguments")
+        return self._base_container_command() + arguments
 
     def _workspace_probe_command(self) -> tuple[str, ...]:
         probe = (
@@ -124,6 +143,15 @@ class MiniSweAgentAdapter:
             "print('mini-swe workspace boundary ok')"
         )
         return self._base_container_command(mount_workspace=True, entrypoint="python3") + ("-c", probe)
+
+    def _model_probe_command(self) -> tuple[str, ...]:
+        return self._container_command(
+            "--model",
+            "invalid/model",
+            "--task",
+            "benchmark preflight: do not modify anything",
+            "--exit-immediately",
+        )
 
     def _base_container_command(
         self,

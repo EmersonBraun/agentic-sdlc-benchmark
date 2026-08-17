@@ -124,7 +124,9 @@
         "agent_sessions_started": false,
         "permission_parity": "contract-tested",
         "ledger_bridge": "live",
-        "workspace_boundary": "passed"
+        "workspace_boundary": "passed",
+        "model_fail_closed": true,
+        "task_argument_accepted": true
       },
       "decision": "Do not use in pilot until the harness adapter proves semantic parity and controlled model/auth configuration."
     }

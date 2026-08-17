@@ -13,7 +13,7 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 | Agent Orchestrator | 0.12.6 | Read-only adapter probe passes: daemon/project resolved, zero sessions; ledger bridge contract-tested | Blocked until worker session adapter and live lifecycle emission pass |
 | Reference Harness | v1.0 | Contract-ready and tested | Available for local contract tests |
 | OpenHands SDK | 1.42.1 | Dependency resolution fails between `lmnr` and OpenTelemetry constraints | Blocked; no dependency override accepted |
-| mini-SWE-agent | 2.4.6 | Container image, isolated `mini --help`, and read-only workspace-boundary probes pass; network disabled | Blocked until task semantics, model configuration, and live collection authorization are verified |
+| mini-SWE-agent | 2.4.6 | Container image, read-only workspace-boundary, and missing model/auth fail-closed probes pass; network disabled | Blocked until a declared model configuration and full task semantic parity are verified |
 | AgentsKit ON | public/local `0.3.0` source | Public core Observer emitted three events into the redacted benchmark ledger; no provider or agent session was used | Blocked until implementation status and full component/runtime integration are verified |
 | AgentsKit OFF | v1.0 | Neutral control contract-ready | Available for contract tests |
 

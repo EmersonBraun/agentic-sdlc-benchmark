@@ -32,6 +32,7 @@ class MiniSweAdapterTests(unittest.TestCase):
                     type("Result", (), {"returncode": 0, "stdout": "sha256:image\n", "stderr": ""})(),
                     type("Result", (), {"returncode": 0, "stdout": "This is mini-swe-agent version 2.4.6\n", "stderr": ""})(),
                     type("Result", (), {"returncode": 0, "stdout": "mini-swe workspace boundary ok\n", "stderr": ""})(),
+                    type("Result", (), {"returncode": 1, "stdout": "Aborted.\n", "stderr": ""})(),
                 ]
             )
             adapter.runtime.run = lambda *args, **kwargs: next(outputs)  # type: ignore[method-assign]
@@ -39,6 +40,7 @@ class MiniSweAdapterTests(unittest.TestCase):
             self.assertTrue(result.help_probe["passed"])
             self.assertTrue(result.to_dict()["workspace_mounted"])
             self.assertEqual(result.image["image_id"], "sha256:image")
+            self.assertTrue(result.model_probe["fail_closed"])
 
     def test_workspace_probe_mounts_read_only_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
