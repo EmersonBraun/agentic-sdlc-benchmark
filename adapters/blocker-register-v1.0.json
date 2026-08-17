@@ -42,7 +42,7 @@
     },
     {
       "component": "agentskit:on",
-      "evidence_refs": ["preflight-v1.0.json", "agentskit/event-contract-v1.0.json"],
+      "evidence_refs": ["preflight-v1.0.json", "agentskit-component-attestation-v1.0.json", "agentskit/event-contract-v1.0.json"],
       "blocking_conditions": ["full component/runtime integration not verified", "provider-free observer bridge is insufficient for task parity"],
       "resolution_gate": "Public source is isolated and version-pinned, all declared ON components emit ledger-compatible events in a controlled task, and the matched OFF control remains unchanged.",
       "safe_next_action": "Complete provider-free component coverage and isolation checks before any model-backed session."

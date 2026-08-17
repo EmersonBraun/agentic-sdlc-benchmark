@@ -3,12 +3,13 @@
   "protocol_version": "v1.0",
   "factor": "agentskit",
   "on": {
-    "status": "installed-not-ready",
+    "status": "partial-ready",
     "integration_version": "agentskit-0.3.0-source",
     "source_commits": {
       "agentskit": "353d6e38a60deebd6556cddb58d322d242f4df0d"
     },
     "event_contract": "event-contract-v1.0.json",
+    "component_attestation": "../adapters/agentskit-component-attestation-v1.0.json",
     "components": ["doc-bridge", "playbook", "specialized-agents", "code-review", "versioned-memory", "telemetry"]
   },
   "off": {

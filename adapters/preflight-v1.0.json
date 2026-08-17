@@ -189,10 +189,11 @@
         "ledger_redaction": "live",
         "ledger_emission": "live",
         "live_attestation": "agentskit-live-attestation-v1.0.json",
+        "component_attestation": "agentskit-component-attestation-v1.0.json",
         "provider_called": false,
         "agent_session_started": false
       },
-      "decision": "Do not use in pilot until the integration is isolated from local developer state and its declared components emit benchmark ledger events."
+      "decision": "Do not use in pilot until the integration is isolated from local developer state and the evidence-only external components are materialized and exercised in a controlled task."
     },
     "off": {"installed": true, "status": "contract-ready"}
   },
