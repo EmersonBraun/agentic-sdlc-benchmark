@@ -1,0 +1,35 @@
+{
+  "schema_version": "live-parity-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "source": "controller/scripts/probe_ade_readonly.py",
+  "scope": "read-only ADE preflight; no benchmark condition was executed",
+  "side_effect_policy": {
+    "agent_sessions_started": false,
+    "workflows_started": false,
+    "tasks_started": false,
+    "raw_payloads_published": false
+  },
+  "components": {
+    "orca": {
+      "probe_status": "passed",
+      "ledger_events": 8,
+      "summary_sha256": "70a6c8309fe51553ed9242d46b403f85520c7e14e424f5f6de9f8468eb349762",
+      "semantic_parity": "blocked",
+      "blockers": ["runtime graph unavailable", "current benchmark worktree not resolved", "live workflow lifecycle not verified"]
+    },
+    "agent-orchestrator": {
+      "probe_status": "passed",
+      "ledger_events": 10,
+      "summary_sha256": "f2089caa0b13d7259fcf066fd5c96f54c547b4ae3c256feafda7141eafa27de3",
+      "semantic_parity": "blocked",
+      "blockers": ["worker session lifecycle not verified", "live lifecycle emission not verified"]
+    },
+    "compozy": {
+      "probe_status": "not-run-in-this-attestation",
+      "semantic_parity": "blocked",
+      "blockers": ["CLI is not available on PATH", "provider auth is not verified", "live session lifecycle not verified"]
+    }
+  },
+  "decision": "Read-only probes are evidence of bounded inspection only. They do not satisfy semantic parity and do not authorize pilot collection."
+}

@@ -3,6 +3,7 @@
   "protocol_version": "v1.0",
   "verified_on": "2026-08-17",
   "parity_probe_results": "probe-results-v1.0.json",
+  "live_parity_attestation": "live-parity-attestation-v1.0.json",
   "semantic_parity": {
     "contract": "semantic-parity-v1.0.json",
     "status": "not-ready",
