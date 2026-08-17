@@ -85,7 +85,7 @@ def _ade_descriptors() -> dict[str, ComponentDescriptor]:
     )
     return {
         "orca": ComponentDescriptor(
-            "ade", "orca", "orca-adapter-v1.0", "declared-not-installed", "external:orca", lifecycle
+            "ade", "orca", "orca-runtime-1.4.183", "installed-not-ready", "external:orca", lifecycle
         ),
         "agent-orchestrator": ComponentDescriptor(
             "ade",
@@ -188,12 +188,11 @@ def assert_live_adapter_ready(plan: ExecutionPlan) -> None:
     unavailable = [
         descriptor.key
         for descriptor in (plan.ade, plan.harness, plan.agentskit)
-        if descriptor.implementation_status == "declared-not-installed"
+        if descriptor.implementation_status not in {"contract-ready", "installed-ready"}
     ]
     if unavailable:
         raise RuntimeError(
-            "Live adapter integration is not installed for: "
+            "Live adapter integration is not ready for: "
             + ", ".join(unavailable)
             + ". The controller will not substitute another adapter."
         )
-

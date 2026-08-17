@@ -4,7 +4,7 @@
   "fallback_policy": "forbidden",
   "adapters": {
     "ade": {
-      "orca": {"adapter_version": "orca-adapter-v1.0", "status": "declared-not-installed", "entrypoint": "external:orca"},
+      "orca": {"adapter_version": "orca-runtime-1.4.183", "status": "installed-not-ready", "entrypoint": "external:orca"},
       "agent-orchestrator": {"adapter_version": "agent-orchestrator-adapter-v1.0", "status": "declared-not-installed", "entrypoint": "external:agent-orchestrator"},
       "compozy": {"adapter_version": "compozy-adapter-v1.0", "status": "declared-not-installed", "entrypoint": "external:compozy"}
     },
@@ -15,4 +15,3 @@
     }
   }
 }
-

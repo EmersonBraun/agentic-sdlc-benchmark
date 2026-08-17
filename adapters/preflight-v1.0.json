@@ -1,0 +1,45 @@
+{
+  "schema_version": "adapter-preflight-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "host": {
+    "platform": "macOS",
+    "architecture": "arm64",
+    "machine_scope": "personal-local-machine"
+  },
+  "ade": {
+    "orca": {
+      "command": "orca",
+      "installed": true,
+      "runtime_version": "1.4.183",
+      "status_command": "orca status --json",
+      "status": "installed-not-ready",
+      "evidence": {
+        "app_running": true,
+        "runtime_reachable": true,
+        "graph_state": "unavailable",
+        "runtime_state": "graph_not_ready"
+      },
+      "decision": "Do not use in pilot until the runtime graph and benchmark adapter readiness are verified."
+    },
+    "agent-orchestrator": {
+      "installed": false,
+      "status": "declared-not-installed"
+    },
+    "compozy": {
+      "installed": false,
+      "status": "declared-not-installed"
+    }
+  },
+  "harness": {
+    "reference": {"installed": true, "status": "contract-ready"},
+    "openhands-sdk": {"installed": false, "status": "declared-not-installed"},
+    "mini-swe-agent": {"installed": false, "status": "declared-not-installed"}
+  },
+  "agentskit": {
+    "on": {"installed": false, "status": "declared-not-installed"},
+    "off": {"installed": true, "status": "contract-ready"}
+  },
+  "policy": "This is a preflight record, not a benchmark result. Missing or not-ready integrations remain explicit and are not replaced by another factor level."
+}
+
