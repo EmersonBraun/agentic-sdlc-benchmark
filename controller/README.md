@@ -14,6 +14,8 @@ The shared ADE/harness runtime boundary is implemented in `benchmark_controller.
 
 The registry layers in `benchmark_controller.ade_adapters` and `benchmark_controller.harness_adapters` bind the catalog entries to that boundary. External entries fail closed until their preflight status is `installed-ready`; the Reference Harness is the only executable adapter at this stage.
 
+Deterministic live-readiness evaluation is implemented in `benchmark_controller.readiness` and exposed by `controller/scripts/check_adapter_readiness.py`.
+
 ## Local validation
 
 ```bash

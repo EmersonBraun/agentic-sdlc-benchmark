@@ -1,0 +1,47 @@
+{
+  "schema_version": "adapter-readiness-report-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "source": "controller/scripts/check_adapter_readiness.py",
+  "summary": {
+    "ready_components": 2,
+    "blocked_components": 6,
+    "pilot_conditions_ready": 0,
+    "pilot_conditions_total": 18
+  },
+  "components": {
+    "ade:orca": {
+      "ready": false,
+      "blockers": ["implementation-status", "workspace", "permissions", "lifecycle-bridge", "ledger-bridge"]
+    },
+    "ade:agent-orchestrator": {
+      "ready": false,
+      "blockers": ["implementation-status", "permissions", "lifecycle-bridge", "ledger-bridge"]
+    },
+    "ade:compozy": {
+      "ready": false,
+      "blockers": ["implementation-status", "lifecycle-bridge", "ledger-bridge"]
+    },
+    "harness:reference": {
+      "ready": true,
+      "blockers": []
+    },
+    "harness:openhands-sdk": {
+      "ready": false,
+      "blockers": ["implementation-status", "runtime", "workspace-boundary", "permission-parity", "ledger-bridge"]
+    },
+    "harness:mini-swe-agent": {
+      "ready": false,
+      "blockers": ["implementation-status", "workspace-boundary", "permission-parity", "ledger-bridge"]
+    },
+    "agentskit:on": {
+      "ready": false,
+      "blockers": ["implementation-status", "live-ledger"]
+    },
+    "agentskit:off": {
+      "ready": true,
+      "blockers": []
+    }
+  },
+  "policy": "A component is ready only when every required check passes. No fallback, substitution, or partial condition is eligible for collection."
+}

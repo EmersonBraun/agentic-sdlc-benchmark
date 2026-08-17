@@ -14,6 +14,7 @@
     "ade": "controller:benchmark_controller.ade_adapters",
     "harness": "controller:benchmark_controller.harness_adapters"
   },
+  "readiness_evaluator": "controller:benchmark_controller.readiness",
   "ledger_requirements": [
     "workspace.prepared",
     "command.executed",

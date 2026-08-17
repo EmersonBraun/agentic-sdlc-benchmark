@@ -4,6 +4,7 @@
   "verified_on": "2026-08-17",
   "parity_probe_results": "probe-results-v1.0.json",
   "runtime_contract": "runtime-contract-v1.0.json",
+  "readiness_report": "readiness-report-v1.0.json",
   "host": {
     "platform": "macOS",
     "architecture": "arm64",
