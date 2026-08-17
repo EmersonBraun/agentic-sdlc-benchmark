@@ -48,3 +48,5 @@ Pilot preparation is separately gated by [`semantic-parity-v1.0.json`](semantic-
 The latest bounded ADE probe is recorded in [`live-parity-attestation-v1.0.json`](live-parity-attestation-v1.0.json). ORCA and Agent Orchestrator passed read-only inspection, but their live lifecycle and session semantics remain unverified.
 
 Agent Orchestrator's lifecycle surface was separately inspected in [`agent-orchestrator-lifecycle-attestation-v1.0.json`](agent-orchestrator-lifecycle-attestation-v1.0.json). The CLI exposes session listing but no event stream/subscription command, so the adapter remains blocked pending an explicitly approved session-level parity test.
+
+The complete remediation matrix is maintained in [`blocker-register-v1.0.json`](blocker-register-v1.0.json). It distinguishes safe read-only probes from actions requiring operator approval, such as provider authentication or session creation.
