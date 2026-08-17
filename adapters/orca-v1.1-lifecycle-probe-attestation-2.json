@@ -1,0 +1,39 @@
+{
+  "schema_version": "orca-v1.1-lifecycle-probe-attestation",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-17",
+  "source": "orca orchestration run-create; task-create; worker-start; worker-read; worker-stop; worker-release",
+  "status": "blocked-infrastructure",
+  "authorization": {
+    "operator_confirmation": true
+  },
+  "workspace": {
+    "path_scope": "benchmark-repository",
+    "fixture_mutated": false,
+    "git_worktree_clean_after_probe": true
+  },
+  "runtime": {
+    "app_version": "1.4.184",
+    "runtime_state": "ready",
+    "graph_state": "ready",
+    "runtime_reachable": true
+  },
+  "run": {
+    "run_created": true,
+    "task_created": true,
+    "agent": "codex",
+    "provider_model_requested": "gpt-5.4",
+    "provider_model_accepted": true
+  },
+  "worker": {
+    "dispatch_state": "ready",
+    "input_accepted": true,
+    "bootstrap_started": true,
+    "task_execution_observed": false,
+    "provider_task_result": "not-observed",
+    "stop_reason": "mcp-bootstrap-stalled-before-task-execution",
+    "worker_stopped": true,
+    "terminal_released": true
+  },
+  "decision": "The current ORCA runtime accepts the v1.1 model launch, but the worker remains blocked during MCP bootstrap. This is infrastructure evidence only; lifecycle parity, model-backed task parity, and pilot readiness remain unverified."
+}

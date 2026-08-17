@@ -70,6 +70,7 @@
     "model-compatibility-v1.1.json",
     "orca-session-attestation-v1.0.json",
     "orca-v1.1-lifecycle-probe-attestation.json",
+    "orca-v1.1-lifecycle-probe-attestation-2.json",
     "agent-orchestrator-session-attestation-v1.0.json",
     "agent-orchestrator-v1.1-session-probe-attestation.json",
     "compozy-session-attestation-v1.0.json",
