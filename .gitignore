@@ -7,6 +7,8 @@ dist/
 build/
 .next/
 coverage/
+__pycache__/
+*.py[cod]
 private/
 evaluation/private/
 runs/private/
