@@ -3,6 +3,7 @@
   "protocol_version": "v1.0",
   "verified_on": "2026-08-17",
   "source": "controller/scripts/check_adapter_readiness.py",
+  "condition_readiness": "condition-readiness-v1.0.json",
   "summary": {
     "ready_components": 2,
     "blocked_components": 6,

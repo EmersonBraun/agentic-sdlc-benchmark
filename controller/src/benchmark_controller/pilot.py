@@ -16,6 +16,7 @@ class ConditionReadiness:
     condition_id: str
     ready: bool
     missing_components: tuple[str, ...]
+    factor_statuses: dict[str, str]
 
 
 @dataclass(frozen=True)
@@ -49,16 +50,21 @@ def evaluate_pilot_gate(preflight: dict[str, Any]) -> PilotGateReport:
     readiness: list[ConditionReadiness] = []
     for ade, harness, agentskit in product(EXPECTED_ADE, EXPECTED_HARNESSES, EXPECTED_AGENTSKIT):
         selections = {"ade": ade, "harness": harness, "agentskit": agentskit}
-        missing = tuple(
-            f"{factor}:{value}:{factor_documents[factor].get(value, {}).get('status', 'missing')}"
+        statuses = {
+            factor: factor_documents[factor].get(value, {}).get("status", "missing")
             for factor, value in selections.items()
-            if factor_documents[factor].get(value, {}).get("status") not in READY_STATUSES
+        }
+        missing = tuple(
+            f"{factor}:{value}:{statuses[factor]}"
+            for factor, value in selections.items()
+            if statuses[factor] not in READY_STATUSES
         )
         readiness.append(
             ConditionReadiness(
                 condition_id=f"{ade}__{harness}__{agentskit}",
                 ready=not missing,
                 missing_components=missing,
+                factor_statuses=statuses,
             )
         )
     ready_count = sum(condition.ready for condition in readiness)
@@ -69,4 +75,3 @@ def evaluate_pilot_gate(preflight: dict[str, Any]) -> PilotGateReport:
         blocked_conditions=len(readiness) - ready_count,
         conditions=tuple(sorted(readiness, key=lambda condition: condition.condition_id)),
     )
-

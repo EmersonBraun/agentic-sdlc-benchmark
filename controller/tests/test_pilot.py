@@ -12,6 +12,12 @@ class PilotGateTests(unittest.TestCase):
         self.assertFalse(report.can_start)
         self.assertEqual(report.ready_conditions, 0)
         self.assertEqual(report.blocked_conditions, 18)
+        self.assertEqual(len(report.conditions), 18)
+        first = next(condition for condition in report.conditions if condition.condition_id == "orca__reference__off")
+        self.assertEqual(
+            first.factor_statuses,
+            {"ade": "installed-not-ready", "harness": "contract-ready", "agentskit": "contract-ready"},
+        )
 
     def test_gate_requires_every_factor_to_be_ready(self) -> None:
         preflight = {
@@ -24,3 +30,12 @@ class PilotGateTests(unittest.TestCase):
         self.assertTrue(report.can_start)
         self.assertEqual(report.ready_conditions, 18)
 
+    def test_published_condition_matrix_matches_current_gate(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+        preflight = json.loads((root / "adapters" / "preflight-v1.0.json").read_text())
+        snapshot = json.loads((root / "adapters" / "condition-readiness-v1.0.json").read_text())
+        report = evaluate_pilot_gate(preflight)
+        self.assertEqual(snapshot["schema_version"], "condition-readiness-v1.0")
+        self.assertEqual(snapshot["ready_conditions"], report.ready_conditions)
+        self.assertEqual(snapshot["blocked_conditions"], report.blocked_conditions)
+        self.assertEqual(len(snapshot["conditions"]), 18)
