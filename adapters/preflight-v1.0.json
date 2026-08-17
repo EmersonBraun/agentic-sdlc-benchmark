@@ -100,7 +100,13 @@
         "openhands-workspace": "7f632cab1b0005c7a623eae1a3ffd2e1b9156ffc95d87e3bcf7098f82eae1e5d"
       },
       "status": "dependency-resolution-failed",
-      "failure": "pip dependency resolution conflicts between lmnr 0.7.56 and opentelemetry semantic-conventions versions"
+      "failure": "pip dependency resolution conflicts between lmnr 0.7.56 and opentelemetry semantic-conventions versions",
+      "resolver_attempts": [
+        {"openhands_sdk": "1.42.1", "result": "failed"},
+        {"openhands_sdk": "1.40.1", "result": "failed"}
+      ],
+      "dependency_override_used": false,
+      "agent_sessions_started": false
     },
     "mini-swe-agent": {
       "installed": true,
