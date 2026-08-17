@@ -1,0 +1,21 @@
+{
+  "schema_version": "orca-v1.1-lifecycle-probe-attestation",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-17",
+  "source": "orca terminal create; run-create; task-create; worker-start; terminal input; worker-read; worker-stop; worker-release",
+  "status": "blocked-infrastructure",
+  "authorization": {"operator_confirmation": true},
+  "workspace": {"path_scope": "public-benchmark-repository", "fixture_mutated": false, "git_worktree_clean_after_probe": true},
+  "runtime": {"app_version": "1.4.184", "runtime_state": "ready", "graph_state": "ready", "runtime_reachable": true},
+  "worker": {
+    "model_requested": "gpt-5.4",
+    "model_accepted": true,
+    "input_accepted": true,
+    "hook_trust_prompt_observed": true,
+    "hook_prompt_bypass_for_read_only_probe": true,
+    "mcp_startup_observed": "0/2-stalled",
+    "task_execution_observed": false,
+    "stop_and_release": "passed"
+  },
+  "decision": "The public-repository ORCA terminal was isolated and cleaned up. Bypassing the interactive hook-trust prompt for this read-only diagnostic did not unblock execution; the worker remained at MCP startup 0/2, so ORCA lifecycle and model-backed task parity remain blocked."
+}

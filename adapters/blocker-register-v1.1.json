@@ -8,7 +8,7 @@
   "blockers": [
     {
       "component": "ade:orca",
-      "evidence_refs": ["preflight-v1.1.json", "orca-workspace-attestation-v1.0.json", "orca-session-attestation-v1.0.json", "orca-v1.1-lifecycle-probe-attestation.json", "model-compatibility-v1.1.json"],
+      "evidence_refs": ["preflight-v1.1.json", "orca-workspace-attestation-v1.0.json", "orca-session-attestation-v1.0.json", "orca-v1.1-lifecycle-probe-attestation.json", "orca-v1.1-lifecycle-probe-attestation-3.json", "model-compatibility-v1.1.json"],
       "blocking_conditions": ["live workflow lifecycle not verified", "worker stalled during MCP bootstrap before task execution"],
       "resolution_gate": "Registered isolated benchmark workspace, reachable ready graph, live lifecycle events normalized into the ledger, and no session leakage using the v1.1 model policy.",
       "safe_next_action": "Run one isolated gpt-5.4 worker lifecycle probe through the approved ORCA adapter; preserve redacted lifecycle evidence and stop if normalization or cleanup is not complete."

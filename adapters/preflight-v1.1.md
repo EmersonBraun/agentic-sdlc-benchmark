@@ -34,6 +34,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 - [v1.1 blocker register](blocker-register-v1.1.json)
 - [ORCA lifecycle probe](orca-v1.1-lifecycle-probe-attestation.json)
 - [Latest ORCA lifecycle probe](orca-v1.1-lifecycle-probe-attestation-2.json)
+- [Latest ORCA bootstrap diagnostic](orca-v1.1-lifecycle-probe-attestation-3.json)
 - [Agent Orchestrator session probe](agent-orchestrator-v1.1-session-probe-attestation.json)
 - [Compozy session probe](compozy-v1.1-session-probe-attestation.json)
 - [Latest Compozy availability probe](compozy-v1.1-availability-probe-attestation-2.json)
