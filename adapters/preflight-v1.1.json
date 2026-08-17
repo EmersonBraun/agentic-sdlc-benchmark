@@ -69,6 +69,7 @@
   "evidence_refs": [
     "model-compatibility-v1.1.json",
     "orca-session-attestation-v1.0.json",
+    "orca-v1.1-lifecycle-probe-attestation.json",
     "agent-orchestrator-session-attestation-v1.0.json",
     "compozy-session-attestation-v1.0.json",
     "openhands-resolver-attestation-v1.0.json",

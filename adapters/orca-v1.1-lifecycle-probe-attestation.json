@@ -1,0 +1,13 @@
+{
+  "schema_version": "orca-v1.1-lifecycle-probe-attestation",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-17",
+  "source": "orca orchestration run-create; task-create; worker-start; terminal read; worker-stop; worker-release",
+  "status": "blocked-infrastructure",
+  "authorization": {"operator_confirmation": true},
+  "workspace": {"path_scope": "benchmark-repository", "fixture_mutated": false},
+  "runtime": {"app_version": "1.4.184", "runtime_state": "ready", "graph_state": "ready", "runtime_reachable": true},
+  "run": {"run_id_sha256": "ee8235f937427d408e27ab1c8ccfc76529596cec23cceb8103932f2c34341567", "task_id_sha256": "8fd23d44f5d158d6126c01ddbe298fa49c5746cdb16c6e66e9e9eb2e9a2c27b7", "task_created": true, "provider_model_requested": "gpt-5.4"},
+  "worker": {"dispatch_id_sha256": "fd517b4b03a4bf2030e77722ede2b7d5b5870045e52a493e56f527e1a24587eb", "terminal_handle_sha256": "d445841e7329f10d94a6120ab9542861837efa60021060aa0bd8a96f1e8283d0", "dispatch_state": "ready", "input_accepted": true, "bootstrap_started": true, "task_execution_observed": false, "provider_task_result": "not-observed", "stop_reason": "mcp-bootstrap-stalled-before-task-execution", "stop_reason_sha256": "957208e43c14d76bb0de9761ac482f18c14aed6c1d028b995711e4dfb5690a87", "worker_stopped": true, "terminal_closed": true, "workspace_mutated": false},
+  "decision": "The v1.1 model launch was accepted by ORCA, but the worker stalled while bootstrapping MCP servers before task execution. This is infrastructure evidence only; it does not establish lifecycle parity, model-backed task parity, or pilot readiness. The external worker and coordinator terminals were stopped and released."
+}

@@ -34,6 +34,8 @@ The integrated provider-free fixture is [`agentskit-integrated-fixture-attestati
 
 ORCA workspace and graph evidence is [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json), with the controlled Run probe in [`orca-session-attestation-v1.0.json`](orca-session-attestation-v1.0.json). The graph is ready, but worker/workflow lifecycle parity is still blocked. Compozy's model connectivity evidence is [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json); the alternate model is excluded, and the exact protocol model remains blocked by the installed ACP provider despite an official configuration attempt.
 
+The first v1.1 lifecycle recheck is [`orca-v1.1-lifecycle-probe-attestation.json`](orca-v1.1-lifecycle-probe-attestation.json). ORCA accepted `gpt-5.4`, but the worker stalled during MCP bootstrap before task execution; the worker and coordinator terminals were stopped and released, and the pilot remains blocked.
+
 The cross-runtime model investigation is [`model-compatibility-v1.0.json`](model-compatibility-v1.0.json). `gpt-5.4` and `gpt-5.4-mini` execute in Compozy and the Codex CLI, but no replacement is adopted until the remaining ADE, harness, and AgentsKit parity is verified.
 
 OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). The pinned Python 3.12 environment still fails normal dependency resolution, so no session is started.
