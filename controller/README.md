@@ -20,6 +20,8 @@ The Agent Orchestrator adapter exposes read-only daemon/project/session prefligh
 
 The Compozy adapter exposes read-only daemon/workspace/config/session/provider summaries and protects session creation behind the `installed-ready` gate.
 
+The ORCA adapter exposes redacted runtime, command-schema, and current-worktree probes and protects workflow creation behind the `installed-ready` gate. Unrelated local ORCA state is never persisted into benchmark evidence.
+
 ## Local validation
 
 ```bash

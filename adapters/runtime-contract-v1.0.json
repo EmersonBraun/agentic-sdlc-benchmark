@@ -17,7 +17,8 @@
   "readiness_evaluator": "controller:benchmark_controller.readiness",
   "ade_specific_bindings": {
     "agent-orchestrator": "controller:benchmark_controller.agent_orchestrator",
-    "compozy": "controller:benchmark_controller.compozy"
+    "compozy": "controller:benchmark_controller.compozy",
+    "orca": "controller:benchmark_controller.orca"
   },
   "ledger_requirements": [
     "workspace.prepared",

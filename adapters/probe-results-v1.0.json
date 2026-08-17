@@ -13,7 +13,7 @@
     "required": 4,
     "passed": 4,
     "failed": 0,
-    "additional_passed": 2
+    "additional_passed": 3
   },
   "results": [
     {
@@ -77,6 +77,16 @@
       "passed": true,
       "output_sha256": "e8a941c0be809c1cb0adeed91bcc7d99852e68668b1e6277c19f698d846846a6",
       "assertions": ["daemon healthy", "workspace resolved", "approve-reads", "zero sessions", "26 providers summarized", "10 ledger events", "no agent sessions started"]
+    },
+    {
+      "probe_id": "orca.adapter-readonly-preflight",
+      "component": "orca",
+      "command_label": "ORCA read-only adapter preflight",
+      "returncode": 0,
+      "timed_out": false,
+      "passed": true,
+      "output_sha256": "256904d518402d898d70413ffb290d962bc2046f46172ff44abc2dd0c9823f82",
+      "assertions": ["runtime reachable", "228 command schema entries", "33 capabilities", "graph unavailable", "current worktree absent", "6 ledger events", "no agent sessions started"]
     }
   ],
   "interpretation": "The executable boundary and basic workspace/runtime probes pass. This does not establish semantic parity, provider readiness, ledger emission, or collection readiness."

@@ -12,7 +12,7 @@
   "components": {
     "ade:orca": {
       "ready": false,
-      "blockers": ["implementation-status", "workspace", "permissions", "lifecycle-bridge", "ledger-bridge"]
+      "blockers": ["implementation-status", "workspace"]
     },
     "ade:agent-orchestrator": {
       "ready": false,

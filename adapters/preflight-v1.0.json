@@ -24,9 +24,19 @@
         "app_running": true,
         "runtime_reachable": true,
         "graph_state": "unavailable",
-        "runtime_state": "graph_not_ready"
+        "runtime_state": "graph_not_ready",
+        "adapter_readonly_probe": "passed",
+        "agent_context_schema": "passed",
+        "agent_context_command_count": 228,
+        "capability_count": 33,
+        "current_worktree_found": false,
+        "worktree_error_code": "selector_not_found",
+        "agent_sessions_started": false,
+        "permission_mode": "controller-approve-reads",
+        "lifecycle_bridge": "contract-tested",
+        "ledger_bridge": "contract-tested"
       },
-      "decision": "Do not use in pilot until the runtime graph and benchmark adapter readiness are verified."
+      "decision": "Do not use in pilot until the runtime graph, workspace binding, and benchmark adapter readiness are verified."
     },
     "agent-orchestrator": {
       "installed": true,
@@ -74,7 +84,7 @@
         "doctor_status": "error",
         "doctor_errors": ["missing tailscale extension environment", "missing native provider CLIs", "provider auth not verified"],
         "registered_workspace_id": "ws_d15ffee1d255378e",
-        "parity_probes": ["compozy.version", "compozy.workspace-resolution"]
+        "parity_probes": ["compozy.version", "compozy.workspace-resolution", "compozy.adapter-readonly-preflight"]
       },
       "decision": "Do not use in pilot until the benchmark adapter, provider auth, and permission policy pass semantic-parity checks."
     }
