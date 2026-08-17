@@ -31,5 +31,20 @@
     "controller_lifecycle_events": 0,
     "compozy_event_bridge_verified": false
   },
+  "latest_recheck": {
+    "source": "controller/scripts/probe_compozy_session.py --confirm",
+    "cli_path_scope": "temporary-installed-public-compozy-cli",
+    "session_created": true,
+    "session_id_sha256": "d742960bf2c7336aab7f33e1a7a35a2ab4bd64811bb53638f7cb6ba400fb7302",
+    "workspace_id_sha256": "40c4f7ed519237a8ccefaeda0fd44a3b3f2a0dd5b3189317ccdb477f05c055b6",
+    "initial_state": "active",
+    "runtime_status": "unbound",
+    "network_mode": "local",
+    "provider_execution_observed": false,
+    "session_stop_returncode": 0,
+    "workspace_remove_returncode": 0,
+    "fixture_mutated": false,
+    "fixture_destroyed": true
+  },
   "decision": "Session creation and cleanup passed with local network participation, but the runtime was unbound, no provider execution occurred, and no Compozy lifecycle event bridge was verified. This does not satisfy semantic parity or authorize pilot collection."
 }
