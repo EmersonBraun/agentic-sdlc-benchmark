@@ -1,0 +1,12 @@
+{
+  "schema_version": "mini-swe-v1.1-preflight-attestation",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-17",
+  "source": "docker run with agentic-sdlc-mini-swe-agent:2.4.6",
+  "status": "installed-not-ready",
+  "image": {"tag": "agentic-sdlc-mini-swe-agent:2.4.6", "image_id": "sha256:b9315a5977bd1cc8c302fb0bd9e49a2f6b5f793b343b6633a1d5ac4b137af309"},
+  "boundary": {"network": "none", "root_filesystem": "read-only", "workspace_mount": "read-only:/workspace", "tmpfs": ["/tmp", "/root/.config"], "workspace_mutated": false},
+  "probe": {"cli_help": "passed", "cli_version": "2.4.6", "stdout_sha256": "ada89a6e837219ee8305023e4fbdbfe75138764fe62878aea2c3809895445d44", "stderr_sha256": "dd7e4edb84ed0988e73d9fef5f031910be61df17b9bc3ca63a7eac522f1e5a4d"},
+  "model": {"policy_model": "gpt-5.4", "auth": "not-configured", "task_execution": "not-run"},
+  "decision": "The isolated mini-SWE boundary and CLI startup pass after providing writable tmpfs locations for runtime configuration. Model/auth and full task semantic parity remain unverified, so the harness remains blocked for collection."
+}

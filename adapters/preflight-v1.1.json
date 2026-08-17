@@ -76,6 +76,7 @@
     "compozy-v1.1-session-probe-attestation.json",
     "openhands-resolver-attestation-v1.0.json",
     "mini-swe-attestation-v1.0.json",
+    "mini-swe-v1.1-preflight-attestation.json",
     "agentskit-integrated-fixture-attestation-v1.0.json"
   ]
 }
