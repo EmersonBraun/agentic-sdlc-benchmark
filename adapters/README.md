@@ -18,6 +18,10 @@ The first confirmed AO session probe is recorded in [`agent-orchestrator-session
 
 The Compozy session probe is recorded in [`compozy-session-attestation-v1.0.json`](compozy-session-attestation-v1.0.json). Compozy created and stopped an unbound local session without provider execution; its lifecycle bridge remains unverified.
 
+Compozy agent/provider binding evidence is recorded in [`compozy-binding-attestation-v1.0.json`](compozy-binding-attestation-v1.0.json): four agents are configured, zero have provider bindings, and the doctor reports 19 errors.
+
+AgentsKit's provider-free live bridge evidence is [`agentskit-live-attestation-v1.0.json`](agentskit-live-attestation-v1.0.json). It validates Observer delivery and ledger redaction, not the full ON component stack.
+
 The current catalog is declarative. It freezes names, adapter versions, entrypoints, and the no-fallback rule; it does not claim that the external tools are installed. Live integrations must pass the installation and semantic-parity gates before a pilot run can use them.
 
 See [`catalog-v1.0.json`](catalog-v1.0.json), [`runtime-contract-v1.0.json`](runtime-contract-v1.0.json), [`readiness-report-v1.0.json`](readiness-report-v1.0.json), [`preflight-v1.0.json`](preflight-v1.0.json), [`preflight-v1.0.md`](preflight-v1.0.md), [`probe-contract-v1.0.json`](probe-contract-v1.0.json), [`probe-results-v1.0.json`](probe-results-v1.0.json), and the controller contracts in [`../controller/src/benchmark_controller/adapters.py`](../controller/src/benchmark_controller/adapters.py), [`../controller/src/benchmark_controller/pilot_executor.py`](../controller/src/benchmark_controller/pilot_executor.py), and [`../controller/src/benchmark_controller/semantic_parity.py`](../controller/src/benchmark_controller/semantic_parity.py).

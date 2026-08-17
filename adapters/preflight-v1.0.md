@@ -56,3 +56,7 @@ The next controlled action is fully specified, but not executed, in [`session-pa
 The first confirmed Agent Orchestrator session test is documented in [`agent-orchestrator-session-attestation-v1.0.json`](agent-orchestrator-session-attestation-v1.0.json). It created and cleaned up one temporary session and verified two polling transitions, but did not expose native lifecycle events; the ADE remains not-ready.
 
 The Compozy session test is documented in [`compozy-session-attestation-v1.0.json`](compozy-session-attestation-v1.0.json). It created and stopped an unbound local session without provider execution; no lifecycle event bridge was observed.
+
+The binding diagnosis is [`compozy-binding-attestation-v1.0.json`](compozy-binding-attestation-v1.0.json): four agents are present but none has a provider binding, and the read-only doctor reports 19 errors.
+
+The provider-free AgentsKit bridge evidence is [`agentskit-live-attestation-v1.0.json`](agentskit-live-attestation-v1.0.json): three Observer events reached the redacted ledger, but the complete ON component stack remains unverified.

@@ -1,0 +1,18 @@
+{
+  "schema_version": "agentskit-live-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "source": "controller/scripts/probe_agentskit_live.py",
+  "status": "partial-ready",
+  "observer_events": 3,
+  "observer_event_types": ["llm:start", "llm:first-token", "llm:end"],
+  "ledger_events": 3,
+  "ledger_event_types": ["agentskit.llm.start", "agentskit.llm.first-token", "agentskit.llm.end"],
+  "event_bridge": "live",
+  "ledger_emission": "live",
+  "ledger_redaction": "live",
+  "provider_called": false,
+  "agent_session_started": false,
+  "output_sha256": "88e77845dbc081ec4caa7042ba9cda49fdd3210e2a88257b914c8d85c387d2e7",
+  "decision": "The public core Observer-to-ledger bridge is live-verified provider-free. Full AgentsKit ON semantic parity remains blocked until all declared ON components are isolated and exercised in a controlled task."
+}

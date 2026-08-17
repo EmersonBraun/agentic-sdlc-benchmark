@@ -114,6 +114,10 @@
         "session_probe": "created-stopped-unbound",
         "provider_execution_observed": false,
         "lifecycle_attestation": "compozy-session-attestation-v1.0.json",
+        "binding_attestation": "compozy-binding-attestation-v1.0.json",
+        "agent_catalog_count": 4,
+        "agent_provider_bound_count": 0,
+        "doctor_error_count": 19,
         "doctor_status": "error",
         "doctor_errors": ["missing tailscale extension environment", "missing native provider CLIs", "provider auth not verified"],
         "registered_workspace_id": "ws_d15ffee1d255378e",
@@ -182,6 +186,7 @@
         "event_contract": "agentskit/event-contract-v1.0.json",
         "ledger_redaction": "live",
         "ledger_emission": "live",
+        "live_attestation": "agentskit-live-attestation-v1.0.json",
         "provider_called": false,
         "agent_session_started": false
       },

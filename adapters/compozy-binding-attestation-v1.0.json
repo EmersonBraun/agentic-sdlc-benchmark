@@ -1,0 +1,20 @@
+{
+  "schema_version": "compozy-binding-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "source": "compozy agent list -o json; compozy doctor -o json",
+  "status": "blocked",
+  "agent_catalog": {
+    "count": 4,
+    "provider_bound_count": 0,
+    "output_sha256": "846785d0d7110ebd1ff98fc99f963f11c45ffccf1a5163bfb7f4ffd9fc067595"
+  },
+  "doctor": {
+    "returncode": 0,
+    "status": "error",
+    "item_count": 37,
+    "severity_counts": {"error": 19, "warn": 8, "ok": 10},
+    "output_sha256": "e44192f856cfb8068794857987b29bd1b305cee392940229fbe273a4b276d5a7"
+  },
+  "decision": "Blocked: an agent catalog without provider binding cannot establish a comparable model runtime. Provider setup and authentication must be performed explicitly in an isolated profile before any bound session test."
+}
