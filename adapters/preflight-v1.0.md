@@ -46,3 +46,5 @@ The deterministic readiness snapshot is [`readiness-report-v1.0.json`](readiness
 Pilot preparation is separately gated by [`semantic-parity-v1.0.json`](semantic-parity-v1.0.json). Its current status is `not-ready`; all seven parity invariants and the complete 18-condition matrix must be verified before the conditioned executor can return a plan. No run or external session is created while either gate is blocked.
 
 The latest bounded ADE probe is recorded in [`live-parity-attestation-v1.0.json`](live-parity-attestation-v1.0.json). ORCA and Agent Orchestrator passed read-only inspection, but their live lifecycle and session semantics remain unverified.
+
+Agent Orchestrator's lifecycle surface was separately inspected in [`agent-orchestrator-lifecycle-attestation-v1.0.json`](agent-orchestrator-lifecycle-attestation-v1.0.json). The CLI exposes session listing but no event stream/subscription command, so the adapter remains blocked pending an explicitly approved session-level parity test.

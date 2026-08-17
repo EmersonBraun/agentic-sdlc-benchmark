@@ -1,0 +1,21 @@
+{
+  "schema_version": "agent-orchestrator-lifecycle-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "source": "controller/scripts/probe_agent_orchestrator_lifecycle.py",
+  "side_effect_policy": {
+    "agent_sessions_started": false,
+    "orchestrator_sessions_started": false,
+    "raw_payloads_published": false
+  },
+  "read_only_commands": {
+    "orchestrator_list": {"returncode": 0, "count": 0, "machine_readable": true, "output_sha256": "3b459147c8170c320545247d8ba79c22d55408311adafa4ad737f02c7aa78700"},
+    "session_list_all": {"returncode": 0, "count": 0, "machine_readable": true, "output_sha256": "f1ebd712b173f6fb91401d704973fe7fc9cd598ac1b717926f6c3aca22a4b831"},
+    "session_list_project": {"returncode": 0, "count": 0, "machine_readable": true, "output_sha256": "f1ebd712b173f6fb91401d704973fe7fc9cd598ac1b717926f6c3aca22a4b831"}
+  },
+  "command_surface": {
+    "orchestrator_help": {"returncode": 0, "event_command_exposed": false, "output_sha256": "bcb2d23a287e2a02766954de01199f103f2d84a53bba769be5de5f7ed74ee16b"},
+    "session_help": {"returncode": 0, "event_command_exposed": false, "output_sha256": "ae3812f85fc44994ae5f965bb61e5c92381c58ec2f2eeeb6ebf2a6b1a668358b"}
+  },
+  "decision": "Blocked: session listing is available, but the inspected CLI exposes no lifecycle event stream or subscription surface. Live lifecycle parity requires a separately approved session test and must not be inferred from empty listings."
+}

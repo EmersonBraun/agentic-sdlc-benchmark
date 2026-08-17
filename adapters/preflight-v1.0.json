@@ -81,6 +81,7 @@
         "authorized_agent_count": 4,
         "installed_agent_count": 6,
         "spawn_guard": "blocked-and-ledgered",
+        "lifecycle_attestation": "agent-orchestrator-lifecycle-attestation-v1.0.json",
         "doctor_warnings": ["ao binary not on PATH", "muse agent not found"],
         "parity_probes": ["agent-orchestrator.core-doctor", "agent-orchestrator.adapter-readonly-preflight", "agent-orchestrator.agent-auth"]
       },
