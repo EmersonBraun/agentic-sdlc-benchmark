@@ -16,5 +16,19 @@
     "provider_called": false,
     "files_modified": false
   },
-  "decision": "The ORCA runtime graph and lightweight Run creation are reachable in the benchmark workspace. A worker/workflow lifecycle was not started, so normalized live lifecycle parity and cleanup remain unverified; no pilot condition is authorized."
+  "worker_attempt": {
+    "dispatch_id_sha256": "9903f2ce9518409c52ab1675cd3d4182bcddd1e6ee7266b9f751a55ef5ab5b8e",
+    "worker_terminal_sha256": "7aea03e5f3ff7ad77fe06b9bdccc5f8ae2c9ce60fe2f6c4377852c5c7a202a52",
+    "task_created": true,
+    "model_requested": "gpt-5.3-codex",
+    "model_effective": "gpt-5.3-codex",
+    "dispatch_state": "ready",
+    "input_accepted": true,
+    "blocked_stage": "interactive-hook-review-prompt",
+    "provider_request_observed": false,
+    "worker_stopped": true,
+    "worker_terminal_closed": true,
+    "workspace_mutated": false
+  },
+  "decision": "The ORCA runtime graph and lightweight Run creation are reachable, and a worker dispatch accepted the required model, but the worker was blocked at ORCA's interactive hook-review prompt before provider execution. The worker and terminal were stopped cleanly; normalized live lifecycle parity remains unverified and no pilot condition is authorized."
 }
