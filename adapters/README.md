@@ -12,6 +12,8 @@ Agent Orchestrator lifecycle-surface evidence is [`agent-orchestrator-lifecycle-
 
 The open blocker register is [`blocker-register-v1.0.json`](blocker-register-v1.0.json). Each blocker has a resolution gate and a safe next action; no shortcut is allowed to silently change the experiment.
 
+The operator-facing closure procedure is [`operator-readiness-runbook-v1.0.md`](operator-readiness-runbook-v1.0.md). It sequences the remaining external gates, preserves the no-fallback policy, and defines the evidence required before collection.
+
 The isolated session probe is specified in [`session-parity-test-v1.0.json`](session-parity-test-v1.0.json). It is preparation-only and requires explicit operator confirmation before any session or provider call.
 
 The first confirmed AO session probe is recorded in [`agent-orchestrator-session-attestation-v1.0.json`](agent-orchestrator-session-attestation-v1.0.json). Session creation and cleanup passed, but AO lifecycle event emission was not observed, so semantic parity remains blocked.

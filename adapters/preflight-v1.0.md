@@ -51,6 +51,8 @@ Agent Orchestrator's lifecycle surface was separately inspected in [`agent-orche
 
 The complete remediation matrix is maintained in [`blocker-register-v1.0.json`](blocker-register-v1.0.json). It distinguishes safe read-only probes from actions requiring operator approval, such as provider authentication or session creation.
 
+The operator closure sequence is [`operator-readiness-runbook-v1.0.md`](operator-readiness-runbook-v1.0.md). It is the only approved sequence for resolving the remaining external gates; it does not authorize automatic authentication, protocol substitutions, dependency overrides, or use of private AgentsKit components.
+
 The next controlled action is fully specified, but not executed, in [`session-parity-test-v1.0.json`](session-parity-test-v1.0.json). It uses the greenfield fixture, Reference Harness, and AgentsKit OFF as fixed controls before any ADE-specific session test.
 
 The first confirmed Agent Orchestrator session test is documented in [`agent-orchestrator-session-attestation-v1.0.json`](agent-orchestrator-session-attestation-v1.0.json). It created and cleaned up one temporary session and verified two polling transitions, but did not expose native lifecycle events; the ADE remains not-ready.
