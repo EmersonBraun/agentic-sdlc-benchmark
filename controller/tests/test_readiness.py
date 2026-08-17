@@ -46,5 +46,5 @@ class ReadinessTests(unittest.TestCase):
         self.assertTrue(report.components[0].ready)
 
     def test_wrong_protocol_is_rejected(self) -> None:
-        with self.assertRaisesRegex(ValueError, "protocol v1.0"):
+        with self.assertRaisesRegex(ValueError, "supported protocol"):
             evaluate_adapter_readiness({"protocol_version": "v0.9"})

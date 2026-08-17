@@ -53,8 +53,9 @@ class ReadinessReport:
 
 
 def evaluate_adapter_readiness(preflight: Mapping[str, Any]) -> ReadinessReport:
-    if preflight.get("protocol_version") != "v1.0":
-        raise ValueError("Readiness preflight must target protocol v1.0")
+    protocol_version = str(preflight.get("protocol_version", ""))
+    if protocol_version not in {"v1.0", "v1.1"}:
+        raise ValueError("Readiness preflight must target a supported protocol version")
 
     components: list[ComponentReadiness] = []
     for factor in ("ade", "harness", "agentskit"):
@@ -68,7 +69,7 @@ def evaluate_adapter_readiness(preflight: Mapping[str, Any]) -> ReadinessReport:
 
     ready = sum(component.ready for component in components)
     return ReadinessReport(
-        protocol_version="v1.0",
+        protocol_version=protocol_version,
         ready_components=ready,
         blocked_components=len(components) - ready,
         components=tuple(sorted(components, key=lambda component: (component.factor, component.key))),

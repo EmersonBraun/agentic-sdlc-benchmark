@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-sdlc-benchmark.org/schemas/run-manifest-v1.1.schema.json",
+  "title": "Run Manifest v1.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "protocol_version", "run_id", "task_id", "product_id", "condition_id", "replicate", "randomization_seed", "base_commit", "terminal_state", "artifacts"],
+  "properties": {
+    "schema_version": {"const": "1.1"},
+    "protocol_version": {"const": "v1.1"},
+    "run_id": {"type": "string", "pattern": "^run_[A-Za-z0-9_-]+$"},
+    "task_id": {"type": "string", "pattern": "^(pilot|main|holdout)_[A-Za-z0-9_-]+$"},
+    "product_id": {"type": "string", "enum": ["greenfield", "umami"]},
+    "condition_id": {"type": "string", "pattern": "^[a-z0-9-]+__[a-z0-9-]+__(off|on)$"},
+    "replicate": {"type": "integer", "minimum": 1},
+    "randomization_seed": {"type": "integer", "minimum": 0},
+    "base_commit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+    "model_snapshots": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}},
+    "component_versions": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}},
+    "environment": {"type": "object"},
+    "budgets": {"type": "object"},
+    "terminal_state": {"type": "string", "enum": ["MERGED", "FAILED", "TIMEOUT", "BUDGET_EXCEEDED", "HUMAN_REQUIRED", "INFRASTRUCTURE_FAILURE", "INVALID_MEASUREMENT", "NOT_APPLICABLE"]},
+    "artifacts": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["path", "sha256", "visibility"], "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "visibility": {"type": "string", "enum": ["public", "private", "redacted"]}}}},
+    "failure": {"type": ["object", "null"]}
+  }
+}

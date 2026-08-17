@@ -12,5 +12,5 @@ from benchmark_controller.conditions import load_conditions  # noqa: E402
 
 
 if __name__ == "__main__":
-    document = load_conditions(ROOT / "protocol" / "conditions-v1.0.json")
+    document = load_conditions(ROOT / "protocol" / "conditions-v1.1.json")
     print(f"valid: protocol={document['protocol_version']} conditions={len(document['conditions'])}")

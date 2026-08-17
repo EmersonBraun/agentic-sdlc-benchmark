@@ -2,7 +2,7 @@
   "schema_version": "model-compatibility-v1.0",
   "protocol_version": "v1.0",
   "verified_on": "2026-08-17",
-  "status": "candidate-models-identified-protocol-unchanged",
+  "status": "candidate-model-approved-for-protocol-v1.1",
   "protocol": {
     "planner_model": "gpt-5.3-codex",
     "evaluator_model": "gpt-5.4-mini",
@@ -106,5 +106,5 @@
     "gpt-5.3-codex-spark": "Executable in Compozy, but not equivalent to the frozen planner model and excluded from substitution.",
     "gpt-5.5_or_gpt-5.6": "Catalog intersection only; no valid execution evidence was collected in this probe."
   },
-  "decision": "Do not revise protocol v1.0 yet. If the exact planner model remains unavailable, the defensible next protocol candidate is planner gpt-5.4 with evaluator gpt-5.4-mini, subject to matched semantic-parity verification across every selected condition."
+  "decision": "Protocol v1.0 remains historical. Protocol v1.1 is approved with planner gpt-5.4 and evaluator gpt-5.4-mini; matched semantic-parity verification across every selected condition is still required before v1.1 collection."
 }

@@ -51,3 +51,12 @@ Freeze approved decisions in `protocol/protocol-v1.0.md`. Any post-freeze change
 ## D-013 — Public repository identity
 
 The public repository is `agentic-sdlc-benchmark`. Code uses MIT; documentation, schemas, and datasets use CC BY 4.0.
+
+## D-014 — Protocol v1.1 model topology
+
+Create a separate v1.1 cohort with planner `gpt-5.4` and evaluator
+`gpt-5.4-mini`; keep all other study factors, tasks, metrics, baseline, hidden
+tests, and ledger rules unchanged. The revision is approved because the
+provider rejected the v1.0 planner `gpt-5.3-codex` during a controlled ORCA
+probe. v1.0 and v1.1 results must never be pooled as if model topology were
+unchanged.

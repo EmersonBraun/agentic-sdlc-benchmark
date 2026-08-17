@@ -40,8 +40,9 @@ class PilotGateReport:
 def evaluate_pilot_gate(preflight: dict[str, Any]) -> PilotGateReport:
     """Evaluate every primary condition from immutable preflight statuses."""
 
-    if preflight.get("protocol_version") != "v1.0":
-        raise ValueError("Pilot preflight must target protocol v1.0")
+    protocol_version = str(preflight.get("protocol_version", ""))
+    if protocol_version not in {"v1.0", "v1.1"}:
+        raise ValueError("Pilot preflight must target a supported protocol version")
     factor_documents = {
         "ade": preflight.get("ade", {}),
         "harness": preflight.get("harness", {}),
@@ -69,7 +70,7 @@ def evaluate_pilot_gate(preflight: dict[str, Any]) -> PilotGateReport:
         )
     ready_count = sum(condition.ready for condition in readiness)
     return PilotGateReport(
-        protocol_version="v1.0",
+        protocol_version=protocol_version,
         can_start=ready_count == len(readiness),
         ready_conditions=ready_count,
         blocked_conditions=len(readiness) - ready_count,

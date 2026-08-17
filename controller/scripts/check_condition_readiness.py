@@ -20,7 +20,7 @@ def main() -> int:
     args = parser.parse_args()
     report = evaluate_pilot_gate(json.loads(args.preflight.read_text(encoding="utf-8")))
     output = {
-        "schema_version": "condition-readiness-v1.0",
+        "schema_version": f"condition-readiness-{report.protocol_version}",
         "protocol_version": report.protocol_version,
         "source": str(args.preflight),
         **report.to_dict(),

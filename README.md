@@ -6,7 +6,7 @@ The benchmark compares ADEs, harnesses, model coordination policies, and AgentsK
 
 ## Status
 
-`protocol-v1.0` is frozen. The public repository skeleton is being implemented. No benchmark runs have started.
+`protocol-v1.0` is frozen as the historical cohort. `protocol-v1.1` is the approved separate model-topology cohort (`gpt-5.4` planner, `gpt-5.4-mini` evaluator). No benchmark runs have started.
 
 ## Repository map
 

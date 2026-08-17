@@ -1,0 +1,33 @@
+{
+  "schema_version": "model-compatibility-v1.1",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-17",
+  "status": "planner-candidate-executed-cross-runtime-parity-pending",
+  "protocol": {
+    "planner_model": "gpt-5.4",
+    "evaluator_model": "gpt-5.4-mini",
+    "executor_model": "grok-4.5",
+    "substitution_applied": false,
+    "decision": "Approved v1.1 model topology; no collection until all selected runtime, harness, and AgentsKit parity gates pass."
+  },
+  "evidence_refs": [
+    "model-policy-v1.1.json",
+    "model-compatibility-v1.0.json",
+    "orca-session-attestation-v1.0.json",
+    "compozy-model-connectivity-attestation-v1.0.json"
+  ],
+  "candidate_execution": {
+    "orca": {"model": "gpt-5.4", "status": "executed", "bounded_response": true, "workspace_mutated": false},
+    "compozy": {"model": "gpt-5.4", "status": "executed", "session_cleaned": true, "workspace_mutated": false},
+    "codex_cli": {"model": "gpt-5.4", "status": "executed", "sandbox": "read-only", "workspace_mutated": false},
+    "evaluator": {"model": "gpt-5.4-mini", "status": "executed-in-compozy-and-codex-cli"}
+  },
+  "remaining_gates": [
+    "Agent Orchestrator semantic parity",
+    "OpenHands dependency resolution",
+    "mini-SWE-agent controlled model boundary",
+    "AgentsKit ON provider-backed parity",
+    "matched OFF comparison"
+  ],
+  "decision": "Use v1.1 as a separate cohort. Do not combine v1.0 and v1.1 results or claim that the model revision is an ADE, harness, or AgentsKit effect."
+}

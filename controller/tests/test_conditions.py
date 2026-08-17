@@ -9,3 +9,9 @@ class ConditionMatrixTests(unittest.TestCase):
         path = Path(__file__).resolve().parents[2] / "protocol" / "conditions-v1.0.json"
         document = load_conditions(path)
         self.assertEqual(len(document["conditions"]), 18)
+
+    def test_protocol_v1_1_preserves_condition_matrix(self) -> None:
+        path = Path(__file__).resolve().parents[2] / "protocol" / "conditions-v1.1.json"
+        document = load_conditions(path)
+        self.assertEqual(document["protocol_version"], "v1.1")
+        self.assertEqual(len(document["conditions"]), 18)

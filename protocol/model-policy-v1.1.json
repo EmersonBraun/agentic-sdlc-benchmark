@@ -1,0 +1,22 @@
+{
+  "schema_version": "model-policy-v1.1",
+  "protocol_version": "v1.1",
+  "status": "approved",
+  "cohort": "v1.1",
+  "roles": {
+    "planner_requirements_lead": {"provider": "codex", "model": "gpt-5.4"},
+    "executor_fixer": {"provider": "grok", "model": "grok-4.5"},
+    "independent_evaluator": {"provider": "codex", "model": "gpt-5.4-mini"}
+  },
+  "change_from_v1.0": {
+    "previous_planner": "gpt-5.3-codex",
+    "reason": "The Codex provider rejected gpt-5.3-codex for the ChatGPT account during a controlled ORCA worker probe.",
+    "candidate_evidence": [
+      "adapters/orca-session-attestation-v1.0.json",
+      "adapters/model-compatibility-v1.0.json",
+      "adapters/compozy-model-connectivity-attestation-v1.0.json"
+    ]
+  },
+  "non_changes": ["ADE factor", "harness factor", "AgentsKit factor", "task suite", "metrics", "SR baseline", "hidden tests", "ledger policy"],
+  "substitution_policy": "No aliases, fallbacks, or silent model substitutions."
+}

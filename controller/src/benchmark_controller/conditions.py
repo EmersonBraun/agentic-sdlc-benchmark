@@ -10,6 +10,7 @@ from typing import Any
 EXPECTED_ADE = {"orca", "agent-orchestrator", "compozy"}
 EXPECTED_HARNESSES = {"reference", "openhands-sdk", "mini-swe-agent"}
 EXPECTED_AGENTSKIT = {"off", "on"}
+SUPPORTED_PROTOCOL_VERSIONS = {"v1.0", "v1.1"}
 
 
 def load_conditions(path: Path) -> dict[str, Any]:
@@ -19,14 +20,14 @@ def load_conditions(path: Path) -> dict[str, Any]:
     factors = document.get("factors", {})
     conditions = document.get("conditions", [])
 
-    if document.get("protocol_version") != "v1.0":
-        raise ValueError("Conditions must belong to protocol v1.0")
+    if document.get("protocol_version") not in SUPPORTED_PROTOCOL_VERSIONS:
+        raise ValueError("Conditions must belong to a supported protocol version")
     if set(factors.get("ade", [])) != EXPECTED_ADE:
-        raise ValueError("ADE factor does not match protocol v1.0")
+        raise ValueError("ADE factor does not match the protocol")
     if set(factors.get("harness", [])) != EXPECTED_HARNESSES:
-        raise ValueError("Harness factor does not match protocol v1.0")
+        raise ValueError("Harness factor does not match the protocol")
     if set(factors.get("agentskit", [])) != EXPECTED_AGENTSKIT:
-        raise ValueError("AgentsKit factor does not match protocol v1.0")
+        raise ValueError("AgentsKit factor does not match the protocol")
     if len(conditions) != 18:
         raise ValueError(f"Expected 18 conditions, found {len(conditions)}")
 
