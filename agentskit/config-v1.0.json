@@ -1,0 +1,18 @@
+{
+  "schema_version": "agentskit-control-v1.0",
+  "protocol_version": "v1.0",
+  "factor": "agentskit",
+  "on": {
+    "status": "declared-not-installed",
+    "integration_version": "agentskit-integration-v1.0",
+    "components": ["doc-bridge", "playbook", "specialized-agents", "code-review", "versioned-memory", "telemetry"]
+  },
+  "off": {
+    "status": "contract-ready",
+    "integration_version": "neutral-control-v1.0",
+    "matched_neutral_components": ["neutral-doc-bridge", "neutral-playbook", "neutral-specialized-agents", "neutral-code-review", "neutral-versioned-memory", "neutral-telemetry"],
+    "forbidden": ["agentskit-code", "agentskit-services", "agentskit-specific-prompts"]
+  },
+  "ablation_components": ["doc-bridge", "playbook", "specialized-agents", "code-review", "versioned-memory", "telemetry"]
+}
+

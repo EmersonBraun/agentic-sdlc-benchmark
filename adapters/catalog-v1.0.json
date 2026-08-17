@@ -1,0 +1,18 @@
+{
+  "schema_version": "adapter-catalog-v1.0",
+  "protocol_version": "v1.0",
+  "fallback_policy": "forbidden",
+  "adapters": {
+    "ade": {
+      "orca": {"adapter_version": "orca-adapter-v1.0", "status": "declared-not-installed", "entrypoint": "external:orca"},
+      "agent-orchestrator": {"adapter_version": "agent-orchestrator-adapter-v1.0", "status": "declared-not-installed", "entrypoint": "external:agent-orchestrator"},
+      "compozy": {"adapter_version": "compozy-adapter-v1.0", "status": "declared-not-installed", "entrypoint": "external:compozy"}
+    },
+    "harness": {
+      "reference": {"adapter_version": "reference-harness-v1.0", "status": "contract-ready", "entrypoint": "controller:reference-harness"},
+      "openhands-sdk": {"adapter_version": "openhands-sdk-adapter-v1.0", "status": "declared-not-installed", "entrypoint": "external:openhands-sdk"},
+      "mini-swe-agent": {"adapter_version": "mini-swe-agent-adapter-v1.0", "status": "declared-not-installed", "entrypoint": "external:mini-swe-agent"}
+    }
+  }
+}
+
