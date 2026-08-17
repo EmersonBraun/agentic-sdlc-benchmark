@@ -83,14 +83,18 @@
         "agent_sessions_started": false,
         "lifecycle_bridge": "contract-tested",
         "ledger_bridge": "contract-tested",
+        "auth_probe": "derived-from-provider-list",
+        "provider_ready_count": 0,
+        "provider_credential_missing_count": 8,
+        "spawn_guard": "blocked-and-ledgered",
         "provider_count": 26,
         "provider_states": {"missing_cli": 10, "missing_credential": 8, "unknown": 8},
         "doctor_status": "error",
         "doctor_errors": ["missing tailscale extension environment", "missing native provider CLIs", "provider auth not verified"],
         "registered_workspace_id": "ws_d15ffee1d255378e",
-        "parity_probes": ["compozy.version", "compozy.workspace-resolution", "compozy.adapter-readonly-preflight"]
+        "parity_probes": ["compozy.version", "compozy.workspace-resolution", "compozy.adapter-readonly-preflight", "compozy.provider-auth-summary"]
       },
-      "decision": "Do not use in pilot until the benchmark adapter, provider auth, and permission policy pass semantic-parity checks."
+      "decision": "Do not use in pilot until provider auth, session lifecycle, and live ledger emission pass semantic-parity checks."
     }
   },
   "harness": {

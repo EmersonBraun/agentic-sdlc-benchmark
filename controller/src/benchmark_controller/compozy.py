@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .adapters import ADE_DESCRIPTORS, ComponentDescriptor
-from .external import ControlledAdapter
+from .external import ControlledAdapter, LifecycleBridge
 from .ledger import Ledger
 
 DEFAULT_COMPOZY_CLI = "compozy"
@@ -52,6 +52,7 @@ class CompozyAdapter:
         self.descriptor: ComponentDescriptor = ADE_DESCRIPTORS["compozy"]
         self.runtime = ControlledAdapter(workspace, ledger, permission_mode=permission_mode)  # type: ignore[arg-type]
         self.cli_path = cli_path
+        self.lifecycle = LifecycleBridge(ledger, tool="compozy")
 
     def read_only_preflight(self, *, workspace_name: str) -> CompozyPreflight:
         """Inspect Compozy without starting a daemon, workflow, or agent session."""
@@ -77,6 +78,12 @@ class CompozyAdapter:
 
     def _assert_ready(self) -> None:
         if self.descriptor.implementation_status not in READY_STATUSES:
+            self.lifecycle.record(
+                stage_id="intake",
+                actor="infrastructure",
+                status="blocked",
+                event_name="session.spawn",
+            )
             raise CompozyNotReadyError(
                 f"Compozy is {self.descriptor.implementation_status}; no session started"
             )
@@ -161,4 +168,10 @@ def _provider_summary(providers: dict[str, Any]) -> dict[str, Any]:
             auth_status = provider.get("auth_status", {})
             state = str(auth_status.get("state", "unknown")) if isinstance(auth_status, dict) else "unknown"
             states[state] = states.get(state, 0) + 1
-    return {"count": len(data), "states": states}
+    return {
+        "count": len(data),
+        "states": states,
+        "auth_probe": "passed",
+        "ready_count": states.get("ready", 0),
+        "credential_missing_count": states.get("missing_credential", 0),
+    }

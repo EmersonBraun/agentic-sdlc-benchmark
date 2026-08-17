@@ -9,7 +9,7 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 | Component | Version | Result | Collection decision |
 |---|---:|---|---|
 | Orca | 1.4.183 | Read-only adapter probe passes: runtime/schema observed; graph unavailable and no current worktree | Blocked until graph, workspace binding, and lifecycle adapter are verified |
-| CompozyOS | 0.3.0-beta.16 | Read-only adapter probe passes: daemon/workspace/config/sessions/providers; 0 sessions | Blocked until provider readiness, workflow adapter, and live lifecycle emission pass |
+| CompozyOS | 0.3.0-beta.16 | Read-only adapter probe passes: daemon/workspace/config/sessions/providers; provider auth summary derived; 0 sessions | Blocked until provider readiness, session lifecycle, and live ledger emission pass |
 | Agent Orchestrator | 0.12.6 | Read-only adapter, installed-agent authorization, and spawn-guard ledger probes pass; 4 authorized agents, 0 sessions | Blocked until worker session adapter and live lifecycle emission pass |
 | Reference Harness | v1.0 | Contract-ready and tested | Available for local contract tests |
 | OpenHands SDK | 1.42.1 | Dependency resolution fails between `lmnr` and OpenTelemetry constraints | Blocked; no dependency override accepted |
@@ -27,7 +27,7 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 
 The benchmark does not treat “installed” as “ready”. A component becomes collection-ready only after its adapter exposes the common workspace, tool, permission, context, oracle, Git, GitHub, browser, and ledger semantics. Missing dependencies are recorded as failures; they are not replaced by another factor level.
 
-The machine-local Compozy bootstrap now uses `approve-reads` in its global configuration. This is safer for the host but is not yet a complete benchmark execution policy: any future Compozy run must use an explicit isolated workspace/sandbox policy and record its effective permission mode.
+The machine-local Compozy bootstrap now uses `approve-reads` in its global configuration. This is safer for the host but is not yet a complete benchmark execution policy: any future Compozy run must use an explicit isolated workspace/sandbox policy, record its effective permission mode, and verify provider auth at collection time.
 
 ## Executable parity probes
 

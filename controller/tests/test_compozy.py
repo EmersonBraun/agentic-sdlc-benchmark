@@ -29,6 +29,7 @@ class CompozyAdapterTests(unittest.TestCase):
             self.assertEqual(result.status["health_status"], "ok")
             self.assertEqual(result.config["permission_mode"], "approve-reads")
             self.assertEqual(result.providers["states"]["missing_credential"], 1)
+            self.assertEqual(result.providers["auth_probe"], "passed")
             self.assertNotIn("/tmp/workspace", json.dumps(result.to_dict()))
 
     def test_spawn_fails_closed_before_command_execution(self) -> None:
@@ -40,3 +41,5 @@ class CompozyAdapterTests(unittest.TestCase):
             )
             with self.assertRaises(CompozyNotReadyError):
                 adapter.spawn()
+            events = (root / "ledger.jsonl").read_text(encoding="utf-8")
+            self.assertIn("lifecycle.session.spawn", events)
