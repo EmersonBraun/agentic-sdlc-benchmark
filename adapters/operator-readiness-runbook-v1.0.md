@@ -12,9 +12,12 @@ gate reports ready.
 - Use isolated profiles, workspaces, and temporary sessions for every probe.
 - Do not place credentials, raw prompts, model content, tool arguments, or tool
   results in the repository ledger.
-- Keep the protocol models unchanged: planner `gpt-5.3-codex`, evaluator
-  `gpt-5.4-mini`. A model substitution requires a recorded protocol revision;
-  it is not an operational workaround.
+- For the historical v1.0 cohort, keep the protocol models unchanged: planner
+  `gpt-5.3-codex`, evaluator `gpt-5.4-mini`. The separately approved v1.1
+  cohort uses [`../protocol/model-policy-v1.1.json`](../protocol/model-policy-v1.1.json)
+  and must be run against [`preflight-v1.1.json`](preflight-v1.1.json). Never
+  mix v1.0 and v1.1 evidence; a model substitution requires a recorded
+  protocol revision and is not an operational workaround.
 - Do not weaken dependency resolution, permissions, workspace boundaries, or
   network policy to make a gate pass.
 

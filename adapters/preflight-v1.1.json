@@ -1,0 +1,78 @@
+{
+  "schema_version": "adapter-preflight-v1.1",
+  "protocol_version": "v1.1",
+  "model_policy": "../protocol/model-policy-v1.1.json",
+  "derived_from": "preflight-v1.0.json",
+  "decision": "v1.1 model topology is approved, but collection remains fail-closed until every external ADE, harness, and AgentsKit parity gate passes.",
+  "ade": {
+    "orca": {
+      "installed": true,
+      "runtime_version": "1.4.184",
+      "status": "installed-not-ready",
+      "evidence": {
+        "runtime_reachable": true,
+        "runtime_state": "ready",
+        "graph_state": "ready",
+        "registered_project": "Code 10x",
+        "workspace_boundary": "verified",
+        "read_only_probe": "passed",
+        "candidate_model": "gpt-5.4",
+        "candidate_provider_execution": "passed",
+        "required_model": "gpt-5.3-codex",
+        "required_model_provider_result": "rejected",
+        "live_lifecycle_ledger": "not-verified"
+      },
+      "decision": "Graph and candidate model execution are verified; v1.1 collection remains blocked until normalized lifecycle parity is verified."
+    },
+    "agent-orchestrator": {
+      "installed": true,
+      "version": "0.12.6",
+      "status": "installed-not-ready",
+      "evidence": {
+        "runtime_reachable": true,
+        "workspace_boundary": "passed",
+        "polling_bridge": "verified",
+        "native_event_stream": "not-exposed",
+        "session_cleanup": "passed",
+        "model_candidate": "gpt-5.4",
+        "model_execution": "not-verified"
+      },
+      "decision": "Polling lifecycle and cleanup are bounded-verified; full semantic parity remains blocked."
+    },
+    "compozy": {
+      "installed": true,
+      "version": "0.3.0-beta.16",
+      "status": "installed-not-ready",
+      "evidence": {
+        "daemon_reachable": true,
+        "workspace_resolution": "passed",
+        "session_cleanup": "passed",
+        "candidate_model": "gpt-5.4",
+        "candidate_model_execution": "passed",
+        "required_model": "gpt-5.3-codex",
+        "required_model_provider_result": "rejected",
+        "provider_bound_session": "not-verified",
+        "live_lifecycle_ledger": "not-verified"
+      },
+      "decision": "The v1.1 candidate model has connectivity evidence, but provider binding and lifecycle parity remain blocked."
+    }
+  },
+  "harness": {
+    "reference": {"installed": true, "status": "contract-ready", "evidence": {"workspace_boundary": "contract-tested", "permission_parity": "contract-tested", "ledger_bridge": "live"}},
+    "openhands-sdk": {"installed": false, "status": "dependency-resolution-failed", "evidence": {"normal_resolver": "failed", "dependency_overrides": false}},
+    "mini-swe-agent": {"installed": true, "status": "installed-not-ready", "evidence": {"workspace_boundary": "passed", "permission_parity": "contract-tested", "ledger_bridge": "live", "model_auth": "fail-closed"}}
+  },
+  "agentskit": {
+    "off": {"installed": true, "status": "contract-ready", "evidence": {"neutral_control": "contract-tested"}},
+    "on": {"installed": true, "status": "installed-not-ready", "evidence": {"event_bridge": "live", "ledger_redaction": "live", "ledger_emission": "provider-free-only", "provider_backed_parity": "not-verified"}}
+  },
+  "evidence_refs": [
+    "model-compatibility-v1.1.json",
+    "orca-session-attestation-v1.0.json",
+    "agent-orchestrator-session-attestation-v1.0.json",
+    "compozy-session-attestation-v1.0.json",
+    "openhands-resolver-attestation-v1.0.json",
+    "mini-swe-attestation-v1.0.json",
+    "agentskit-integrated-fixture-attestation-v1.0.json"
+  ]
+}
