@@ -12,8 +12,8 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 | CompozyOS | 0.3.0-beta.16 | Read-only adapter probe passes: daemon/workspace/config/sessions/providers; provider auth summary derived; 0 sessions | Blocked until provider readiness, session lifecycle, and live ledger emission pass |
 | Agent Orchestrator | 0.12.6 | Read-only adapter, installed-agent authorization, spawn/cleanup probe, and polling ledger bridge pass; no native event stream exposed | Blocked until full worker session semantic parity is verified |
 | Reference Harness | v1.0 | Contract-ready and tested | Available for local contract tests |
-| OpenHands SDK | 1.42.1 | Dependency resolution fails between `lmnr` and OpenTelemetry constraints | Blocked; no dependency override accepted |
-| mini-SWE-agent | 2.4.6 | Container image, read-only workspace-boundary, and missing model/auth fail-closed probes pass; network disabled | Blocked until a declared model configuration and full task semantic parity are verified |
+| OpenHands SDK | 1.42.1 | Correct Python 3.12 resolver attestation still fails between `lmnr` and OpenTelemetry constraints | Blocked; no dependency override accepted |
+| mini-SWE-agent | 2.4.6 | Bounded attestation passes image, read-only workspace boundary, ledger bridge, and missing model/auth fail-closed probes; network disabled | Blocked until a declared model configuration and full task semantic parity are verified |
 | AgentsKit ON | public/local `0.3.0` source | Public core Observer emitted three events into the redacted benchmark ledger; no provider or agent session was used | Blocked until implementation status and full component/runtime integration are verified |
 | AgentsKit OFF | v1.0 | Neutral control contract-ready | Available for contract tests |
 
@@ -60,3 +60,7 @@ The Compozy session test is documented in [`compozy-session-attestation-v1.0.jso
 The binding diagnosis is [`compozy-binding-attestation-v1.0.json`](compozy-binding-attestation-v1.0.json): four agents are present but none has a provider binding, and the read-only doctor reports 19 errors.
 
 The provider-free AgentsKit bridge evidence is [`agentskit-live-attestation-v1.0.json`](agentskit-live-attestation-v1.0.json): three Observer events reached the redacted ledger, but the complete ON component stack remains unverified.
+
+The OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). It rechecks the declared SDK/tool/workspace versions in a clean Python 3.12 container with normal dependency resolution and records the conflict hash.
+
+The mini-SWE-agent bounded evidence is [`mini-swe-attestation-v1.0.json`](mini-swe-attestation-v1.0.json). It records eight redacted preflight ledger events, the pinned image identity, the read-only workspace boundary, and fail-closed model behavior; no task session was started.

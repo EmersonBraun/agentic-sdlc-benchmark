@@ -1,0 +1,22 @@
+{
+  "schema_version": "openhands-resolver-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "source": "docker run --rm python:3.12.10-slim python -m pip install --dry-run --no-cache-dir",
+  "runtime": {
+    "image": "python:3.12.10-slim",
+    "python": "3.12",
+    "dependency_overrides": false,
+    "no_deps": false
+  },
+  "requested_versions": {
+    "openhands-sdk": "1.42.1",
+    "openhands-tools": "1.42.1",
+    "openhands-workspace": "1.42.1"
+  },
+  "returncode": 1,
+  "failure_class": "dependency-resolution-conflict",
+  "conflict_summary": "lmnr requires opentelemetry-semantic-conventions==0.60b1 while the resolved opentelemetry-instrumentation graph requires incompatible semantic-conventions versions",
+  "output_sha256": "e8722c1461b03a25719198319ecdbd3b8946e8d9eec29fc26611877a0fc8dec7",
+  "decision": "Blocked: the declared OpenHands environment does not resolve under the pinned Python 3.12 runtime without weakening the resolver policy. No OpenHands session was started."
+}

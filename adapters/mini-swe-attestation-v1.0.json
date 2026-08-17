@@ -1,0 +1,30 @@
+{
+  "schema_version": "mini-swe-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "source": "controller/src/benchmark_controller/mini_swe.py:MiniSweAgentAdapter.read_only_preflight",
+  "status": "bounded-ready",
+  "runtime": {
+    "image": "agentic-sdlc-mini-swe-agent:2.4.6",
+    "image_id": "sha256:b9315a5977bd1cc8c302fb0bd9e49a2f6b5f793b343b6633a1d5ac4b137af309",
+    "network_enabled": false,
+    "workspace_mount": "bind-read-only",
+    "permission_mode": "approve-reads",
+    "cap_drop_all": true,
+    "no_new_privileges": true
+  },
+  "probes": {
+    "image_inspect": "passed",
+    "cli_help": "passed",
+    "workspace_boundary": "passed",
+    "model_auth": "fail-closed",
+    "task_argument_accepted": true,
+    "agent_session_started": false
+  },
+  "ledger": {
+    "bridge": "live",
+    "event_count": 8,
+    "output_sha256": "8936258a55947227d341ad78fdf8bc04310e299f942db4849328e8c6f5955b0b"
+  },
+  "decision": "Bounded runtime and safety probes pass. Collection remains blocked until a declared model/auth boundary and full task semantic parity are verified."
+}

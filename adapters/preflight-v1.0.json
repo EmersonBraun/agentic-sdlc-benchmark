@@ -144,7 +144,8 @@
         {"openhands_sdk": "1.29.3", "result": "failed"}
       ],
       "dependency_override_used": false,
-      "agent_sessions_started": false
+      "agent_sessions_started": false,
+      "resolver_attestation": "openhands-resolver-attestation-v1.0.json"
     },
     "mini-swe-agent": {
       "installed": true,
@@ -164,7 +165,8 @@
         "ledger_bridge": "live",
         "workspace_boundary": "passed",
         "model_fail_closed": true,
-        "task_argument_accepted": true
+        "task_argument_accepted": true,
+        "attestation": "mini-swe-attestation-v1.0.json"
       },
       "decision": "Do not use in pilot until the harness adapter proves semantic parity and controlled model/auth configuration."
     }

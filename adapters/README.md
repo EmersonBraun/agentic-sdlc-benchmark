@@ -22,6 +22,10 @@ Compozy agent/provider binding evidence is recorded in [`compozy-binding-attesta
 
 AgentsKit's provider-free live bridge evidence is [`agentskit-live-attestation-v1.0.json`](agentskit-live-attestation-v1.0.json). It validates Observer delivery and ledger redaction, not the full ON component stack.
 
+OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). The pinned Python 3.12 environment still fails normal dependency resolution, so no session is started.
+
+mini-SWE-agent bounded runtime evidence is [`mini-swe-attestation-v1.0.json`](mini-swe-attestation-v1.0.json). Its isolated image, read-only workspace boundary, ledger bridge, and fail-closed model probe pass; model-backed task parity remains blocked.
+
 The current catalog is declarative. It freezes names, adapter versions, entrypoints, and the no-fallback rule; it does not claim that the external tools are installed. Live integrations must pass the installation and semantic-parity gates before a pilot run can use them.
 
 See [`catalog-v1.0.json`](catalog-v1.0.json), [`runtime-contract-v1.0.json`](runtime-contract-v1.0.json), [`readiness-report-v1.0.json`](readiness-report-v1.0.json), [`preflight-v1.0.json`](preflight-v1.0.json), [`preflight-v1.0.md`](preflight-v1.0.md), [`probe-contract-v1.0.json`](probe-contract-v1.0.json), [`probe-results-v1.0.json`](probe-results-v1.0.json), and the controller contracts in [`../controller/src/benchmark_controller/adapters.py`](../controller/src/benchmark_controller/adapters.py), [`../controller/src/benchmark_controller/pilot_executor.py`](../controller/src/benchmark_controller/pilot_executor.py), and [`../controller/src/benchmark_controller/semantic_parity.py`](../controller/src/benchmark_controller/semantic_parity.py).
