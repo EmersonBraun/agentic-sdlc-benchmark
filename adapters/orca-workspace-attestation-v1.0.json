@@ -32,5 +32,16 @@
     "runtime_state": "graph_not_ready",
     "workflows_started": false
   },
+  "latest_operator_recheck": {
+    "source": "orca open; orca status --json",
+    "app_running": true,
+    "desktop_window_status": "available",
+    "app_version": "1.4.183",
+    "runtime_reachable": true,
+    "runtime_state": "graph_not_ready",
+    "graph_state": "unavailable",
+    "workflows_started": false,
+    "update_state": "interactive-update-available"
+  },
   "decision": "ORCA can create and remove an isolated benchmark worktree and reaches the local runtime. Collection remains blocked because the runtime graph and live workflow lifecycle are not ready."
 }
