@@ -82,7 +82,7 @@
     "orca": {
       "codex_auth": "verified",
       "model_execution": "not-verified",
-      "reason": "ORCA read-only agent context does not expose a model inventory, and its graph is unavailable."
+      "reason": "ORCA graph is ready, but a provider-backed worker probe rejected gpt-5.3-codex for the ChatGPT account before task execution."
     },
     "mini_swe_agent": {
       "model_execution": "not-verified",

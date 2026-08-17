@@ -30,5 +30,22 @@
     "worker_terminal_closed": true,
     "workspace_mutated": false
   },
-  "decision": "The ORCA runtime graph and lightweight Run creation are reachable, and a worker dispatch accepted the required model, but the worker was blocked at ORCA's interactive hook-review prompt before provider execution. The worker and terminal were stopped cleanly; normalized live lifecycle parity remains unverified and no pilot condition is authorized."
+  "worker_attempt_2": {
+    "dispatch_id_sha256": "d366463a8a41231dd25079016545f0a9e8a1d39972eb342d2f01bf146d085505",
+    "worker_terminal_sha256": "8948f54f9b441bc70a4a4c2db943244f880cd9742cacf03be28ebd366adaae9a",
+    "hooks": "pretrusted-for-invocation",
+    "model_requested": "gpt-5.3-codex",
+    "provider": "codex",
+    "dispatch_state": "ready",
+    "input_accepted": true,
+    "provider_request_observed": true,
+    "provider_result": "rejected",
+    "error_class": "invalid_request_error",
+    "error_sha256": "20682000378d05c0be563d7adffa86d153a60074d11533d53515167261639759",
+    "reason": "model_not_supported_for_chatgpt_account",
+    "worker_stopped": true,
+    "worker_terminal_closed": true,
+    "workspace_mutated": false
+  },
+  "decision": "The ORCA runtime graph and lightweight Run creation are reachable. With hooks pretrusted, a worker dispatch accepted the required model but the Codex provider rejected gpt-5.3-codex for the ChatGPT account before task execution; the worker and terminal were stopped cleanly, so normalized live lifecycle parity remains unverified and no pilot condition is authorized."
 }

@@ -8,9 +8,9 @@
     {
       "component": "ade:orca",
       "evidence_refs": ["preflight-v1.0.json", "orca-workspace-attestation-v1.0.json", "orca-session-attestation-v1.0.json", "live-parity-attestation-v1.0.json"],
-      "blocking_conditions": ["live workflow lifecycle not verified", "worker probe blocked by interactive hook-review prompt"],
+      "blocking_conditions": ["live workflow lifecycle not verified", "required gpt-5.3-codex rejected for the ChatGPT account"],
       "resolution_gate": "Registered isolated benchmark workspace, reachable ready graph, live lifecycle events normalized into the ledger, and no session leakage.",
-      "safe_next_action": "Run the worker probe from a prepared ORCA terminal with hooks explicitly reviewed or disabled; keep the no-edit prompt and stop/close the worker after lifecycle evidence is captured."
+      "safe_next_action": "Do not substitute a model silently. Preserve the protocol and wait for provider support, or approve a formal protocol revision before rerunning cross-runtime parity."
     },
     {
       "component": "ade:agent-orchestrator",
