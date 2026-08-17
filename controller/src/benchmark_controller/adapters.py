@@ -90,8 +90,8 @@ def _ade_descriptors() -> dict[str, ComponentDescriptor]:
         "agent-orchestrator": ComponentDescriptor(
             "ade",
             "agent-orchestrator",
-            "agent-orchestrator-adapter-v1.0",
-            "declared-not-installed",
+            "agent-orchestrator-0.12.6",
+            "installed-not-ready",
             "external:agent-orchestrator",
             lifecycle,
         ),
@@ -144,7 +144,7 @@ def _agentskit_descriptors() -> dict[str, ComponentDescriptor]:
     off_capabilities = frozenset(f"neutral-{name}" for name in on_capabilities)
     return {
         "on": ComponentDescriptor(
-            "agentskit", "on", "agentskit-integration-v1.0", "declared-not-installed", "external:agentskit", on_capabilities
+            "agentskit", "on", "agentskit-0.3.0-private-component-removed-local", "installed-not-ready", "external:agentskit", on_capabilities
         ),
         "off": ComponentDescriptor(
             "agentskit", "off", "neutral-control-v1.0", "contract-ready", "controller:neutral-control", off_capabilities

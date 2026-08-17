@@ -3,8 +3,12 @@
   "protocol_version": "v1.0",
   "factor": "agentskit",
   "on": {
-    "status": "declared-not-installed",
-    "integration_version": "agentskit-integration-v1.0",
+    "status": "installed-not-ready",
+    "integration_version": "agentskit-0.3.0-private-component-removed-local",
+    "source_commits": {
+      "agentskit": "353d6e38a60deebd6556cddb58d322d242f4df0d",
+      "private-component-removed": "7a92c94fcb41a956cbe6dfc796cd496b2b9e8ee2"
+    },
     "components": ["doc-bridge", "playbook", "specialized-agents", "code-review", "versioned-memory", "telemetry"]
   },
   "off": {
@@ -15,4 +19,3 @@
   },
   "ablation_components": ["doc-bridge", "playbook", "specialized-agents", "code-review", "versioned-memory", "telemetry"]
 }
-

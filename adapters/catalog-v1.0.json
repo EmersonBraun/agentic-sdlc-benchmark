@@ -5,7 +5,7 @@
   "adapters": {
     "ade": {
       "orca": {"adapter_version": "orca-runtime-1.4.183", "status": "installed-not-ready", "entrypoint": "external:orca"},
-      "agent-orchestrator": {"adapter_version": "agent-orchestrator-adapter-v1.0", "status": "declared-not-installed", "entrypoint": "external:agent-orchestrator"},
+      "agent-orchestrator": {"adapter_version": "agent-orchestrator-0.12.6", "status": "installed-not-ready", "entrypoint": "external:agent-orchestrator"},
       "compozy": {"adapter_version": "compozy-0.3.0-beta.16", "status": "installed-not-ready", "entrypoint": "external:compozy"}
     },
     "harness": {
