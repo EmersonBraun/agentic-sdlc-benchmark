@@ -1,0 +1,16 @@
+{
+  "schema_version": "semantic-parity-v1.0",
+  "protocol_version": "v1.0",
+  "purpose": "Require equivalent task-facing capabilities before comparing conditions.",
+  "required_invariants": [
+    "same-task-and-acceptance-contract",
+    "common-harness-capabilities",
+    "workspace-boundary",
+    "permission-mode",
+    "lifecycle-events",
+    "append-only-ledger",
+    "no-fallback-resolution"
+  ],
+  "verification_rule": "Every invariant must be verified for the selected condition and the complete 18-condition matrix must be ready before pilot preparation.",
+  "failure_policy": "Missing, stale, or ambiguous parity evidence blocks preparation and creates no run or external session."
+}

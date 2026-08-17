@@ -3,6 +3,20 @@
   "protocol_version": "v1.0",
   "verified_on": "2026-08-17",
   "parity_probe_results": "probe-results-v1.0.json",
+  "semantic_parity": {
+    "contract": "semantic-parity-v1.0.json",
+    "status": "not-ready",
+    "evidence": {
+      "same_task_and_acceptance_contract": "contract-defined",
+      "common_harness_capabilities": "contract-defined",
+      "workspace_boundary": "partially-verified",
+      "permission_mode": "partially-verified",
+      "lifecycle_events": "contract-tested",
+      "append_only_ledger": "contract-tested",
+      "no_fallback_resolution": "enforced"
+    },
+    "decision": "Blocked until semantic-parity evidence is verified for every selected adapter and all 18 primary conditions."
+  },
   "runtime_contract": "runtime-contract-v1.0.json",
   "readiness_report": "readiness-report-v1.0.json",
   "host": {

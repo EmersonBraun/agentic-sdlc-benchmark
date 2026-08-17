@@ -43,3 +43,16 @@ The pilot gate checks every one of the 18 primary conditions and exits non-zero 
 PYTHONPATH=controller/src python controller/scripts/check_pilot_gate.py \
   --preflight adapters/preflight-v1.0.json
 ```
+
+The conditioned pilot executor requires the complete 18/18 gate, verified semantic-parity evidence, and no fallback resolution before it returns a preparation plan. Preparation has no run, task, or external-session side effect:
+
+```python
+from benchmark_controller.pilot_executor import ConditionedPilotExecutor
+
+prepared = ConditionedPilotExecutor(preflight).prepare_condition(
+    run_id="run_example",
+    ade="orca",
+    harness="reference",
+    agentskit="off",
+)
+```

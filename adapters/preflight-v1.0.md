@@ -42,3 +42,5 @@ The three ADE adapters now share the normalized lifecycle event contract in [`li
 The catalog registry is now wired to the shared boundary: the Reference Harness is executable; all external ADE and non-reference harness entries fail closed until their recorded status becomes `installed-ready`.
 
 The deterministic readiness snapshot is [`readiness-report-v1.0.json`](readiness-report-v1.0.json): 2 of 8 components are ready, but 0 of 18 pilot conditions are ready because every condition includes an external ADE.
+
+Pilot preparation is separately gated by [`semantic-parity-v1.0.json`](semantic-parity-v1.0.json). Its current status is `not-ready`; all seven parity invariants and the complete 18-condition matrix must be verified before the conditioned executor can return a plan. No run or external session is created while either gate is blocked.
