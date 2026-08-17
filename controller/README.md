@@ -18,3 +18,10 @@ The adapter contract tests cover all 18 ADE × harness × AgentsKit conditions:
 ```bash
 PYTHONPATH=controller/src python -m unittest discover -s controller/tests -p 'test_*.py'
 ```
+
+The pilot gate checks every one of the 18 primary conditions and exits non-zero if any required ADE, harness, or AgentsKit factor is not ready:
+
+```bash
+PYTHONPATH=controller/src python controller/scripts/check_pilot_gate.py \
+  --preflight adapters/preflight-v1.0.json
+```
