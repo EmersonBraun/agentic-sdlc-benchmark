@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_DB: agentic_sdlc_greenfield
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d agentic_sdlc_greenfield"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - greenfield-postgres:/var/lib/postgresql/data
+
+volumes:
+  greenfield-postgres:
+

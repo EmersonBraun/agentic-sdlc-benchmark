@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "snapshot_version": "v1.0",
+  "status": "accepted-after-preflight",
+  "upstream": {
+    "repository": "https://github.com/umami-software/umami",
+    "release_tag": "v3.3.0",
+    "commit": "ba2aa48546534c55e9b8174667b4f266fe9d9ea2",
+    "license": "MIT",
+    "package_json_sha256": "9c959073c285ecc0c27b789a0155edee9e221dc66dbd2818f82579e52b41b1a2",
+    "pnpm_lock_sha256": "561d8e0608f1518a7f51235f7afca0320ad6a5a4952e247768a20602f05e414b",
+    "dockerfile_sha256": "ede164eaaa98c235ff8c6710a78e8bea236dd69a425f92b0ee361d82d909daca",
+    "license_file_sha256": "d59f69c3a56253a150adfc42b41acd49e9024410ad087c58a23d506623258dfe"
+  },
+  "controlled_environment": {
+    "node_image": "node:22-alpine",
+    "node_image_digest": "sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32",
+    "pnpm_version": "11.21.0",
+    "prisma_version": "7.9.1",
+    "runtime_image_local_id": "sha256:d3d7cbfb7b348fb74969f65bce5d0d8a209d53c66ed5788731416122662e8c1f",
+    "builder_image_local_id": "sha256:2f7ac0b03cf28421d4eda483b0a9a743cb58f8c750f9751cd993dafe1bfcd958",
+    "database": "PostgreSQL 15-compatible service",
+    "environment_source": "upstream Dockerfile with pinned build inputs"
+  },
+  "preflight": {
+    "install": "passed with pnpm install --frozen-lockfile",
+    "docker_build": "passed",
+    "tests": {
+      "command": "docker run ... agentic-sdlc-umami-builder:v3.3.0 ./node_modules/.bin/prisma generate && ./node_modules/.bin/vitest run",
+      "suites_passed": 86,
+      "tests_passed": 713
+    },
+    "host_only_note": "Node 25 host execution produced environment-specific localStorage failures; it is not the controlled benchmark environment.",
+    "rejected_candidate": {
+      "tag": "v3.0.0",
+      "commit": "b5795a8b3f961926153d88641265a50cc5746938",
+      "reason": "Upstream test suite failed because detect.test.ts referenced getIpAddress from the wrong module."
+    }
+  },
+  "upstream_ci_note": "Upstream CI uses a different pnpm setup; benchmark CI will use the pinned Docker environment to avoid runtime drift.",
+  "frozen_before_pilot": true
+}

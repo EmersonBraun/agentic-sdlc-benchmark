@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 .next/
+**/src/generated/
 coverage/
 __pycache__/
 *.py[cod]
