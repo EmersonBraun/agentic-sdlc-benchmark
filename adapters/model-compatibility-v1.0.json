@@ -1,0 +1,107 @@
+{
+  "schema_version": "model-compatibility-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "status": "candidate-models-identified-protocol-unchanged",
+  "protocol": {
+    "planner_model": "gpt-5.3-codex",
+    "evaluator_model": "gpt-5.4-mini",
+    "substitution_applied": false,
+    "reason": "A common executable model is not yet verified across every ADE, harness, and AgentsKit state."
+  },
+  "catalog_intersection": {
+    "compozy_acp_choices": [
+      "gpt-5.3-codex-spark",
+      "gpt-5.4",
+      "gpt-5.4-mini",
+      "gpt-5.5",
+      "gpt-5.6-luna",
+      "gpt-5.6-sol",
+      "gpt-5.6-terra"
+    ],
+    "codex_local_cache_choices": [
+      "gpt-5.3-codex-spark",
+      "gpt-5.4",
+      "gpt-5.4-mini",
+      "gpt-5.5",
+      "gpt-5.6-luna",
+      "gpt-5.6-sol",
+      "gpt-5.6-terra"
+    ],
+    "executable_intersection_verified": ["gpt-5.4", "gpt-5.4-mini"],
+    "required_planner_present": false
+  },
+  "runtime_evidence": {
+    "compozy": {
+      "gpt-5.3-codex": {
+        "status": "rejected",
+        "provider_execution_observed": false,
+        "evidence": "compozy-model-connectivity-attestation-v1.0.json"
+      },
+      "gpt-5.3-codex-spark": {
+        "status": "executed",
+        "provider_execution_observed": true,
+        "event_count": 10,
+        "evidence": "compozy-model-connectivity-attestation-v1.0.json"
+      },
+      "gpt-5.4": {
+        "status": "executed",
+        "provider_execution_observed": true,
+        "event_count": 15,
+        "event_types": ["agent_message", "done", "hook.dispatch.complete", "hook.dispatch.start", "session_stopped", "system", "thought", "transcript_marker.created", "usage", "user_message"],
+        "events_sha256": "26604404acbf0e097eec5f6b5ba98c9e0dc0f90f65c5ce5547ff6d7674481ee6",
+        "fixture_mutated": false,
+        "session_cleaned": true
+      },
+      "gpt-5.4-mini": {
+        "status": "executed",
+        "provider_execution_observed": true,
+        "prompt_returncode": 0,
+        "event_count": 12,
+        "event_types": ["agent_message", "done", "hook.dispatch.complete", "hook.dispatch.start", "system", "thought", "usage", "user_message"],
+        "events_sha256": "1953fc9428fbc3d9b51723c9baeaa0f98656e74b208e9bb5b97086e34e5fa51f",
+        "fixture_mutated": false,
+        "session_cleaned": true
+      }
+    },
+    "codex_cli": {
+      "gpt-5.4": {"status": "executed", "returncode": 0, "event_count": 5, "output_sha256": "f1cabd58e0713bac82f2162b1174503fc2b3c1d45727921bfe95494aa2094d26"},
+      "gpt-5.4-mini": {"status": "executed", "returncode": 0, "event_count": 6, "output_sha256": "e2a94c64f28f59068168922747b44762468747939536596af3d4821aeb1fd408"},
+      "sandbox": "read-only",
+      "workspace_mutated": false
+    },
+    "agent_orchestrator": {
+      "model_override_surface": "supported",
+      "temporary_override": "gpt-5.4",
+      "isolated_spawn": "created-and-idled",
+      "provider_execution_observed": false,
+      "reason": "AO exposes no transcript/event output surface in the tested CLI; the temporary project model override was restored.",
+      "config_before_sha256": "1d9c483b918b6c957e1e0011f43e6d9bc6ca08ae126bd66f10b40664cbd2f730",
+      "config_after_restore_sha256": "d04775432029118fc55ca87428e9df43a2daea97cc3eb5849ae2e642411fe597"
+    },
+    "orca": {
+      "codex_auth": "verified",
+      "model_execution": "not-verified",
+      "reason": "ORCA read-only agent context does not expose a model inventory, and its graph is unavailable."
+    },
+    "mini_swe_agent": {
+      "model_execution": "not-verified",
+      "reason": "The pinned harness intentionally fails closed without controlled model/auth configuration."
+    },
+    "openhands_sdk": {
+      "model_execution": "not-verified",
+      "reason": "The pinned dependency graph does not resolve under the normal resolver."
+    },
+    "agentskit_on": {
+      "model_execution": "not-verified",
+      "reason": "Only provider-free public component and ledger fixtures are currently authorized."
+    }
+  },
+  "candidate_assessment": {
+    "gpt-5.4": "Best current planner candidate: executable in Compozy and Codex CLI; still requires AO/ORCA/harness/AgentsKit semantic parity before protocol revision.",
+    "gpt-5.4-mini": "Strongest common evaluator candidate: already frozen as evaluator and executable in Compozy and Codex CLI; still not a validated planner replacement.",
+    "gpt-5.3-codex-spark": "Executable in Compozy, but not equivalent to the frozen planner model and excluded from substitution.",
+    "gpt-5.5_or_gpt-5.6": "Catalog intersection only; no valid execution evidence was collected in this probe."
+  },
+  "decision": "Do not revise protocol v1.0 yet. If the exact planner model remains unavailable, the defensible next protocol candidate is planner gpt-5.4 with evaluator gpt-5.4-mini, subject to matched semantic-parity verification across every selected condition."
+}
