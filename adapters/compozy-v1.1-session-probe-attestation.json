@@ -1,0 +1,13 @@
+{
+  "schema_version": "compozy-v1.1-session-probe-attestation",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-17",
+  "source": "controller/scripts/probe_compozy_session.py --confirm",
+  "status": "partial-blocked",
+  "authorization": {"operator_confirmation": true},
+  "runtime": {"workspace_boundary": "passed", "network_mode": "local", "fixture_mutated": false, "fixture_destroyed": true},
+  "session": {"creation": "passed", "initial_state": "active", "runtime_status": "unbound", "stop": "passed", "provider_execution_observed": false, "session_id_sha256": "2590304fa2e6c2bf931eed2b3bff536dced4185324b63bebc1169b30f5d62342", "workspace_id_sha256": "fadd60d677254d44b0917b6916e353575aa0783341a72c9d90f3401ce8b76d46"},
+  "commands": {"session_new_returncode": 0, "session_stop_returncode": 0, "workspace_remove_returncode": 0, "session_new_output_sha256": "05d84a65c226bb1b11cdca7890b03bd35537c52e2dde2030eaccead538010e8a", "session_stop_output_sha256": "1da2c6625fff4817823a645528db59cc868557f3578a625453dc713e35b235b8", "workspace_remove_output_sha256": "03399e1a5cd71c082baf2b6ba76f35fcc10248656ea7b17ea5a997b4017f79bd"},
+  "model": {"policy_model": "gpt-5.4", "execution": "not-observed"},
+  "decision": "The Compozy local session lifecycle and cleanup pass, but the session is unbound and no provider execution or normalized lifecycle ledger bridge was observed. The ADE remains blocked until an isolated provider-bound gpt-5.4 session passes the full lifecycle contract."
+}
