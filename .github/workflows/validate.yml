@@ -39,6 +39,15 @@ jobs:
           PYTHONPATH=controller/src python3 controller/scripts/validate_run_bundle.py \
             --runs-root runs --tasks-root tasks/public --protocol v1.1
 
+      - name: Validate deterministic pilot schedule
+        run: |
+          PYTHONPATH=controller/src python3 controller/scripts/plan_pilot_matrix.py \
+            --conditions protocol/conditions-v1.1.json \
+            --task-id pilot_greenfield_service_readiness \
+            --product greenfield --seed 20260817 --replicates 1 \
+            > /tmp/pilot-schedule.json
+          test "$(python3 -c 'import json; print(json.load(open("/tmp/pilot-schedule.json"))["runs"])')" = "18"
+
       - name: Validate dashboard and empty-result analysis
         run: |
           node --check dashboard/app.js
