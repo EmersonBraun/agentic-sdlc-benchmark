@@ -13,7 +13,7 @@
     "required": 4,
     "passed": 4,
     "failed": 0,
-    "additional_passed": 4
+    "additional_passed": 5
   },
   "results": [
     {
@@ -97,6 +97,16 @@
       "passed": true,
       "output_sha256": "38e4343d4faa0190c478279c048e5ee6faa0f6693d6b251390fadf4ec21d67db",
       "assertions": ["image inspect passed", "mini 2.4.6 help passed", "network disabled", "workspace mounted read-only", "approve-reads parity passed", "live ledger bridge", "no agent sessions started"]
+    },
+    {
+      "probe_id": "agentskit.live-ledger",
+      "component": "agentskit",
+      "command_label": "AgentsKit public core observer to benchmark ledger probe",
+      "returncode": 0,
+      "timed_out": false,
+      "passed": true,
+      "output_sha256": "d810ed97e5073e2f8f256e76a982dc6b00340929e2cf0ab2889e1c00bc5e7a57",
+      "assertions": ["public core observer emitted events", "ledger bridge emitted 3 events", "raw content redacted", "provider not called", "no agent session started"]
     }
   ],
   "interpretation": "The executable boundary and basic workspace/runtime probes pass. This does not establish semantic parity, provider readiness, ledger emission, or collection readiness."

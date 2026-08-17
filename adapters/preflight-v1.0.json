@@ -142,9 +142,12 @@
         "doctor_failures": ["ollama unreachable"],
         "doctor_skips": ["provider API keys not configured"],
         "parity_probes": ["agentskit.cli-help"],
-        "event_bridge": "contract-tested",
+        "event_bridge": "live",
         "event_contract": "agentskit/event-contract-v1.0.json",
-        "ledger_redaction": "contract-tested"
+        "ledger_redaction": "live",
+        "ledger_emission": "live",
+        "provider_called": false,
+        "agent_session_started": false
       },
       "decision": "Do not use in pilot until the integration is isolated from local developer state and its declared components emit benchmark ledger events."
     },

@@ -36,7 +36,7 @@
     },
     "agentskit:on": {
       "ready": false,
-      "blockers": ["implementation-status", "live-ledger"]
+      "blockers": ["implementation-status"]
     },
     "agentskit:off": {
       "ready": true,

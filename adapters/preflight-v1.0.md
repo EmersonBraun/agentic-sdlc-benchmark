@@ -14,7 +14,7 @@ The adapter preflight is **not ready for collection**. No benchmark run was crea
 | Reference Harness | v1.0 | Contract-ready and tested | Available for local contract tests |
 | OpenHands SDK | 1.42.1 | Dependency resolution fails between `lmnr` and OpenTelemetry constraints | Blocked; no dependency override accepted |
 | mini-SWE-agent | 2.4.6 | Container image, isolated `mini --help`, and read-only workspace-boundary probes pass; network disabled | Blocked until task semantics, model configuration, and live collection authorization are verified |
-| AgentsKit ON | public/local `0.3.0` source | CLI and redacted ledger bridge contract pass; doctor has provider/environment failures | Blocked until isolated Observer wiring, provider configuration, and live ledger emission pass |
+| AgentsKit ON | public/local `0.3.0` source | Public core Observer emitted three events into the redacted benchmark ledger; no provider or agent session was used | Blocked until implementation status and full component/runtime integration are verified |
 | AgentsKit OFF | v1.0 | Neutral control contract-ready | Available for contract tests |
 
 ## Installation provenance
@@ -33,7 +33,7 @@ The machine-local Compozy bootstrap now uses `approve-reads` in its global confi
 
 Five side-effect-free probes passed on 2026-08-17. The results and output hashes are recorded in [`probe-results-v1.0.json`](probe-results-v1.0.json), with the probe contract in [`probe-contract-v1.0.json`](probe-contract-v1.0.json). These probes validate executable boundaries and workspace/runtime discovery only; they do not authorize benchmark collection.
 
-The AgentsKit event bridge is contract-tested against the public `AgentEvent` shape. It records bounded metadata and token counts while excluding raw prompts, model content, tool arguments, and tool results. This is an adapter contract result, not a live agent execution result.
+The AgentsKit event bridge has a provider-free live probe against the public core Observer. It records bounded metadata and token counts while excluding raw prompts, model content, tool arguments, and tool results. The probe does not call a provider or start an agent session; it validates event delivery and ledger redaction only.
 
 The shared external runtime boundary is contract-tested in [`runtime-contract-v1.0.json`](runtime-contract-v1.0.json). It provides the common argv, permission, workspace, timeout, lifecycle, and ledger semantics. The individual ORCA, Agent Orchestrator, Compozy, OpenHands, and mini-SWE-agent integrations remain not-ready until they are wired to this boundary and pass live semantic-parity checks.
 
