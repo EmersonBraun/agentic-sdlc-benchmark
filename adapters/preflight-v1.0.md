@@ -37,6 +37,8 @@ The AgentsKit event bridge has a provider-free live probe against the public cor
 
 The shared external runtime boundary is contract-tested in [`runtime-contract-v1.0.json`](runtime-contract-v1.0.json). It provides the common argv, permission, workspace, timeout, lifecycle, and ledger semantics. The individual ORCA, Agent Orchestrator, Compozy, OpenHands, and mini-SWE-agent integrations remain not-ready until they are wired to this boundary and pass live semantic-parity checks.
 
+The three ADE adapters now share the normalized lifecycle event contract in [`lifecycle-contract-v1.0.json`](lifecycle-contract-v1.0.json). Live transitions require a ready adapter; blocked transitions are always ledger-visible and raw external payloads are never persisted.
+
 The catalog registry is now wired to the shared boundary: the Reference Harness is executable; all external ADE and non-reference harness entries fail closed until their recorded status becomes `installed-ready`.
 
 The deterministic readiness snapshot is [`readiness-report-v1.0.json`](readiness-report-v1.0.json): 2 of 8 components are ready, but 0 of 18 pilot conditions are ready because every condition includes an external ADE.

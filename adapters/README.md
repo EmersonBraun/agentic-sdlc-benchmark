@@ -1,6 +1,6 @@
 # ADE adapters
 
-ADE adapters implement the common lifecycle contract for ORCA, Agent Orchestrator, and Compozy. Compatibility is tested in the pilot and recorded as a result.
+ADE adapters implement the common lifecycle contract for ORCA, Agent Orchestrator, and Compozy. The normalized event shape and redaction policy are defined in [`lifecycle-contract-v1.0.json`](lifecycle-contract-v1.0.json); compatibility is tested before the pilot and recorded as a result.
 
 The current catalog is declarative. It freezes names, adapter versions, entrypoints, and the no-fallback rule; it does not claim that the external tools are installed. Live integrations must pass the installation and semantic-parity gates before a pilot run can use them.
 

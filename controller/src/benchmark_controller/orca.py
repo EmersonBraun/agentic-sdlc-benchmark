@@ -74,6 +74,22 @@ class OrcaAdapter:
             access="write",
         )
 
+    def record_lifecycle_event(
+        self,
+        event: dict[str, Any],
+        *,
+        stage_id: str,
+        actor: str,
+        parent_event_id: str | None = None,
+    ) -> dict[str, object]:
+        self._assert_ready()
+        return self.lifecycle.record_external(
+            event,
+            stage_id=stage_id,
+            actor=actor,
+            parent_event_id=parent_event_id,
+        )
+
     def _assert_ready(self) -> None:
         if self.descriptor.implementation_status not in READY_STATUSES:
             self.lifecycle.record(

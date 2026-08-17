@@ -7,8 +7,9 @@ import json
 import os
 import subprocess
 from dataclasses import dataclass
+from numbers import Real
 from pathlib import Path
-from typing import Literal, Mapping, Sequence
+from typing import Any, Literal, Mapping, Sequence
 
 from .ledger import Ledger
 
@@ -203,6 +204,47 @@ class LifecycleBridge:
             duration_ms=duration_ms,
             status=status,
             payload={"stage_id": stage_id, "event_name": event_name},
+            tool=self.tool,
+            parent_event_id=parent_event_id,
+        )
+
+    def record_external(
+        self,
+        event: Mapping[str, Any],
+        *,
+        stage_id: str,
+        actor: str,
+        parent_event_id: str | None = None,
+    ) -> dict[str, object]:
+        """Normalize one ADE lifecycle event without persisting its contents."""
+
+        event_name = event.get("event_name")
+        status = event.get("status")
+        duration_ms = event.get("duration_ms", 0)
+        if not isinstance(event_name, str) or not event_name:
+            raise ValueError("external lifecycle event requires event_name")
+        if not isinstance(status, str):
+            raise ValueError("external lifecycle event requires status")
+        if not isinstance(duration_ms, Real) or isinstance(duration_ms, bool) or duration_ms < 0:
+            raise ValueError("external lifecycle duration must be a non-negative number")
+        if status not in {"started", "completed", "failed", "blocked", "redacted"}:
+            raise ValueError(f"Unknown lifecycle status: {status!r}")
+
+        metadata = {
+            "source_event_type": str(event.get("source_event_type", event_name)),
+            "metadata_keys": sorted(str(key) for key in event if key not in {"payload", "content", "result", "prompt"}),
+        }
+        entity_id = event.get("entity_id")
+        if entity_id is not None:
+            metadata["entity_id_sha256"] = _sha256_text(str(entity_id))
+        return self.ledger.record(
+            stage_id=stage_id,
+            actor=actor,
+            event_type=f"lifecycle.{event_name}",
+            time_category="orchestration_overhead",
+            duration_ms=float(duration_ms),
+            status=status,
+            payload=metadata,
             tool=self.tool,
             parent_event_id=parent_event_id,
         )

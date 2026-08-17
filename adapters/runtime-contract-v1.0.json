@@ -15,6 +15,7 @@
     "harness": "controller:benchmark_controller.harness_adapters"
   },
   "readiness_evaluator": "controller:benchmark_controller.readiness",
+  "lifecycle_contract": "adapters/lifecycle-contract-v1.0.json",
   "ade_specific_bindings": {
     "agent-orchestrator": "controller:benchmark_controller.agent_orchestrator",
     "compozy": "controller:benchmark_controller.compozy",

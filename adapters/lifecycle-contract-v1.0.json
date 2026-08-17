@@ -1,0 +1,18 @@
+{
+  "schema_version": "ade-lifecycle-contract-v1.0",
+  "protocol_version": "v1.0",
+  "producers": ["orca", "agent-orchestrator", "compozy"],
+  "event_shape": {
+    "event_name": "string",
+    "source_event_type": "string",
+    "status": ["started", "completed", "failed", "blocked", "redacted"],
+    "duration_ms": "non-negative number",
+    "entity_id": "optional; hashed before ledger persistence"
+  },
+  "ledger_mapping": {
+    "event_type": "lifecycle.<event_name>",
+    "time_category": "orchestration_overhead",
+    "payload_policy": "metadata keys and bounded hashes only; no prompts, content, results, or raw IDs"
+  },
+  "failure_policy": "Unknown statuses, malformed events, and unavailable live adapters fail closed."
+}

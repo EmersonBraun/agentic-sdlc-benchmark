@@ -88,6 +88,22 @@ class ADEAdapter:
             event_name=event_name,
         )
 
+    def record_external_event(
+        self,
+        event: dict[str, object],
+        *,
+        stage_id: str,
+        actor: str,
+        parent_event_id: str | None = None,
+    ) -> dict[str, object]:
+        self.assert_ready()
+        return self.lifecycle.record_external(
+            event,
+            stage_id=stage_id,
+            actor=actor,
+            parent_event_id=parent_event_id,
+        )
+
 
 def build_ade_adapter(
     key: str,

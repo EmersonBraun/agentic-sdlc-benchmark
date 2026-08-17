@@ -60,3 +60,41 @@ class ExternalAdapterTests(unittest.TestCase):
                 stage_id="planning", actor="planner", status="completed", event_name="plan.completed"
             )
             self.assertEqual(event["event_type"], "lifecycle.plan.completed")
+
+    def test_external_lifecycle_event_is_normalized_and_redacted(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            ledger = Ledger(root / "ledger.jsonl", run_id="run_external_lifecycle", task_id="pilot_smoke")
+            bridge = LifecycleBridge(ledger, tool="orca")
+            event = bridge.record_external(
+                {
+                    "event_name": "session.completed",
+                    "source_event_type": "orca.session.done",
+                    "status": "completed",
+                    "duration_ms": 12.5,
+                    "entity_id": "private-session-id",
+                    "content": "private output",
+                    "payload": {"secret": "do not persist"},
+                },
+                stage_id="implementation",
+                actor="executor",
+            )
+            serialized = (root / "ledger.jsonl").read_text(encoding="utf-8")
+            self.assertEqual(event["event_type"], "lifecycle.session.completed")
+            self.assertNotIn("private-session-id", serialized)
+            self.assertNotIn("private output", serialized)
+            self.assertNotIn("do not persist", serialized)
+
+    def test_external_lifecycle_rejects_unknown_status(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            bridge = LifecycleBridge(
+                Ledger(root / "ledger.jsonl", run_id="run_external_invalid", task_id="pilot_smoke"),
+                tool="compozy",
+            )
+            with self.assertRaisesRegex(ValueError, "Unknown lifecycle status"):
+                bridge.record_external(
+                    {"event_name": "session.unknown", "status": "mystery"},
+                    stage_id="implementation",
+                    actor="executor",
+                )
