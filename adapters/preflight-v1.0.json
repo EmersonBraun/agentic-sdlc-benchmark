@@ -40,8 +40,14 @@
         "doctor_daemon": "pass",
         "daemon_status": "ready",
         "registered_project": "code-10x",
+        "doctor_json": "passed",
+        "adapter_readonly_probe": "passed",
+        "agent_sessions_started": false,
+        "permission_mode": "controller-approve-reads",
+        "lifecycle_bridge": "contract-tested",
+        "ledger_bridge": "contract-tested",
         "doctor_warnings": ["ao binary not on PATH", "muse agent not found"],
-        "parity_probes": ["agent-orchestrator.core-doctor"]
+        "parity_probes": ["agent-orchestrator.core-doctor", "agent-orchestrator.adapter-readonly-preflight"]
       },
       "decision": "Do not use in pilot until the daemon, project registration, worker adapter, and ledger bridge are verified."
     },

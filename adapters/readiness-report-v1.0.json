@@ -16,7 +16,7 @@
     },
     "ade:agent-orchestrator": {
       "ready": false,
-      "blockers": ["implementation-status", "permissions", "lifecycle-bridge", "ledger-bridge"]
+      "blockers": ["implementation-status"]
     },
     "ade:compozy": {
       "ready": false,

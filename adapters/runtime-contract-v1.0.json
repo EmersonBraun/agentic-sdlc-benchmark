@@ -15,6 +15,9 @@
     "harness": "controller:benchmark_controller.harness_adapters"
   },
   "readiness_evaluator": "controller:benchmark_controller.readiness",
+  "ade_specific_bindings": {
+    "agent-orchestrator": "controller:benchmark_controller.agent_orchestrator"
+  },
   "ledger_requirements": [
     "workspace.prepared",
     "command.executed",

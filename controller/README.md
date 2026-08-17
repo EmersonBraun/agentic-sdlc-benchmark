@@ -16,6 +16,8 @@ The registry layers in `benchmark_controller.ade_adapters` and `benchmark_contro
 
 Deterministic live-readiness evaluation is implemented in `benchmark_controller.readiness` and exposed by `controller/scripts/check_adapter_readiness.py`.
 
+The Agent Orchestrator adapter exposes read-only daemon/project/session preflight and protects `spawn` behind the `installed-ready` gate.
+
 ## Local validation
 
 ```bash

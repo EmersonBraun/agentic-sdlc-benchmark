@@ -12,7 +12,8 @@
   "summary": {
     "required": 4,
     "passed": 4,
-    "failed": 0
+    "failed": 0,
+    "additional_passed": 1
   },
   "results": [
     {
@@ -54,6 +55,18 @@
       "passed": true,
       "output_sha256": "078683559815a046f6aa8b555009cc7908368f377925abe30fe61025001f7d69",
       "assertions": ["AgentsKit CLI", "doctor"]
+    }
+  ],
+  "additional_results": [
+    {
+      "probe_id": "agent-orchestrator.adapter-readonly-preflight",
+      "component": "agent-orchestrator",
+      "command_label": "Agent Orchestrator read-only adapter preflight",
+      "returncode": 0,
+      "timed_out": false,
+      "passed": true,
+      "output_sha256": "53da58b9bdbb5ed25b3893fe31eafe0fd52d5727da12f2d1e50c068c5d5211f9",
+      "assertions": ["daemon ready", "project code-10x resolved", "zero sessions", "doctor ok", "8 ledger events", "no agent sessions started"]
     }
   ],
   "interpretation": "The executable boundary and basic workspace/runtime probes pass. This does not establish semantic parity, provider readiness, ledger emission, or collection readiness."
