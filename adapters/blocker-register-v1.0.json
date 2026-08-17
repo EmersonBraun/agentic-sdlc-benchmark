@@ -42,10 +42,10 @@
     },
     {
       "component": "agentskit:on",
-      "evidence_refs": ["preflight-v1.0.json", "agentskit-component-attestation-v1.0.json", "agentskit-external-attestation-v1.0.json", "agentskit-component-action-attestation-v1.0.json", "agentskit/event-contract-v1.0.json"],
-      "blocking_conditions": ["external component repositories pass offline checks but are not connected to the benchmark ledger", "provider-free observer bridge is insufficient for task parity"],
+      "evidence_refs": ["preflight-v1.0.json", "agentskit-component-attestation-v1.0.json", "agentskit-external-attestation-v1.0.json", "agentskit-component-action-attestation-v1.0.json", "agentskit-integrated-fixture-attestation-v1.0.json", "agentskit/event-contract-v1.0.json"],
+      "blocking_conditions": ["integrated fixture is provider-free and does not prove a real controlled task", "provider-backed task semantic parity and matched OFF comparison remain unverified"],
       "resolution_gate": "Public source is isolated and version-pinned, all declared ON component actions are mapped to ledger-compatible events in a controlled task, and the matched OFF control remains unchanged.",
-      "safe_next_action": "Implement the benchmark-side component action mapping and test it with deterministic fixtures before any model-backed session."
+      "safe_next_action": "Use the integrated fixture as the preflight gate, then obtain explicit controlled model/auth configuration before any model-backed session."
     }
   ],
   "external_references": {

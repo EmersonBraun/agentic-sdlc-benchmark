@@ -1,0 +1,27 @@
+{
+  "schema_version": "agentskit-integrated-fixture-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "status": "provider-free-semantic-wiring-verified",
+  "source": "controller/scripts/probe_agentskit_integrated_fixture.py",
+  "provider_called": false,
+  "agent_session_started": false,
+  "core_runtime_event_count": 15,
+  "component_action_count": 6,
+  "ledger_event_count": 21,
+  "ledger_event_types": [
+    "agentskit.agent.delegate.end",
+    "agentskit.agent.delegate.start",
+    "agentskit.llm.end",
+    "agentskit.llm.first-token",
+    "agentskit.llm.start",
+    "agentskit.memory.save",
+    "agentskit.progress",
+    "agentskit.tool.end",
+    "agentskit.tool.start"
+  ],
+  "contract_fingerprint_sha256": "93dfa2244ad657f3912c49ef55cbc13e905a9475d61e2cba4cd999a54779fc91",
+  "rerun_stable": true,
+  "raw_content_persisted": false,
+  "decision": "The public core fixture and benchmark-side component actions share one redacted ledger without a provider or agent session. This proves provider-free semantic wiring only; it does not authorize pilot collection."
+}

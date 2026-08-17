@@ -67,6 +67,8 @@ The external materialization evidence is [`agentskit-external-attestation-v1.0.j
 
 The action mapping contract is now covered by [`agentskit-component-action-attestation-v1.0.json`](agentskit-component-action-attestation-v1.0.json): six deterministic fixture actions across four component families map to redacted ledger events. Live task execution remains blocked.
 
+The integrated fixture is [`agentskit-integrated-fixture-attestation-v1.0.json`](agentskit-integrated-fixture-attestation-v1.0.json): 21 events share one stable redacted ledger fingerprint without provider or session. This is the final provider-free gate; it does not establish model-backed task parity.
+
 The OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). It rechecks the declared SDK/tool/workspace versions in a clean Python 3.12 container with normal dependency resolution and records the conflict hash.
 
 The mini-SWE-agent bounded evidence is [`mini-swe-attestation-v1.0.json`](mini-swe-attestation-v1.0.json). It records eight redacted preflight ledger events, the pinned image identity, the read-only workspace boundary, and fail-closed model behavior; no task session was started.
