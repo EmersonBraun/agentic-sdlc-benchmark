@@ -1,0 +1,21 @@
+{
+  "schema_version": "agentskit-component-action-attestation-v1.0",
+  "protocol_version": "v1.0",
+  "verified_on": "2026-08-17",
+  "status": "contract-tested",
+  "contract": "agentskit/component-action-contract-v1.0.json",
+  "source_test": "controller/tests/test_agentskit_components.py",
+  "fixture_actions": 6,
+  "components_covered": ["doc-bridge", "playbook", "specialized-agents", "code-review"],
+  "ledger_event_types": [
+    "agentskit.agent.delegate.end",
+    "agentskit.agent.delegate.start",
+    "agentskit.progress",
+    "agentskit.tool.end",
+    "agentskit.tool.start"
+  ],
+  "raw_content_persisted": false,
+  "raw_arguments_persisted": false,
+  "raw_results_persisted": false,
+  "decision": "The benchmark-side mapping is deterministic and redaction-tested for the four external component action families. It is a contract fixture, not evidence that a live provider-backed task has executed."
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": "agentskit-component-action-contract-v1.0",
+  "protocol_version": "v1.0",
+  "purpose": "Map declared public AgentsKit component actions to the common benchmark event contract without persisting raw content.",
+  "components": {
+    "doc-bridge": {
+      "operation": "lookup",
+      "start_event": "tool:start",
+      "complete_event": "tool:end",
+      "ledger_name": "agentskit.doc-bridge.lookup"
+    },
+    "playbook": {
+      "operation": "step",
+      "event": "agent:step",
+      "ledger_action_prefix": "agentskit.playbook"
+    },
+    "specialized-agents": {
+      "operation": "delegate",
+      "start_event": "agent:delegate:start",
+      "complete_event": "agent:delegate:end",
+      "ledger_name_prefix": "agentskit.specialized-agents"
+    },
+    "code-review": {
+      "operation": "review",
+      "start_event": "progress",
+      "complete_event": "progress",
+      "ledger_label": "agentskit.code-review"
+    }
+  },
+  "redaction": {
+    "raw_content_persisted": false,
+    "raw_arguments_persisted": false,
+    "raw_results_persisted": false,
+    "allowed_metadata": ["component", "operation", "phase", "name", "step", "depth", "durationMs", "status"]
+  },
+  "decision": "This contract records benchmark-observed component actions. It does not claim that an external repository's own tests or documentation evidence emitted these events."
+}

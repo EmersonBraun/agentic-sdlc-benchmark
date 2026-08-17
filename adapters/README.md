@@ -26,6 +26,8 @@ The public component boundary is [`agentskit-component-attestation-v1.0.json`](a
 
 The materialized external component checks are [`agentskit-external-attestation-v1.0.json`](agentskit-external-attestation-v1.0.json). The temporary clones pass bounded offline checks, but repository health is not the same as benchmark-ledger semantic parity.
 
+The benchmark-side action mapping is [`agentskit-component-action-attestation-v1.0.json`](agentskit-component-action-attestation-v1.0.json), backed by [`component-action-contract-v1.0.json`](../agentskit/component-action-contract-v1.0.json) and redaction tests. It remains a deterministic fixture until a live controlled task exercises the mapping.
+
 OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). The pinned Python 3.12 environment still fails normal dependency resolution, so no session is started.
 
 mini-SWE-agent bounded runtime evidence is [`mini-swe-attestation-v1.0.json`](mini-swe-attestation-v1.0.json). Its isolated image, read-only workspace boundary, ledger bridge, and fail-closed model probe pass; model-backed task parity remains blocked.
