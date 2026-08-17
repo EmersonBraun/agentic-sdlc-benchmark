@@ -1,6 +1,7 @@
 const SOURCES = {
   preflight: "../adapters/preflight-v1.1.json",
   readiness: "../adapters/condition-readiness-v1.1.json",
+  results: "../analysis/processed-results-v1.1.json",
 };
 
 const fallback = {
@@ -20,6 +21,7 @@ const fallback = {
     agentskit: { off: { status: "contract-ready" }, on: { status: "installed-not-ready" } },
   },
   readiness: { protocol_version: "v1.1", ready_conditions: 0, blocked_conditions: 18, conditions: [] },
+  results: { status: "no-results", summary: { runs: 0, evaluated_runs: 0, quality_pass_count: 0 }, metrics: {} },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -94,10 +96,35 @@ function renderReadiness(preflight, report) {
   renderConditions(report);
 }
 
-const [preflight, report] = await Promise.all([
+function metricValue(results, field, formatter = (value) => value.toFixed(2)) {
+  const value = results.metrics?.[field]?.median;
+  return typeof value === "number" ? formatter(value) : "—";
+}
+
+function renderResults(results) {
+  const noResults = results.status === "no-results" || !results.summary?.runs;
+  const cards = [
+    ["Runs", results.summary?.runs ?? 0, "versioned bundles"],
+    ["Evaluated", results.summary?.evaluated_runs ?? 0, "blind evaluator records"],
+    ["Effective work", metricValue(results, "effective_work_hours", (value) => `${value.toFixed(2)} h`), "median per run"],
+    ["Speedup", metricValue(results, "speedup_vs_baseline", (value) => `${value.toFixed(2)}×`), "vs Senior Engineer baseline"],
+    ["Quality", metricValue(results, "quality_score", (value) => `${value.toFixed(1)}/100`), "median product score"],
+  ];
+  $("#results-grid").innerHTML = cards.map(([title, value, detail]) => `<article class="result-card${noResults ? " result-empty" : ""}"><span>${title}</span><strong>${value}</strong><small>${detail}</small></article>`).join("");
+  $("#results-note").textContent = noResults
+    ? "The study is still in preflight. This empty state is intentional, not a zero-performance result."
+    : `${results.summary.runs} run bundles are available in processed dataset ${results.schema_version}.`
+  $("#results-caption").textContent = noResults
+    ? "No performance number is published before a valid run bundle and evaluator record exist."
+    : "Results are generated from append-only ledgers and versioned evaluator records."
+}
+
+const [preflight, report, results] = await Promise.all([
   loadJson(SOURCES.preflight, "preflight"),
   loadJson(SOURCES.readiness, "readiness"),
+  loadJson(SOURCES.results, "results"),
 ]);
 
 renderReadiness(preflight, report);
+renderResults(results);
 $("#ade-filter").addEventListener("change", (event) => renderConditions(report, event.target.value));
