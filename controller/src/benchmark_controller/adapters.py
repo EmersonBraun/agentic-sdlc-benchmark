@@ -144,7 +144,7 @@ def _agentskit_descriptors() -> dict[str, ComponentDescriptor]:
     off_capabilities = frozenset(f"neutral-{name}" for name in on_capabilities)
     return {
         "on": ComponentDescriptor(
-            "agentskit", "on", "agentskit-0.3.0-private-component-removed-local", "installed-not-ready", "external:agentskit", on_capabilities
+            "agentskit", "on", "agentskit-0.3.0-source", "installed-not-ready", "external:agentskit", on_capabilities
         ),
         "off": ComponentDescriptor(
             "agentskit", "off", "neutral-control-v1.0", "contract-ready", "controller:neutral-control", off_capabilities

@@ -91,16 +91,14 @@
       "installed": true,
       "status": "installed-not-ready",
       "source_repositories": {
-        "agentskit": {"path": "/Users/rebecabraun/workspace/EmersonBraun/agentskit", "commit": "353d6e38a60deebd6556cddb58d322d242f4df0d", "version": "0.3.0"},
-        "private-component-removed": {"path": "/Users/rebecabraun/workspace/EmersonBraun/private-component-removed", "commit": "7a92c94fcb41a956cbe6dfc796cd496b2b9e8ee2"}
+        "agentskit": {"path": "/Users/rebecabraun/workspace/EmersonBraun/agentskit", "commit": "353d6e38a60deebd6556cddb58d322d242f4df0d", "version": "0.3.0"}
       },
       "evidence": {
         "agentskit_help": "passed from local source dist",
-        "agentskit_os_help": "passed from local source CLI",
         "doctor_status": "failed",
         "doctor_failures": ["ollama unreachable"],
         "doctor_skips": ["provider API keys not configured"],
-        "parity_probes": ["agentskit.cli-help", "private-component-removed.cli-help"]
+        "parity_probes": ["agentskit.cli-help"]
       },
       "decision": "Do not use in pilot until the integration is isolated from local developer state and its declared components emit benchmark ledger events."
     },

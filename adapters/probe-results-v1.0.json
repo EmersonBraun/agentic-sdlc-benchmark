@@ -10,8 +10,8 @@
     "raw_output_published": false
   },
   "summary": {
-    "required": 5,
-    "passed": 5,
+    "required": 4,
+    "passed": 4,
     "failed": 0
   },
   "results": [
@@ -54,16 +54,6 @@
       "passed": true,
       "output_sha256": "078683559815a046f6aa8b555009cc7908368f377925abe30fe61025001f7d69",
       "assertions": ["AgentsKit CLI", "doctor"]
-    },
-    {
-      "probe_id": "private-component-removed.cli-help",
-      "component": "private-component-removed",
-      "command_label": "private-component-removed source CLI help",
-      "returncode": 0,
-      "timed_out": false,
-      "passed": true,
-      "output_sha256": "29824706fa0d6945ff3a86d90e9ab420911de2b3f51177ddf0e9a02d0716f43f",
-      "assertions": ["private-component-removed", "config validate"]
     }
   ],
   "interpretation": "The executable boundary and basic workspace/runtime probes pass. This does not establish semantic parity, provider readiness, ledger emission, or collection readiness."
