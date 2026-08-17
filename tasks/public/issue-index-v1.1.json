@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "protocol_version": "v1.1",
+  "issues": [
+    {
+      "artifact_id": "prd-v1.1",
+      "artifact_type": "study-prd",
+      "issue_number": 3,
+      "issue_url": "https://github.com/EmersonBraun/agentic-sdlc-benchmark/issues/3",
+      "source_path": "docs/prd-v1.1.md",
+      "source_sha256": "d5f61fe2a7dac03783b58e40c53083ce907e1285ba470c4e71b4f377ae54b626",
+      "issue_body_sha256": "9f6f0d80a8824ed9ab2943530adb0ea75dee15eab79a439ffca9e62ea82634f0",
+      "issue_body_note": "GitHub API representation contains one additional trailing newline; issue content is otherwise byte-equivalent."
+    },
+    {
+      "artifact_id": "pilot_greenfield_service_readiness",
+      "artifact_type": "benchmark-task",
+      "task_id": "pilot_greenfield_service_readiness",
+      "issue_number": 1,
+      "issue_url": "https://github.com/EmersonBraun/agentic-sdlc-benchmark/issues/1",
+      "source_path": "tasks/public/pilot_greenfield_service_readiness.md",
+      "source_sha256": "cca91955cd4c5e1df81673d627062cc43b7b7ca534aaada3da4eff2b991d71a6",
+      "issue_body_sha256": "ca16a269e00fbe6247f0c4f55da64aa6f3c339e7bf606ffdb92ede54a04aec65",
+      "issue_body_note": "GitHub API representation contains one additional trailing newline; issue content is otherwise byte-equivalent."
+    }
+  ]
+}
