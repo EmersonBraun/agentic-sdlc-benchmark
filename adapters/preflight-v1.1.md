@@ -29,6 +29,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 ## Evidence
 
 - [Preflight machine record](preflight-v1.1.json)
+- [Host machine inventory](machine-inventory-v1.1.json)
 - [Condition readiness snapshot](condition-readiness-v1.1.json)
 - [v1.1 blocker register](blocker-register-v1.1.json)
 - [ORCA lifecycle probe](orca-v1.1-lifecycle-probe-attestation.json)

@@ -2,6 +2,7 @@
   "schema_version": "adapter-preflight-v1.1",
   "protocol_version": "v1.1",
   "model_policy": "../protocol/model-policy-v1.1.json",
+  "machine_inventory": "machine-inventory-v1.1.json",
   "derived_from": "preflight-v1.0.json",
   "decision": "v1.1 model topology is approved, but collection remains fail-closed until every external ADE, harness, and AgentsKit parity gate passes.",
   "semantic_parity": {
@@ -81,6 +82,7 @@
     "on": {"installed": true, "status": "installed-not-ready", "evidence": {"event_bridge": "live", "ledger_redaction": "live", "ledger_emission": "provider-free-only", "provider_backed_parity": "not-verified"}}
   },
   "evidence_refs": [
+    "machine-inventory-v1.1.json",
     "model-compatibility-v1.1.json",
     "orca-session-attestation-v1.0.json",
     "orca-v1.1-lifecycle-probe-attestation.json",

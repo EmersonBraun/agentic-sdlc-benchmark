@@ -1,0 +1,51 @@
+{
+  "schema_version": "machine-inventory-v1.1",
+  "protocol_version": "v1.1",
+  "captured_on": "2026-08-17",
+  "scope": "personal-local-machine",
+  "privacy": {
+    "serial_numbers": "excluded",
+    "hardware_uuids": "excluded",
+    "user_and_host_names": "excluded",
+    "credentials": "excluded"
+  },
+  "hardware": {
+    "model_family": "MacBook Pro",
+    "model_identifier": "MacBookPro18,1",
+    "chip": "Apple M1 Pro",
+    "cpu_cores": 10,
+    "cpu_core_layout": "8 performance, 2 efficiency",
+    "gpu_cores": 16,
+    "memory_gb": 16
+  },
+  "displays": [
+    {"type": "built-in Liquid Retina XDR", "resolution": "3456x2234"},
+    {"model_family": "C27F390", "resolution": "1920x1080", "refresh_hz": 60},
+    {"model_family": "C27F390", "resolution": "1920x1080", "refresh_hz": 60}
+  ],
+  "software": {
+    "os": "macOS 26.5.2",
+    "kernel": "Darwin 25.5.0",
+    "architecture": "arm64",
+    "node": "v25.7.0",
+    "pnpm": "10.33.0",
+    "python": "3.14.6",
+    "git": "2.53.0",
+    "docker_server": "29.4.0"
+  },
+  "runtime_context": {
+    "filesystem_root_total": "460Gi",
+    "filesystem_root_available": "85Gi",
+    "filesystem_root_used_percent": 13,
+    "load_average_1m": 2.05,
+    "load_average_5m": 2.64,
+    "load_average_15m": 3.0,
+    "power_source": "battery",
+    "battery_percent": 90,
+    "thermal_warning": false,
+    "performance_warning": false,
+    "locale": "C.UTF-8",
+    "timezone": "-03"
+  },
+  "interpretation": "This is contextual evidence for one local run host, not a cross-machine performance claim. The local Node and pnpm versions differ from the product CI toolchain and must remain recorded per run."
+}
