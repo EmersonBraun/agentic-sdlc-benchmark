@@ -1,0 +1,126 @@
+{
+  "ade": "compozy",
+  "analysis_eligible": false,
+  "cleanup": {
+    "active_session_residual": false,
+    "new_grok_process_residual_count": 0,
+    "stop_returncode": 0
+  },
+  "commands": {
+    "config_show": {
+      "argv_sha256": "c9e61d0a069c8e8ad9d99cc51ff7786db3fcbba9901ac0001bf065faeea4a49f",
+      "duration_ms": 152.94,
+      "output_sha256": "5c988e978a6e6af08c89f959833988452eaa8c00ee84b87e0a48f438a42ee00d",
+      "returncode": 0
+    },
+    "executor_prompt": {
+      "argv_sha256": "66cfc8149d0973c842f73726224fb4cde675e0cdd435a7fa499cc6879eea5c00",
+      "duration_ms": 9445.563,
+      "output_sha256": "09cf68eac328771938445f8c1ac4870c341228059cd2f1998c9e89b32120e789",
+      "returncode": 0
+    },
+    "planner_prompt": {
+      "argv_sha256": "9af5c0a30b1b373f0668afe0de37c639bda59c2bae1e7fc89ff804585f94a89b",
+      "duration_ms": 9454.657,
+      "output_sha256": "b2e6c2d538de2eb01fe5d7f4aafdae8073fc6f9f52497902a6183a7b8d959388",
+      "returncode": 0
+    },
+    "session_list": {
+      "argv_sha256": "50db8230c69cb468b7a35fe152e6ddf1780f4c87daf468c1dd16a240a2d018ec",
+      "duration_ms": 118.448,
+      "output_sha256": "bcc729f345b4000df4d1aa59b8f266acf69254db8fb4787da1815761a8bfad96",
+      "returncode": 0
+    },
+    "session_new": {
+      "argv_sha256": "6fbcd79c6aab6e0bf42ab6fec93467460cf0aa1b6358d1811bb311435c3c8527",
+      "duration_ms": 208.238,
+      "output_sha256": "387a13d6acc776ab23656ede98310512530bd56d835bcfb29bba65b3f71918ee",
+      "returncode": 0
+    },
+    "session_stop": {
+      "output_sha256": "692c0069b8e9fea6115c13d5d6b67a174e7ca6c80c570fc6e07b5e174ae242fa",
+      "returncode": 0
+    }
+  },
+  "limitations": [
+    "The Grok model is process-argument-bound because ACP events do not report its model identity.",
+    "Stopped Compozy session history remains local and is excluded from public evidence."
+  ],
+  "observed_at": "2026-08-18T20:24:03.361900+00:00",
+  "protocol_version": "v1.2",
+  "provider_binding": {
+    "grok_command_sha256": "315a3980f517cdfa9a00d890e1aaed97e5de8291aa573d760a818cbc7192dc71",
+    "grok_executable_sha256": "3dfa7f04fbb5427a8fbead286591543aaecb478b3a0ab222c4329eca1a3b2f86",
+    "transport": "acp-stdio"
+  },
+  "redaction": {
+    "executor_sentinel_sha256": "ab100ffd65d7fc5add2fce4e9787db236ad9e8d6c783c7d20208a538dcc9e54d",
+    "local_stopped_session_history_retained": true,
+    "planner_sentinel_sha256": "34b1f0405fc1a6ec4a6f217b8de61bcf9f63e9897eb8be29d56045f8066708b8",
+    "raw_model_output_persisted_publicly": false,
+    "raw_prompt_persisted_publicly": false,
+    "session_id_sha256": "236161c462062d15b1934f1a8bc3f285dda78ba89b3e0f22de923309d43449fd"
+  },
+  "schema_version": "compozy-v1.2-topology-attestation",
+  "source_hashes": {
+    "adapters/compozy-grok-cli-provider-v1.2.toml": "1cc1de477565ecdb9555b64b2fa0e8e20387e523f0d4aa1ae12a33a56e1d1f07",
+    "controller/scripts/probe_compozy_v12_topology.py": "2a5b7b4f0ff51b4c0873900070b9f18f830d58e0d042408f1d33782e38e0419b",
+    "controller/src/benchmark_controller/compozy_grok.py": "2a00d35b154d836a97218fc7314fa6d2b539ec2f7c784d58da8a40a2e6db9d00"
+  },
+  "status": "passed",
+  "topology": {
+    "executor": {
+      "configured_model": "grok-4.5",
+      "execution": {
+        "done_observed": true,
+        "event_count": 76,
+        "event_types": {
+          "agent_message": 17,
+          "available_commands_update": 1,
+          "done": 1,
+          "thought": 57
+        },
+        "models": [],
+        "providers": [
+          "grok-cli"
+        ],
+        "reasoning_efforts": [],
+        "sentinel_observed": true
+      },
+      "provider": "grok-cli",
+      "runtime_reported_model_observed": false
+    },
+    "fallback_used": false,
+    "handoff_id_sha256": "382c5445d2a0c333dbb4e35b2e505462180e2d55feefbe0436029a22213081f7",
+    "planner": {
+      "execution": {
+        "done_observed": true,
+        "event_count": 21,
+        "event_types": {
+          "agent_message": 16,
+          "done": 1,
+          "system": 3,
+          "usage": 1
+        },
+        "models": [
+          "gpt-5.4"
+        ],
+        "providers": [
+          "codex"
+        ],
+        "reasoning_efforts": [
+          "low"
+        ],
+        "sentinel_observed": true
+      },
+      "model": "gpt-5.4",
+      "provider": "codex"
+    },
+    "same_session": true
+  },
+  "workspace": {
+    "after_sha256": "3b9259cc52be049c8d4dffc6d9ea292678c26d1e951619a776002cd1a76eff50",
+    "before_sha256": "3b9259cc52be049c8d4dffc6d9ea292678c26d1e951619a776002cd1a76eff50",
+    "unchanged": true
+  }
+}
