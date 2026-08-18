@@ -5,7 +5,7 @@
       "condition_id": "agent-orchestrator__off",
       "connectivity_smoke_passed": true,
       "evidence": "connectivity-smoke-agent-orchestrator-off-v1.2.json",
-      "evidence_sha256": "569f58c864214d63df69334184dfb8478a3a246676b1c58bfd2290c818a72778",
+      "evidence_sha256": "290765fced81821bdeb45083df41a0fb9e4a9594c33625c4d00857d20f703748",
       "missing_gates": [
         "frozen_base_worktree",
         "full_sdlc",
@@ -20,7 +20,7 @@
       "condition_id": "agent-orchestrator__on",
       "connectivity_smoke_passed": true,
       "evidence": "connectivity-smoke-agent-orchestrator-on-v1.2.json",
-      "evidence_sha256": "ee61b7f900a5d75d56526f4720efe6def801fcfe9c046242eccc9cbb7ad055f9",
+      "evidence_sha256": "4bfb3df8215d5fc6d1bf60a374402b236207a57bf54de955ff7bf723701551a9",
       "missing_gates": [
         "frozen_base_worktree",
         "full_sdlc",
@@ -35,7 +35,7 @@
       "condition_id": "compozy__off",
       "connectivity_smoke_passed": true,
       "evidence": "connectivity-smoke-compozy-off-v1.2.json",
-      "evidence_sha256": "be785c8bdc9b8e406a9b98f618b5a247dad8b0dd1c72cd068208c6b72543bf9a",
+      "evidence_sha256": "c0d70c764f180883531e2d502a13b09bec1b45f68dc0fb7e92adb5c2555344a5",
       "missing_gates": [
         "frozen_base_worktree",
         "full_sdlc",
@@ -50,7 +50,7 @@
       "condition_id": "compozy__on",
       "connectivity_smoke_passed": true,
       "evidence": "connectivity-smoke-compozy-on-v1.2.json",
-      "evidence_sha256": "dd1f20133eb791c8fec7d86d8b7f847250baece384a3dacf7d751db60a180b57",
+      "evidence_sha256": "ecba829e4d5f43aaf46ac0c11270992cab9f1f5fdaf520d4df0ca9d4c63d4c8e",
       "missing_gates": [
         "frozen_base_worktree",
         "full_sdlc",
@@ -65,7 +65,7 @@
       "condition_id": "orca__off",
       "connectivity_smoke_passed": true,
       "evidence": "connectivity-smoke-orca-off-v1.2.json",
-      "evidence_sha256": "f63e08123dc38d2fbdb618a00d20bebd47f3cf5140f85ae04bc678bb24d5ef15",
+      "evidence_sha256": "54e6683e5fe625a2c937762d7c92e5757048bb719d2df5811eb22f6477de10b2",
       "missing_gates": [
         "frozen_base_worktree",
         "full_sdlc",
@@ -80,7 +80,7 @@
       "condition_id": "orca__on",
       "connectivity_smoke_passed": true,
       "evidence": "connectivity-smoke-orca-on-v1.2.json",
-      "evidence_sha256": "b7daf9094f9ca774cdf16346a527a1394d8a1638c43a909fd2fa3616f10cd90a",
+      "evidence_sha256": "0988fa3750284277e8d1dad4f1fae1235d7842fd6f1646a482e95d2d6f31038e",
       "missing_gates": [
         "frozen_base_worktree",
         "full_sdlc",

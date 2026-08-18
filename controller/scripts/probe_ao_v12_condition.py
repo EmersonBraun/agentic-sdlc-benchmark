@@ -203,7 +203,7 @@ def main() -> int:
         "scope": "live ADE/provider connectivity smoke; not a full SDLC condition run",
         "missing_gates": ["frozen_base_worktree", "full_sdlc", "complete_ade_ledger", "agentskit_inside_ade", "permission_parity", "independent_evaluation"],
         "observed_at": datetime.now(timezone.utc).isoformat(), "status": "passed" if passed else "failed",
-        "condition_id": condition_id, "task_id": TASK_ID, "base_commit": BASE_COMMIT,
+        "condition_id": condition_id, "task_id": TASK_ID, "declared_base_commit": BASE_COMMIT,
         "factors": {"ade": "agent-orchestrator", "agentskit": args.agentskit},
         "topology": {
             "planner": {"provider": "codex-cli", "model": "gpt-5.4", "execution": roles.get("planner", {})},
@@ -217,7 +217,7 @@ def main() -> int:
             "role_topology": "passed" if topology_passed else "failed",
             "workspace_boundary": "passed" if repository_unchanged else "failed",
             "permission_policy": "not_evaluated", "lifecycle_cleanup": "passed" if cleanup["verified"] else "failed",
-            "no_fallback": "passed" if topology_passed else "failed",
+            "no_fallback": "not_evaluated",
             "agentskit_attribution": "component_executed_not_integrated" if args.agentskit == "on" else "not_applicable",
         },
         "ledger_sha256": _sha(args.ledger.read_bytes()),

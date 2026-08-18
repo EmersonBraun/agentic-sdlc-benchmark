@@ -17,6 +17,9 @@ class V12CanonicalIntegrationTests(unittest.TestCase):
             self.assertEqual(document["schema_version"], "condition-connectivity-smoke-attestation-v1.2")
             self.assertFalse(document["semantic_parity_eligible"])
             self.assertTrue(document["missing_gates"])
+            self.assertEqual(document["invariants"]["no_fallback"], "not_evaluated")
+            self.assertEqual(document["source_revision"]["git_commit"], "55fd50270f11c5c9a7a69d6f2e9d9d1a3db85498")
+            self.assertTrue(document["source_revision"]["probe_sha256_matches_commit"])
         self.assertEqual(observed, EXPECTED_CONDITIONS)
 
     def test_preflight_binds_blocked_matrix_and_blocks_pilot_and_collection(self) -> None:

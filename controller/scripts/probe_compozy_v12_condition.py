@@ -193,7 +193,7 @@ def main() -> int:
         "status": "passed" if passed else "failed",
         "condition_id": condition_id,
         "task_id": TASK_ID,
-        "base_commit": BASE_COMMIT,
+        "declared_base_commit": BASE_COMMIT,
         "factors": {"ade": "compozy", "agentskit": args.agentskit},
         "topology": {
             "planner": {"provider": CODEX_PROVIDER, "model": CODEX_MODEL, "execution": planner_summary},
@@ -205,7 +205,7 @@ def main() -> int:
             "same_task": "passed", "same_base_commit": "not_evaluated", "role_topology": "passed" if passed else "failed",
             "workspace_boundary": "passed" if repository_unchanged and cleanup.get("fixture_unchanged") else "failed",
             "permission_policy": "not_evaluated", "lifecycle_cleanup": "passed" if cleanup["verified"] else "failed",
-            "no_fallback": "passed" if passed else "failed", "agentskit_attribution": "component_executed_not_integrated" if args.agentskit == "on" else "not_applicable",
+            "no_fallback": "not_evaluated", "agentskit_attribution": "component_executed_not_integrated" if args.agentskit == "on" else "not_applicable",
         },
         "cleanup": cleanup,
         "commands": commands,

@@ -47,7 +47,7 @@
   "invariants": {
     "agentskit_attribution": "not_applicable",
     "lifecycle_cleanup": "passed",
-    "no_fallback": "passed",
+    "no_fallback": "not_evaluated",
     "permission_policy": "not_evaluated",
     "role_topology": "passed",
     "same_base_commit": "not_evaluated",
@@ -129,5 +129,18 @@
     "permission_parity",
     "independent_evaluation"
   ],
-  "declared_base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc"
+  "declared_base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
+  "source_revision": {
+    "git_commit": "55fd50270f11c5c9a7a69d6f2e9d9d1a3db85498",
+    "probe_sha256_matches_commit": true,
+    "classification_transform": "connectivity-smoke-reclassification-v1",
+    "transformed_fields": [
+      "schema_version",
+      "scope",
+      "eligibility",
+      "missing_gates",
+      "invariant_claim_strength",
+      "base_commit_label"
+    ]
+  }
 }
