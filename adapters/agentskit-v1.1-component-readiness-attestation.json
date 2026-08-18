@@ -32,8 +32,8 @@
     "raw_content_persisted": false
   },
   "provider_backed_pair": {
-    "pair": "../analysis/technical-pair-compozy-reference-v1.1-2.json",
-    "pair_sha256": "3be1a2b5002c96fdcf87c402cac8ca1f5791371553750d0ff5a18ef41535c767",
+    "pair": "../analysis/technical-pair-compozy-reference-v1.1-3.json",
+    "pair_sha256": "00b259b58548fccf13d1c5a5106452d4edc7b651a9912a56cd876c7bc8b211f1",
     "same_task": "pilot_greenfield_service_readiness",
     "same_base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
     "same_ade": "compozy",
@@ -49,13 +49,14 @@
       "agentskit_event_count": 0
     },
     "on": {
-      "run_id": "run_technical-compozy-reference-on-r4",
+      "run_id": "run_technical-compozy-reference-on-r5",
       "terminal_state": "TECHNICAL_PASS",
-      "manifest_sha256": "0c38297dfb039cffabd7507409503d13fffdf0a18d75e4134f930fd766390f0d",
-      "attestation_sha256": "d738666de45b33528737d57c55f8904ebe17fddf148817fc71d8b4d29ffbf25b",
-      "ledger_sha256": "5a3290acd9537a3974939db65505adf90a0411c4a4f926aa214f3d2aed367c20",
+      "manifest_sha256": "86087b4565919e046956d6e560e81d2fa7d93d9f60bcc793a2bff9780271cf8b",
+      "attestation_sha256": "ed36c8a3f57c93208137f7425460e84892f244c0258eee465b74cbadb79e56f7",
+      "ledger_sha256": "168c6fadfe56d1977338a4e39fee1419e9d241a32cc0bfa91db51d4dc703870c",
       "agentskit_event_count": 6,
       "effective_work_deduplicated": true,
+      "native_provenance_verified": true,
       "native_components_executed": ["doc-bridge", "playbook", "code-review"]
     },
     "cleanup_verified": true,
@@ -72,7 +73,7 @@
   },
   "implementation": {
     "technical_runner": "controller/scripts/run_compozy_technical_pilot.py",
-    "technical_runner_sha256": "6fc7b061606cd150ab3a94bd2b457e69c4191b8ed224a2f410a2bcc8930fe0e7"
+    "technical_runner_sha256": "18d137e933992bfadfde24c83a53128c356a901cca7581b4c971e3d61380928b"
   },
   "decision": "AgentsKit ON satisfies its independently testable v1.1 component contract. This validates integration, not benefit: effect estimation still requires preregistered official ON/OFF replications after every ADE and harness is ready."
 }
