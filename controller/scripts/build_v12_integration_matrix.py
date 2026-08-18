@@ -14,9 +14,54 @@ sys.path.insert(0, str(ROOT / "controller/src"))
 from benchmark_controller.v12_execution import V12_REQUIRED_SOURCE_REFS  # noqa: E402
 from benchmark_controller.v12_integration import EXPECTED_CONDITIONS  # noqa: E402
 
+MISSING_GATES = {
+    "frozen_base_worktree", "full_sdlc", "complete_ade_ledger",
+    "agentskit_inside_ade", "permission_parity", "independent_evaluation",
+}
+
 
 def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _validate_smoke(path: Path, expected_condition: str) -> dict:
+    document = json.loads(path.read_text())
+    ade, factor = expected_condition.rsplit("__", 1)
+    if not all((
+        document.get("schema_version") == "condition-connectivity-smoke-attestation-v1.2",
+        document.get("protocol_version") == "v1.2",
+        document.get("analysis_eligible") is False,
+        document.get("semantic_parity_eligible") is False,
+        document.get("live_connectivity_execution") is True,
+        document.get("status") == "passed",
+        document.get("condition_id") == expected_condition,
+        document.get("factors") == {"ade": ade, "agentskit": factor},
+        set(document.get("missing_gates", [])) == MISSING_GATES,
+        document.get("cleanup", {}).get("verified") is True,
+    )):
+        raise RuntimeError(f"invalid connectivity smoke: {path.name}")
+    ledger = path.with_name(path.stem + "-ledger.jsonl")
+    if not ledger.is_file() or _sha(ledger) != document.get("ledger_sha256"):
+        raise RuntimeError(f"connectivity smoke ledger binding failed: {path.name}")
+    revision = document.get("source_revision", {})
+    probe_hash = document.get("source_hashes", {}).get("probe")
+    if not all((
+        isinstance(probe_hash, str) and len(probe_hash) == 64,
+        revision.get("git_commit") == "55fd50270f11c5c9a7a69d6f2e9d9d1a3db85498",
+        revision.get("probe_sha256_matches_commit") is True,
+    )):
+        raise RuntimeError(f"connectivity smoke source binding failed: {path.name}")
+    topology = document.get("topology", {})
+    planner = topology.get("planner", {})
+    executor = topology.get("executor", {})
+    if (
+        planner.get("provider") not in {"codex", "codex-cli"}
+        or planner.get("model") != "gpt-5.4"
+        or executor.get("provider") not in {"grok-cli"}
+        or executor.get("model", executor.get("configured_model")) != "grok-4.5"
+    ):
+        raise RuntimeError(f"connectivity smoke topology binding failed: {path.name}")
+    return document
 
 
 def main() -> int:
@@ -30,13 +75,12 @@ def main() -> int:
     }
     smoke_conditions = []
     for path in records:
-        document = json.loads(path.read_text())
-        if (
-            document.get("schema_version") != "condition-connectivity-smoke-attestation-v1.2"
-            or document.get("status") != "passed"
-            or document.get("semantic_parity_eligible") is not False
-        ):
-            raise RuntimeError(f"invalid connectivity smoke: {path.name}")
+        expected = path.name.removeprefix("connectivity-smoke-").removesuffix("-v1.2.json")
+        for ade in ("agent-orchestrator", "compozy", "orca"):
+            if expected.startswith(ade + "-"):
+                expected = ade + "__" + expected.removeprefix(ade + "-")
+                break
+        document = _validate_smoke(path, expected)
         smoke_conditions.append({
             "condition_id": document["condition_id"],
             "connectivity_smoke_passed": True,

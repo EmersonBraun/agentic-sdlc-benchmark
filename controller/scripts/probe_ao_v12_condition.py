@@ -31,6 +31,7 @@ from run_compozy_technical_pilot import _run_native_agentskit  # noqa: E402
 
 def _spawn_and_observe(
     *, project: str, name: str, kind: str, prompt: str, sentinel: str, expected_model_text: str,
+    session_registry: list[str],
 ) -> tuple[str, dict[str, Any]]:
     spawned = _run(
         str(AO), "spawn", "--project", project, "--name", name, "--issue", "18",
@@ -40,6 +41,7 @@ def _spawn_and_observe(
     session_id = match.group(1) if match else None
     if spawned.returncode or not session_id:
         raise RuntimeError(f"AO did not create the {kind} session")
+    session_registry.append(session_id)
     capture = ""
     deadline = time.monotonic() + 180
     while time.monotonic() < deadline:
@@ -144,8 +146,8 @@ def main() -> int:
                     "context SHA-256 " + _sha(context) + ", then finish with exactly " + plan_sentinel + ".\n\n" + task_text
                 ),
                 sentinel=plan_sentinel, expected_model_text="gpt-5.4",
+                session_registry=sessions,
             )
-            sessions.append(planner_id)
             if not all((
                 roles["planner"]["sentinel_observed"], roles["planner"]["effective_model_observed"],
                 not roles["planner"]["trust_prompt_observed"], roles["planner"]["workspace_clean"],
@@ -161,8 +163,8 @@ def main() -> int:
                     + ", then finish with exactly " + exec_sentinel + "."
                 ),
                 sentinel=exec_sentinel, expected_model_text="Grok 4.5",
+                session_registry=sessions,
             )
-            sessions.append(executor_id)
             if not all((
                 roles["executor"]["sentinel_observed"], roles["executor"]["effective_model_observed"],
                 not roles["executor"]["trust_prompt_observed"], roles["executor"]["workspace_clean"],

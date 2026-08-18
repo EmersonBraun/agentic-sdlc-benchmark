@@ -162,17 +162,26 @@ def main() -> int:
             failure = f"{type(exc).__name__}: {exc}"
         finally:
             if session_id:
-                stopped = subprocess.run(
-                    ("compozy", "session", "stop", session_id, "-o", "json"),
-                    capture_output=True, text=True, check=False, timeout=30,
-                )
-                cleanup["session_stop_returncode"] = stopped.returncode
+                try:
+                    stopped = subprocess.run(
+                        ("compozy", "session", "stop", session_id, "-o", "json"),
+                        capture_output=True, text=True, check=False, timeout=30,
+                    )
+                    cleanup["session_stop_returncode"] = stopped.returncode
+                except subprocess.TimeoutExpired:
+                    cleanup["session_stop_returncode"] = None
+                    failure = failure or "TimeoutExpired: Compozy session stop timed out"
             cleanup["fixture_unchanged"] = _tree_sha(fixture) == fixture_before
 
-    sessions, commands["session_list"] = _run_json("compozy", "session", "list", "-o", "json")
-    active = sessions.get("sessions", []) if isinstance(sessions, dict) else []
-    cleanup["session_residual"] = any(isinstance(item, dict) and item.get("id") == session_id for item in active)
-    cleanup["grok_process_residual_count"] = len(_matching_grok_pids() - pids_before)
+    try:
+        sessions, commands["session_list"] = _run_json("compozy", "session", "list", "-o", "json")
+        active = sessions.get("sessions", []) if isinstance(sessions, dict) else []
+        cleanup["session_residual"] = any(isinstance(item, dict) and item.get("id") == session_id for item in active)
+        cleanup["grok_process_residual_count"] = len(_matching_grok_pids() - pids_before)
+    except Exception as exc:
+        cleanup["session_residual"] = True
+        cleanup["grok_process_residual_count"] = -1
+        failure = failure or f"{type(exc).__name__}: cleanup inventory failed"
     cleanup["verified"] = all((
         cleanup.get("session_stop_returncode") == 0,
         not cleanup["session_residual"],

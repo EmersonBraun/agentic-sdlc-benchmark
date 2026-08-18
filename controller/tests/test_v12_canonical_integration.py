@@ -1,6 +1,9 @@
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
+import shutil
+import tempfile
 import unittest
 
 from benchmark_controller.v12_integration import EXPECTED_CONDITIONS
@@ -38,3 +41,21 @@ class V12CanonicalIntegrationTests(unittest.TestCase):
         self.assertTrue(all(item["verified"] is False for item in matrix["conditions"]))
         self.assertEqual(preflight["official_collection_status"], "blocked-runner-not-implemented")
         self.assertFalse(preflight["technical_pilot"]["analysis_eligible"])
+
+    def test_smoke_builder_rejects_condition_or_ledger_tampering(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+        script = root / "controller/scripts/build_v12_integration_matrix.py"
+        spec = importlib.util.spec_from_file_location("build_v12_integration_matrix", script)
+        module = importlib.util.module_from_spec(spec)
+        assert spec and spec.loader
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "connectivity-smoke-compozy-off-v1.2.json"
+            ledger = target.with_name(target.stem + "-ledger.jsonl")
+            shutil.copy(root / "adapters/connectivity-smoke-compozy-off-v1.2.json", target)
+            shutil.copy(root / "adapters/connectivity-smoke-compozy-off-v1.2-ledger.jsonl", ledger)
+            with self.assertRaisesRegex(RuntimeError, "invalid connectivity smoke"):
+                module._validate_smoke(target, "orca__off")
+            ledger.write_text("tampered\n")
+            with self.assertRaisesRegex(RuntimeError, "ledger binding"):
+                module._validate_smoke(target, "compozy__off")
