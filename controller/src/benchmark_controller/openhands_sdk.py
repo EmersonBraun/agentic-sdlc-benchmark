@@ -54,11 +54,11 @@ class OpenHandsSDKAdapter:
             shutil.copy2(self._root / "adapters/openhands-sdk-v1.1.requirements.lock", context / "requirements.lock")
             (context / "Dockerfile").write_text(_runtime_dockerfile(), encoding="utf-8")
             started = time.monotonic_ns()
-            built = subprocess.run(
+            built = _safe_run(
                 ("docker", "build", "--no-cache", "--tag", RUNTIME_IMAGE, str(context)),
                 capture_output=True, text=True, timeout=600, check=False,
             )
-        inspected = subprocess.run(
+        inspected = _safe_run(
             ("docker", "image", "inspect", RUNTIME_IMAGE, "--format", "{{.Id}}"),
             capture_output=True, text=True, check=False,
         )
@@ -112,8 +112,14 @@ class OpenHandsSDKAdapter:
             context = Path(directory)
             shutil.copytree(self.runtime.workspace, context / "workspace", ignore=shutil.ignore_patterns(*CONTEXT_IGNORED))
             (context / "workspace" / "node_modules").symlink_to("/opt/product-node_modules", target_is_directory=True)
-            image_probe = subprocess.run(("docker", "image", "inspect", RUNTIME_IMAGE, "--format", "{{.Id}}"), capture_output=True, text=True, check=False)
+            image_probe = _safe_run(("docker", "image", "inspect", RUNTIME_IMAGE, "--format", "{{.Id}}"))
             if self.runtime_image_id is None or image_probe.returncode != 0 or image_probe.stdout.strip() != self.runtime_image_id:
+                self.runtime.ledger.record(
+                    stage_id=stage_id, actor=actor, event_type="adapter.command.executed",
+                    time_category=time_category, duration_ms=(time.monotonic_ns() - started) / 1_000_000,
+                    status="failed", payload={"access": access, "runtime_identity_verified": False},
+                    tool="openhands-sdk-container-adapter-v1.1",
+                )
                 raise RuntimeError("OpenHands runtime is not materialized; call prepare_runtime() with network permission")
             run = ["docker", "create", "--name", container]
             if access != "network":
@@ -159,7 +165,7 @@ class OpenHandsSDKAdapter:
                 container_removed = _confirmed_absent(("docker", "container", "inspect", container))
                 if access == "read":
                     readonly_image_removed = _confirmed_absent(("docker", "image", "inspect", readonly_image))
-                runtime_check = subprocess.run(("docker", "image", "inspect", self.runtime_image_id, "--format", "{{.Id}}"), capture_output=True, text=True, check=False)
+                runtime_check = _safe_run(("docker", "image", "inspect", self.runtime_image_id, "--format", "{{.Id}}"))
                 runtime_available = runtime_check.returncode == 0 and runtime_check.stdout.strip() == self.runtime_image_id
         duration_ms = (time.monotonic_ns() - started) / 1_000_000
         self.runtime.ledger.record(
@@ -217,9 +223,12 @@ def _confirmed_absent(command: tuple[str, ...]) -> bool:
     return result.returncode != 0 and "No such" in result.stderr
 
 
-def _safe_run(command: tuple[str, ...]) -> subprocess.CompletedProcess[str]:
+def _safe_run(command: tuple[str, ...], **kwargs: object) -> subprocess.CompletedProcess[str]:
     try:
-        return subprocess.run(command, capture_output=True, text=True, check=False)
+        options = {"capture_output": True, "text": True, "check": False, **kwargs}
+        return subprocess.run(command, **options)  # type: ignore[arg-type]
+    except subprocess.TimeoutExpired as exc:
+        return subprocess.CompletedProcess(command, 124, exc.stdout or "", exc.stderr or "")
     except OSError as exc:
         return subprocess.CompletedProcess(command, 125, "", f"{type(exc).__name__}: {exc}")
 
