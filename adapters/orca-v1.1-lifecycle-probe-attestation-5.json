@@ -1,57 +1,55 @@
 {
-  "schema_version": "orca-v1.1-lifecycle-probe-attestation",
-  "protocol_version": "v1.1",
-  "verified_on": "2026-08-18",
-  "status": "passed",
   "analysis_eligible": false,
-  "runtime": {
-    "app_version": "1.4.184",
-    "state": "ready",
-    "graph_state": "ready",
-    "runtime_id_sha256": "c78754c98168daf852b193511a3edb188791f7a8748354b6114f39990f0f7907"
-  },
-  "model": {
-    "provider": "codex",
-    "model": "gpt-5.4",
-    "reasoning_effort": "medium",
-    "execution_observed": true,
-    "sentinel_sha256": "d5eb6ccfec9bf3df15ee1c5a6dd7beb73f0ec6fba3971fd0029f171387b10a50"
-  },
-  "orchestration": {
-    "run_id_sha256": "14ab2fa057f54e4625a2dcf12ee3636909c4f2d1e55577977e52ff677ec01419",
-    "task_id_sha256": "daa5eda4dd9733b20d0cd2f2dc79f623392dcd97264be58b8bddd87d70e573e9",
-    "dispatch_id_sha256": "e8ca3c00e01a6ef4f2a8ceaac41ea4340292ef6b68b38d03043ed9938d199f56",
-    "coordinator_terminal_sha256": "a92e0adce2ee2cf2f6a8cd6a7d025052e3262923c7e39daeebb645324da9abc8",
-    "worker_terminal_sha256": "f0f89a2b910176b3128010103e09deb87ac92e04bb92f941358095b530ceaac5",
-    "dispatch_capability_hash": "e3a82f7530fb2e4687e1c8441b1fcbd79e587a4a30ccce54a7c564a08ee96414",
-    "terminal_ready_before_dispatch": true,
-    "dispatch_injected": true,
-    "worker_done_accepted": true,
-    "dispatch_terminal_state": "completed",
-    "delivery_acknowledged": true,
-    "required_path": "terminal-create; terminal-wait-tui-idle; orchestration-dispatch-inject",
-    "unsupported_path": "worker-start-before-agent-tui-readiness"
-  },
   "cleanup": {
-    "failed_composed_worker_fenced": true,
-    "failed_composed_worker_released": true,
-    "successful_worker_terminal_closed": true,
     "coordinator_terminal_closed": true,
     "live_probe_terminals_remaining": 0,
+    "worker_terminal_closed": true,
     "workspace_mutated": false
   },
+  "decision": "ORCA is component-ready through the stable terminal-ready then dispatch --inject path. The probe requires capability-bound worker_done settlement, acknowledged delivery, workspace preservation, and verified terminal cleanup.",
   "evidence": {
-    "ledger": "orca-v1.1-lifecycle-probe-ledger-5.jsonl",
-    "ledger_sha256": "8ed7111030b4b6a15c9ee27ac9a12477bd3a15820169ddc1a517ae9f5b1407e9",
-    "ledger_event_count": 8,
-    "orca_adapter_source_sha256": "97b9f381d087e0492f482295034e0823ecad2ef1aaf5a514741b2f9a2dde7ccb",
     "ade_registry_source_sha256": "c1280a1e2a174a966ec59aac4fbbe103c189fdd30ada31a403ac220b4af89000",
     "descriptor_source_sha256": "ab67a7b7b4fc5cba9b6ef8440a96232026eca190425fd340e74d16d82d266a67",
-    "probe_source_sha256": "af8e56216d50c0ecdc1aeb899b917270f1df568508725eaab0d8f9a46872c954",
+    "ledger": "orca-v1.1-lifecycle-probe-ledger-5.jsonl",
+    "ledger_event_count": 57,
+    "ledger_sha256": "555660f705f2e5c064bf0fe06848a320c3baa8fa73eb44653c08db4afcfe3283",
     "observation": "orca-v1.1-lifecycle-observation-5.json",
-    "observation_sha256": "e3835d18dfce5a0e5441cfce3951152474181253e4e3074630d5b3c3f44bf99d",
-    "raw_model_output_published": false,
-    "public_evidence_is_redacted": true
+    "observation_sha256": "c85aab6dfd6bb8979e7aa4bbc9644e8c06c66348a836fb5b9570e5b9c8a51304",
+    "orca_adapter_source_sha256": "b67c12c2403d4578faa796b28405558d8a97014ded318775d9b9bd93328c56ae",
+    "probe_source_sha256": "a8821a1594fba6ebe87d2f0d5e38f3e3f30b3bd0aa333af27d0218555f3e8c20",
+    "public_evidence_is_redacted": true,
+    "raw_model_output_published": false
   },
-  "decision": "ORCA 1.4.184 is component-ready through the explicit terminal-ready then dispatch --inject path. The composed worker-start path remains excluded because it can inject before Codex TUI readiness and lose the Dispatch capability. The supported path executed codex/gpt-5.4, accepted capability-bound worker_done, completed the Dispatch, acknowledged delivery, preserved the workspace, and removed all live probe terminals."
+  "model": {
+    "execution_observed": true,
+    "host_control_authorized": true,
+    "model": "gpt-5.4",
+    "provider": "codex",
+    "reasoning_effort": "medium"
+  },
+  "orchestration": {
+    "coordinator_terminal_sha256": "c29a879f7eeadf669751803ee1a83ea094eccd32a3e3de9bcd6d8b69b14fc199",
+    "delivery_acknowledged": true,
+    "dispatch_capability_hash": "30a3097dd00a7e4f304c24b8e90a3a357acf500cd9ca388b88fbec8bdb03a356",
+    "dispatch_id_sha256": "4b99277fa12d1d9d08d7e0c823f5643d296431f4e603909dcb3e93f1403f2c32",
+    "dispatch_injected": true,
+    "dispatch_terminal_state": "completed",
+    "required_path": "terminal-create; stable-terminal-wait-tui-idle; orchestration-dispatch-inject",
+    "run_id_sha256": "d0b4d7f7eb3fbe833f04fa23f71d509528b9f384be2e06e559ee03278bda9606",
+    "task_id_sha256": "ffa27883da5125b58e18ae053752a049cdc240fee5939bb2b4dce5a9776b6d44",
+    "terminal_ready_before_dispatch": true,
+    "unsupported_path": "worker-start-before-agent-tui-readiness",
+    "worker_done_accepted": true,
+    "worker_terminal_sha256": "6c22fd40c1f05fd8a3a51d00bdd05fc94f15bbf4a4be796a7f0ec90aab6c0ce7"
+  },
+  "protocol_version": "v1.1",
+  "runtime": {
+    "app_version": "1.4.184",
+    "graph_state": "ready",
+    "runtime_id_sha256": "c78754c98168daf852b193511a3edb188791f7a8748354b6114f39990f0f7907",
+    "state": "ready"
+  },
+  "schema_version": "orca-v1.1-lifecycle-probe-attestation",
+  "status": "passed",
+  "verified_on": "2026-08-18"
 }

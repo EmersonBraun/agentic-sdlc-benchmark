@@ -86,7 +86,7 @@
         "candidate_provider_execution": "passed",
         "required_model": "gpt-5.4",
         "required_model_provider_result": "passed",
-        "live_lifecycle_ledger": "passed-eight-redacted-events",
+        "live_lifecycle_ledger": "passed-57-redacted-events-with-normalized-settlement-and-cleanup",
         "lifecycle_bridge": "capability-bound-worker-done-accepted",
         "ledger_bridge": "passed",
         "model_execution": "observed",
