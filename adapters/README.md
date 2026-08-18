@@ -42,6 +42,8 @@ The v1.1 Compozy session recheck is [`compozy-v1.1-session-probe-attestation.jso
 
 The pinned public AgentsKit v1.1 preflight is [`agentskit-v1.1-preflight-attestation.json`](agentskit-v1.1-preflight-attestation.json). Core, bridge, integrated fixture, and external offline checks pass, and one excluded model-backed technical condition verifies public-only ON wiring. Official ON parity remains intentionally unverified.
 
+The native public runtime can be reproduced with `controller/scripts/prepare_agentskit_native_runtime.py --output <temporary-directory>`. The technical executor requires that directory for AgentsKit ON and records pinned revisions, versions, command hashes, durations, redacted actions, and cleanup evidence.
+
 The cross-runtime model investigation is [`model-compatibility-v1.0.json`](model-compatibility-v1.0.json). `gpt-5.4` and `gpt-5.4-mini` execute in Compozy and the Codex CLI, but no replacement is adopted until the remaining ADE, harness, and AgentsKit parity is verified.
 
 OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). The pinned Python 3.12 environment still fails normal dependency resolution, so no session is started.

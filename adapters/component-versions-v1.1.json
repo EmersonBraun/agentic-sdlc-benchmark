@@ -4,5 +4,8 @@
   "harness_reference": "v1.0",
   "agentskit_off_control": "v1.0",
   "agentskit_on_public": "0.3.0-source",
+  "agentskit_doc_bridge": "1.4.3@9a03016932b9e3024604712183152025c0577fe4",
+  "agentskit_playbook": "0.1.0@0818d860655c2d367f4d8b8c281c9b73ec5adad2",
+  "agentskit_code_review": "0.1.0@467cfa570a6b5f1076098b3c76be4e812562f23e",
   "controller_gate": "technical-pilot-v1.0"
 }

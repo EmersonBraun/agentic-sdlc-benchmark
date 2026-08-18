@@ -1,0 +1,95 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "commands": {
+      "code_review": {
+        "duration_ms": 156376.214167,
+        "output_sha256": "2a63a138ab7b00456a41ac9e0efa0545ad023e3ff6a63ee1e3b6cd155e56142f",
+        "returncode": 0
+      },
+      "doc_bridge": {
+        "duration_ms": 74.48125,
+        "output_sha256": "9fc2f6be189771ef2c498c781ec28da4dd21e68eacb2ea34a2be6947a5d98124",
+        "returncode": 0
+      },
+      "playbook": {
+        "duration_ms": 84.789584,
+        "output_sha256": "b0c6c24ab9d1a674a0e5a9b0e96db2d92a78aa35383f0bb676821490f543b781",
+        "returncode": 0
+      }
+    },
+    "component_action_records": 6,
+    "components": {
+      "code_review": {
+        "commit": "467cfa570a6b5f1076098b3c76be4e812562f23e",
+        "version": "0.1.0"
+      },
+      "doc_bridge": {
+        "commit": "9a03016932b9e3024604712183152025c0577fe4",
+        "version": "1.4.3"
+      },
+      "playbook": {
+        "commit": "0818d860655c2d367f4d8b8c281c9b73ec5adad2",
+        "version": "0.1.0"
+      }
+    },
+    "context_sha256": "6f963edd43b613248f75d2c096eab8308d19df87d5c86c8a730db2a9073f148e",
+    "enabled": true,
+    "native_external_components_executed": true,
+    "public_only": true
+  },
+  "analysis_eligible": false,
+  "cleanup": {
+    "fixture_destroyed": true,
+    "session_residual": false,
+    "session_stop": {
+      "output_sha256": "0fd5fde0439af24209620b2c062882429ab7dfc074ccb6122ad1a11ff6c47835",
+      "returncode": 0
+    },
+    "verified": true,
+    "workspace_remove": {
+      "output_sha256": "522999d068cbad16d388559e63732d416d0c002af0b31493cbc5ca572ef45129",
+      "returncode": 65
+    },
+    "workspace_residual": false
+  },
+  "commands": {
+    "session_events": {
+      "output_sha256": "ad11891947ff1c9c52f2d872239c79719fe294cf9d170f9e721745c5e4f5f169",
+      "returncode": 0
+    },
+    "session_new": {
+      "output_sha256": "97d4721ba03f74b3c50923600907228951eb981f19c0b6ba112bce9d6abda6ae",
+      "returncode": 0
+    },
+    "session_prompt": {
+      "output_sha256": "64142b6d20b7ff447900a6f40d760ed4cfd4810c0b443c6975497cb93dc58074",
+      "returncode": 0
+    }
+  },
+  "condition_id": "compozy__reference__on",
+  "content_persisted": false,
+  "event_count": 20,
+  "event_types": {
+    "agent_message": 9,
+    "available_commands_update": 1,
+    "done": 1,
+    "hook.dispatch.complete": 1,
+    "hook.dispatch.start": 1,
+    "system": 3,
+    "thought": 2,
+    "usage": 1,
+    "user_message": 1
+  },
+  "fixture_unchanged": true,
+  "model": "gpt-5.4",
+  "normalized_lifecycle_count": 3,
+  "prompt_sha256": "c88772fee2cc0916885e0f794745605a29baf2f6e232bb7cf0f3f6bd08936c0a",
+  "provider": "codex",
+  "run_id": "run_technical-compozy-reference-on-r3",
+  "schema_version": "compozy-technical-pilot-v1.0",
+  "sentinel_observed": true,
+  "session_id_sha256": "3996d4874556cf1b6d0c76e314a68c33593892e48d79879b6b7a502dd14655b6",
+  "status": "technical-pass",
+  "workspace_id_sha256": "2a7a1613749fd6e5306afd06f791e618fdbd1d82343aa1916c85282393b4495a"
+}

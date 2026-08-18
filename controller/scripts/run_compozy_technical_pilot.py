@@ -32,9 +32,9 @@ def _sha256(value: str | bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def _run(*args: str, timeout: int = 120) -> tuple[int, str, float]:
+def _run(*args: str, timeout: int = 120, cwd: Path | None = None) -> tuple[int, str, float]:
     started = time.monotonic_ns()
-    completed = subprocess.run(args, capture_output=True, text=True, check=False, timeout=timeout)
+    completed = subprocess.run(args, capture_output=True, text=True, check=False, timeout=timeout, cwd=cwd)
     duration_ms = (time.monotonic_ns() - started) / 1_000_000
     return completed.returncode, completed.stdout + completed.stderr, duration_ms
 
@@ -88,6 +88,75 @@ def _write_json(path: Path, value: dict[str, Any]) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _run_native_agentskit(
+    native_root: Path,
+    fixture: Path,
+    bridge: AgentsKitComponentActionBridge,
+) -> tuple[dict[str, Any], str]:
+    """Execute the three public component runtimes and retain bounded evidence only."""
+
+    doc_bridge = native_root / "doc-bridge"
+    playbook = native_root / "agents-playbook"
+    code_review = native_root / "code-review-cli"
+    required = (
+        doc_bridge / "bin" / "ak-docs.js",
+        playbook / "packages" / "playbook" / "bin" / "agents-playbook.mjs",
+        code_review / "dist" / "src" / "cli.js",
+    )
+    if not all(path.is_file() for path in required):
+        raise RuntimeError("native_agentskit_runtime_missing")
+
+    components: dict[str, Any] = {}
+    for name, source in (("doc_bridge", doc_bridge), ("playbook", playbook), ("code_review", code_review)):
+        code, revision, _ = _run("git", "rev-parse", "HEAD", cwd=source)
+        if code != 0:
+            raise RuntimeError(f"native_{name}_revision_failed")
+        manifest = json.loads((source / "package.json").read_text(encoding="utf-8"))
+        components[name] = {"commit": revision.strip(), "version": manifest["version"]}
+
+    evidence: dict[str, Any] = {
+        "native_external_components_executed": True,
+        "components": components,
+        "commands": {},
+    }
+
+    bridge.record({"component": "doc-bridge", "operation": "lookup", "phase": "start", "stage_id": "requirements"})
+    code, output, duration = _run("node", str(required[0]), "demo", "--fixture", "example", "--text", cwd=doc_bridge)
+    evidence["commands"]["doc_bridge"] = {"returncode": code, "output_sha256": _sha256(output), "duration_ms": duration}
+    if code != 0:
+        raise RuntimeError("native_doc_bridge_failed")
+    bridge.record({"component": "doc-bridge", "operation": "lookup", "phase": "complete", "durationMs": duration, "stage_id": "requirements"})
+
+    code, output, duration = _run(
+        "node", str(required[1]), "run", "error-raw", "--cwd", str(fixture), cwd=playbook,
+    )
+    evidence["commands"]["playbook"] = {"returncode": code, "output_sha256": _sha256(output), "duration_ms": duration}
+    if code != 0:
+        raise RuntimeError("native_playbook_failed")
+    bridge.record({"component": "playbook", "operation": "step", "phase": "complete", "step": 1, "durationMs": duration, "stage_id": "requirements"})
+
+    bridge.record({"component": "specialized-agents", "operation": "delegate", "phase": "start", "name": "code-review", "depth": 0, "stage_id": "review"})
+    code, output, duration = _run(
+        "node", str(required[2]), "--provider", "codex-cli", "--model", "gpt-5.4",
+        "--paths", "src/app/health/route.ts", "--max-files", "1", "--concurrency", "1",
+        "--votes", "1", "--no-fail", timeout=600, cwd=fixture,
+    )
+    evidence["commands"]["code_review"] = {"returncode": code, "output_sha256": _sha256(output), "duration_ms": duration}
+    if code != 0 or "7/7 lens executions succeeded" not in output:
+        raise RuntimeError("native_code_review_failed")
+    bridge.record({"component": "specialized-agents", "operation": "delegate", "phase": "complete", "name": "code-review", "depth": 0, "durationMs": duration, "stage_id": "review"})
+    bridge.record({"component": "code-review", "operation": "review", "phase": "complete", "durationMs": duration, "stage_id": "review"})
+
+    evidence["component_action_records"] = 6
+    context = (
+        "\n\nAgentsKit native public-component evidence: Doc Bridge resolved its demo handoff and freshness gate; "
+        "the Playbook error-raw quality gate passed against the isolated fixture; the Code Review CLI "
+        "completed all seven lenses with codex-cli/gpt-5.4. Apply these grounded checks while analyzing ambiguities."
+    )
+    evidence["context_sha256"] = _sha256(context)
+    return evidence, context
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-dir", type=Path, required=True)
@@ -96,6 +165,7 @@ def main() -> int:
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--task", type=Path, required=True)
     parser.add_argument("--agentskit", choices=("off", "on"), default="off")
+    parser.add_argument("--agentskit-native-root", type=Path)
     parser.add_argument("--confirm", action="store_true")
     args = parser.parse_args()
     if not args.confirm:
@@ -139,32 +209,23 @@ def main() -> int:
 
     task_text = args.task.read_text(encoding="utf-8")
     agentskit_context = ""
-    if args.agentskit == "on":
-        agentskit_context = (
-            "\n\nAgentsKit public-component guidance (bounded and preregistered): "
-            "apply the requirements playbook; use Doc Bridge-style source grounding; "
-            "delegate ambiguity analysis to the requirements specialist; and perform a final review."
-        )
-    prompt = (
-        "Technical pipeline validation only. Do not edit, create, or delete files and do not run tools. "
-        "Read the public task below, identify ambiguity IDs A1, A2, and A3, and end with the exact token "
-        "TECHNICAL_PILOT_READY.\n\n" + task_text + agentskit_context
-    )
+    prompt = ""
     attestation: dict[str, Any] = {
         "schema_version": "compozy-technical-pilot-v1.0",
         "run_id": manifest["run_id"],
         "condition_id": manifest["condition_id"],
         "provider": "codex",
         "model": "gpt-5.4",
-        "prompt_sha256": _sha256(prompt),
+        "prompt_sha256": None,
         "content_persisted": None,
         "analysis_eligible": False,
         "agentskit": {
             "enabled": args.agentskit == "on",
             "public_only": True,
             "agentskit_os_used": False,
-            "context_sha256": _sha256(agentskit_context) if agentskit_context else None,
-            "component_actions": 0,
+            "context_sha256": None,
+            "component_action_records": 0,
+            "native_external_components_executed": False,
         },
         "commands": {},
         "cleanup": {},
@@ -174,17 +235,8 @@ def main() -> int:
     technical_acceptance = False
     technical_pass = False
     failure: dict[str, Any] | None = None
-    if args.agentskit == "on":
-        action_bridge = AgentsKitComponentActionBridge(AgentsKitLedgerBridge(ledger, enabled=True))
-        actions = (
-            {"component": "doc-bridge", "operation": "lookup", "phase": "start", "stage_id": "requirements"},
-            {"component": "doc-bridge", "operation": "lookup", "phase": "complete", "durationMs": 0, "stage_id": "requirements"},
-            {"component": "playbook", "operation": "step", "phase": "complete", "step": 1, "durationMs": 0, "stage_id": "requirements"},
-            {"component": "specialized-agents", "operation": "delegate", "phase": "start", "name": "requirements", "depth": 0, "stage_id": "requirements"},
-        )
-        for action in actions:
-            action_bridge.record(action)
-        attestation["agentskit"]["component_actions"] = len(actions)
+    if args.agentskit == "on" and args.agentskit_native_root is None:
+        raise RuntimeError("AgentsKit ON requires --agentskit-native-root")
     with tempfile.TemporaryDirectory(prefix="agentic-sdlc-compozy-technical-") as directory:
         fixture = Path(directory) / "greenfield"
         shutil.copytree(
@@ -194,6 +246,18 @@ def main() -> int:
         )
         before_sha256 = _tree_sha256(fixture)
         try:
+            if args.agentskit == "on":
+                action_bridge = AgentsKitComponentActionBridge(AgentsKitLedgerBridge(ledger, enabled=True))
+                native_evidence, agentskit_context = _run_native_agentskit(
+                    args.agentskit_native_root.resolve(), fixture, action_bridge,
+                )
+                attestation["agentskit"].update(native_evidence)
+            prompt = (
+                "Technical pipeline validation only. Do not edit, create, or delete files and do not run tools. "
+                "Read the public task below, identify ambiguity IDs A1, A2, and A3, and end with the exact token "
+                "TECHNICAL_PILOT_READY.\n\n" + task_text + agentskit_context
+            )
+            attestation["prompt_sha256"] = _sha256(prompt)
             code, output, duration = _run(
                 "compozy", "session", "new", "--cwd", str(fixture), "--agent", "general", "--network", "local", "--json"
             )
@@ -260,16 +324,6 @@ def main() -> int:
             attestation["sentinel_observed"] = sentinel_observed
             attestation["fixture_unchanged"] = fixture_unchanged
             technical_acceptance = code == 0 and bool(events) and bool(normalized) and sentinel_observed and fixture_unchanged
-            if args.agentskit == "on":
-                action_bridge.record({
-                    "component": "specialized-agents", "operation": "delegate", "phase": "complete",
-                    "name": "requirements", "depth": 0, "durationMs": duration, "stage_id": "requirements",
-                })
-                action_bridge.record({
-                    "component": "code-review", "operation": "review", "phase": "complete",
-                    "durationMs": 0, "stage_id": "requirements",
-                })
-                attestation["agentskit"]["component_actions"] += 2
             if not technical_acceptance:
                 raise RuntimeError("technical_acceptance_failed")
         except (RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:

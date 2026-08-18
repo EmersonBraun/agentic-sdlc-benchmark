@@ -1,0 +1,80 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "commands": {
+      "code_review": {
+        "duration_ms": 175540.902667,
+        "output_sha256": "5091fa056fecf81507801cdc81f0d8ac9c6b143013a82c278bf450747ffede86",
+        "returncode": 0
+      },
+      "doc_bridge": {
+        "duration_ms": 203.023542,
+        "output_sha256": "06ae9dbb3ee6b62d454338baa6925408ed5705d23afacfc13fc634b8cec1e12f",
+        "returncode": 0
+      },
+      "playbook": {
+        "duration_ms": 93.047083,
+        "output_sha256": "1f63ad9981139b9e5103ce2ed8bb03a1e309ad081b9bcce6de3f57104956789e",
+        "returncode": 0
+      }
+    },
+    "component_action_records": 6,
+    "context_sha256": "6f963edd43b613248f75d2c096eab8308d19df87d5c86c8a730db2a9073f148e",
+    "enabled": true,
+    "native_external_components_executed": true,
+    "public_only": true
+  },
+  "analysis_eligible": false,
+  "cleanup": {
+    "fixture_destroyed": true,
+    "session_residual": false,
+    "session_stop": {
+      "output_sha256": "34db0699b078b766bde3165b9b041c1fb56648736a946fad5ee1ea2eaaa224e8",
+      "returncode": 0
+    },
+    "verified": true,
+    "workspace_remove": {
+      "output_sha256": "8f88a951006d192eb7bb54da06b34d5da83290f1b6176aa15d7bce14a71076db",
+      "returncode": 65
+    },
+    "workspace_residual": false
+  },
+  "commands": {
+    "session_events": {
+      "output_sha256": "499f1d12be1b52a4d6b37455fa8c31b4515c37eeb68869b4dd097ff005b412ab",
+      "returncode": 0
+    },
+    "session_new": {
+      "output_sha256": "372c977bf617c172458656fa925f1cdd6fd81c0c9abcc8770c7d5a3356bbdb2c",
+      "returncode": 0
+    },
+    "session_prompt": {
+      "output_sha256": "9043156722d9d6ea0106c61d077cadeba031d5586a87125cb595a586c1126b01",
+      "returncode": 0
+    }
+  },
+  "condition_id": "compozy__reference__on",
+  "content_persisted": false,
+  "event_count": 19,
+  "event_types": {
+    "agent_message": 9,
+    "done": 1,
+    "hook.dispatch.complete": 1,
+    "hook.dispatch.start": 1,
+    "system": 3,
+    "thought": 2,
+    "usage": 1,
+    "user_message": 1
+  },
+  "fixture_unchanged": true,
+  "model": "gpt-5.4",
+  "normalized_lifecycle_count": 3,
+  "prompt_sha256": "c88772fee2cc0916885e0f794745605a29baf2f6e232bb7cf0f3f6bd08936c0a",
+  "provider": "codex",
+  "run_id": "run_technical-compozy-reference-on-r2",
+  "schema_version": "compozy-technical-pilot-v1.0",
+  "sentinel_observed": true,
+  "session_id_sha256": "ba4338ba9490a01138e706130ccf107cb238ee7c9045e5a918db2130064e90a0",
+  "status": "technical-pass",
+  "workspace_id_sha256": "debe6d1046d537673ca8df8e0af9e26c822c8fe8ab58b79e5abedf4d8207090c"
+}

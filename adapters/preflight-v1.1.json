@@ -39,13 +39,15 @@
       "../runs/run_technical-compozy-reference-off-r4/manifest.json",
       "../runs/run_technical-compozy-reference-off-r5/manifest.json",
       "../runs/run_technical-compozy-reference-on-r1/manifest.json",
+      "../runs/run_technical-compozy-reference-on-r2/manifest.json",
+      "../runs/run_technical-compozy-reference-on-r3/manifest.json",
       "../analysis/technical-pair-compozy-reference-v1.1.json"
     ],
     "execution": {
-      "attempts": 6,
-      "technical_passes": 3,
+      "attempts": 8,
+      "technical_passes": 5,
       "technical_failures": 3,
-      "latest_successful_run": "run_technical-compozy-reference-on-r1",
+      "latest_successful_run": "run_technical-compozy-reference-on-r3",
       "latest_cleanup_verified": true,
       "official_observations_created": 0,
       "first_on_off_pair_complete": true
@@ -59,7 +61,7 @@
       "append_only_ledger": "verified",
       "no_fallback_resolution": "verified"
     },
-    "decision": "The preregistered Compozy × Reference Harness technical pipeline passed with AgentsKit OFF and ON. The ON run used only public AgentsKit contracts, emitted six redacted benchmark-side component-action records, and passed isolation and cleanup checks. Native external-component runtimes were not executed. Both outputs remain excluded from official analysis; one technical pair supports wiring validation only and does not relax the 18/18 collection gate or support a performance claim."
+    "decision": "The preregistered Compozy × Reference Harness technical pipeline passed with AgentsKit OFF and ON. The latest ON run natively executed pinned public Doc Bridge, Playbook, and Code Review runtimes, emitted six redacted component-action records, fed bounded evidence into gpt-5.4, and passed isolation and cleanup checks. Both outputs remain excluded from official analysis; one technical pair supports integration validation only and does not relax the 18/18 collection gate or support a performance claim."
   },
   "ade": {
     "orca": {
@@ -77,9 +79,12 @@
         "candidate_provider_execution": "passed",
         "required_model": "gpt-5.4",
         "required_model_provider_result": "passed",
-        "live_lifecycle_ledger": "not-verified"
+        "live_lifecycle_ledger": "blocked-dispatch-capability",
+        "model_execution": "observed",
+        "dispatch_attempts": 3,
+        "worker_done": "rejected-dispatch_capability_invalid"
       },
-      "decision": "Graph and candidate model execution are verified; v1.1 collection remains blocked until normalized lifecycle parity is verified."
+      "decision": "Graph and gpt-5.4 execution are verified, but three supervised Dispatches rejected worker_done because the runtime did not supply a valid Dispatch capability. v1.1 collection remains blocked until authoritative lifecycle settlement succeeds."
     },
     "agent-orchestrator": {
       "installed": true,
@@ -135,6 +140,7 @@
     "orca-v1.1-lifecycle-probe-attestation.json",
     "orca-v1.1-lifecycle-probe-attestation-2.json",
     "orca-v1.1-lifecycle-probe-attestation-3.json",
+    "orca-v1.1-lifecycle-probe-attestation-4.json",
     "agent-orchestrator-session-attestation-v1.0.json",
     "agent-orchestrator-v1.1-session-probe-attestation.json",
     "compozy-session-attestation-v1.0.json",
