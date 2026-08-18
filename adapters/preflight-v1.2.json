@@ -2,27 +2,27 @@
   "ade": {
     "agent-orchestrator": {
       "evidence": [
-        "condition-integration-agent-orchestrator-off-v1.2.json",
-        "condition-integration-agent-orchestrator-on-v1.2.json"
+        "connectivity-smoke-agent-orchestrator-off-v1.2.json",
+        "connectivity-smoke-agent-orchestrator-on-v1.2.json"
       ],
       "status": "installed-not-ready",
-      "technical_pilot_status": "installed-ready"
+      "technical_pilot_status": "installed-not-ready"
     },
     "compozy": {
       "evidence": [
-        "condition-integration-compozy-off-v1.2.json",
-        "condition-integration-compozy-on-v1.2.json"
+        "connectivity-smoke-compozy-off-v1.2.json",
+        "connectivity-smoke-compozy-on-v1.2.json"
       ],
       "status": "installed-not-ready",
-      "technical_pilot_status": "installed-ready"
+      "technical_pilot_status": "installed-not-ready"
     },
     "orca": {
       "evidence": [
-        "condition-integration-orca-off-v1.2.json",
-        "condition-integration-orca-on-v1.2.json"
+        "connectivity-smoke-orca-off-v1.2.json",
+        "connectivity-smoke-orca-on-v1.2.json"
       ],
       "status": "installed-not-ready",
-      "technical_pilot_status": "installed-ready"
+      "technical_pilot_status": "installed-not-ready"
     }
   },
   "agentskit": {
@@ -31,7 +31,7 @@
         "neutral_control": "live-zero-event-verified"
       },
       "status": "installed-not-ready",
-      "technical_pilot_status": "contract-ready"
+      "technical_pilot_status": "installed-not-ready"
     },
     "on": {
       "evidence": {
@@ -45,18 +45,19 @@
         "public_only": true
       },
       "status": "installed-not-ready",
-      "technical_pilot_status": "installed-ready"
+      "technical_pilot_status": "installed-not-ready"
     }
   },
   "limitations": [
-    "Technical bootstrap runs validate integration and are excluded from effect estimates.",
+    "Connectivity smokes validate live CLI/ADE wiring only and are excluded from effect estimates.",
+    "They do not validate frozen-base execution, full SDLC, ledger completeness, or AgentsKit use inside the ADE.",
     "Official collection remains blocked until the resumable v1.2 condition runner is implemented.",
     "The study is single-operator and currently runs on one personal local machine."
   ],
   "official_collection_status": "blocked-runner-not-implemented",
   "protocol_version": "v1.2",
   "schema_version": "preflight-v1.2",
-  "status": "technical-pilot-ready",
+  "status": "connectivity-smoke-ready",
   "technical_pilot": {
     "allowed_conditions": [
       "agent-orchestrator__off",
@@ -67,7 +68,8 @@
       "orca__on"
     ],
     "analysis_eligible": false,
-    "completed_conditions": [
+    "completed_conditions": [],
+    "completed_connectivity_smokes": [
       "agent-orchestrator__off",
       "agent-orchestrator__on",
       "compozy__off",
@@ -76,9 +78,10 @@
       "orca__on"
     ]
   },
+  "technical_pilot_status": "blocked-full-runner-and-evidence-contract",
   "v12_semantic_parity": {
     "matrix": "semantic-parity-matrix-v1.2.json",
-    "matrix_sha256": "2cbb7d77a21472f5f6d5847c3972dc9fb9a3900b5f1893fb8ece98e8faee1396",
-    "status": "verified"
+    "matrix_sha256": "9fc372556ba3ab85b4e5687c02f5b8f6f7f8f3e4941f81c792823c199a23b58a",
+    "status": "blocked"
   }
 }

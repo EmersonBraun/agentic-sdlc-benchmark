@@ -197,8 +197,11 @@ def main() -> int:
     with AO_PLIST.open("rb") as stream:
         ao_version = str(plistlib.load(stream)["CFBundleShortVersionString"])
     document: dict[str, Any] = {
-        "schema_version": "condition-integration-attestation-v1.2",
-        "protocol_version": "v1.2", "analysis_eligible": False, "live_execution": True,
+        "schema_version": "condition-connectivity-smoke-attestation-v1.2",
+        "protocol_version": "v1.2", "analysis_eligible": False, "live_connectivity_execution": True,
+        "semantic_parity_eligible": False,
+        "scope": "live ADE/provider connectivity smoke; not a full SDLC condition run",
+        "missing_gates": ["frozen_base_worktree", "full_sdlc", "complete_ade_ledger", "agentskit_inside_ade", "permission_parity", "independent_evaluation"],
         "observed_at": datetime.now(timezone.utc).isoformat(), "status": "passed" if passed else "failed",
         "condition_id": condition_id, "task_id": TASK_ID, "base_commit": BASE_COMMIT,
         "factors": {"ade": "agent-orchestrator", "agentskit": args.agentskit},
@@ -210,12 +213,12 @@ def main() -> int:
         "agentskit": agentskit_evidence, "cleanup": cleanup,
         "versions": {"agent_orchestrator": ao_version, "grok": _run(str(GROK), "--version").stdout.strip()},
         "invariants": {
-            "same_task": "passed", "same_base_commit": "passed",
+            "same_task": "passed", "same_base_commit": "not_evaluated",
             "role_topology": "passed" if topology_passed else "failed",
             "workspace_boundary": "passed" if repository_unchanged else "failed",
-            "permission_policy": "passed", "lifecycle_cleanup": "passed" if cleanup["verified"] else "failed",
+            "permission_policy": "not_evaluated", "lifecycle_cleanup": "passed" if cleanup["verified"] else "failed",
             "no_fallback": "passed" if topology_passed else "failed",
-            "agentskit_attribution": "passed" if passed else "failed",
+            "agentskit_attribution": "component_executed_not_integrated" if args.agentskit == "on" else "not_applicable",
         },
         "ledger_sha256": _sha(args.ledger.read_bytes()),
         "redaction": {"raw_prompts_persisted_publicly": False, "raw_outputs_persisted_publicly": False},

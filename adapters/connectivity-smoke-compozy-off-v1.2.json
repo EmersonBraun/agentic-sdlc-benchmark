@@ -6,7 +6,6 @@
     "public_only": false
   },
   "analysis_eligible": false,
-  "base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
   "cleanup": {
     "fixture_unchanged": true,
     "grok_process_residual_count": 0,
@@ -46,24 +45,23 @@
     "agentskit": "off"
   },
   "invariants": {
-    "agentskit_attribution": "passed",
+    "agentskit_attribution": "not_applicable",
     "lifecycle_cleanup": "passed",
     "no_fallback": "passed",
-    "permission_policy": "passed",
+    "permission_policy": "not_evaluated",
     "role_topology": "passed",
-    "same_base_commit": "passed",
+    "same_base_commit": "not_evaluated",
     "same_task": "passed",
     "workspace_boundary": "passed"
   },
   "ledger_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "live_execution": true,
   "observed_at": "2026-08-18T20:35:07.626037+00:00",
   "protocol_version": "v1.2",
   "redaction": {
     "raw_outputs_persisted_publicly": false,
     "raw_prompts_persisted_publicly": false
   },
-  "schema_version": "condition-integration-attestation-v1.2",
+  "schema_version": "condition-connectivity-smoke-attestation-v1.2",
   "source_hashes": {
     "probe": "e37bda514a0ea3a0ca88c1d739d0aa9ab71ba9523f932b3fad7b92b21216c932"
   },
@@ -119,5 +117,17 @@
       "provider": "codex"
     },
     "same_session": true
-  }
+  },
+  "live_connectivity_execution": true,
+  "semantic_parity_eligible": false,
+  "scope": "live ADE/provider connectivity smoke; not a full SDLC condition run",
+  "missing_gates": [
+    "frozen_base_worktree",
+    "full_sdlc",
+    "complete_ade_ledger",
+    "agentskit_inside_ade",
+    "permission_parity",
+    "independent_evaluation"
+  ],
+  "declared_base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc"
 }

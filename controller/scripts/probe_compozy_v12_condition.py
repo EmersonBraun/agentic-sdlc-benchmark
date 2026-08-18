@@ -182,10 +182,13 @@ def main() -> int:
     repository_unchanged = _repository_sha_excluding(args.attestation, args.ledger) == before_repository
     passed = failure is None and cleanup["verified"] and repository_unchanged
     document: dict[str, Any] = {
-        "schema_version": "condition-integration-attestation-v1.2",
+        "schema_version": "condition-connectivity-smoke-attestation-v1.2",
         "protocol_version": "v1.2",
         "analysis_eligible": False,
-        "live_execution": True,
+        "live_connectivity_execution": True,
+        "semantic_parity_eligible": False,
+        "scope": "live ADE/provider connectivity smoke; not a full SDLC condition run",
+        "missing_gates": ["frozen_base_worktree", "full_sdlc", "complete_ade_ledger", "agentskit_inside_ade", "permission_parity", "independent_evaluation"],
         "observed_at": datetime.now(timezone.utc).isoformat(),
         "status": "passed" if passed else "failed",
         "condition_id": condition_id,
@@ -199,10 +202,10 @@ def main() -> int:
         },
         "agentskit": agentskit_evidence,
         "invariants": {
-            "same_task": "passed", "same_base_commit": "passed", "role_topology": "passed" if passed else "failed",
+            "same_task": "passed", "same_base_commit": "not_evaluated", "role_topology": "passed" if passed else "failed",
             "workspace_boundary": "passed" if repository_unchanged and cleanup.get("fixture_unchanged") else "failed",
-            "permission_policy": "passed", "lifecycle_cleanup": "passed" if cleanup["verified"] else "failed",
-            "no_fallback": "passed" if passed else "failed", "agentskit_attribution": "passed" if passed else "failed",
+            "permission_policy": "not_evaluated", "lifecycle_cleanup": "passed" if cleanup["verified"] else "failed",
+            "no_fallback": "passed" if passed else "failed", "agentskit_attribution": "component_executed_not_integrated" if args.agentskit == "on" else "not_applicable",
         },
         "cleanup": cleanup,
         "commands": commands,

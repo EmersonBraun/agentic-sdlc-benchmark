@@ -3,45 +3,99 @@
   "conditions": [
     {
       "condition_id": "agent-orchestrator__off",
-      "integration_evidence": "condition-integration-agent-orchestrator-off-v1.2.json",
-      "integration_evidence_sha256": "9394bd3c9a884273c3201ce0847f6de9efae006525caa65db89effe48ff8c364",
-      "verified": true
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-agent-orchestrator-off-v1.2.json",
+      "evidence_sha256": "569f58c864214d63df69334184dfb8478a3a246676b1c58bfd2290c818a72778",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
     },
     {
       "condition_id": "agent-orchestrator__on",
-      "integration_evidence": "condition-integration-agent-orchestrator-on-v1.2.json",
-      "integration_evidence_sha256": "351d49d1c3080d9b5265d726bbe19e7e44548201b9d92578eea131687d9b8a9f",
-      "verified": true
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-agent-orchestrator-on-v1.2.json",
+      "evidence_sha256": "ee61b7f900a5d75d56526f4720efe6def801fcfe9c046242eccc9cbb7ad055f9",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
     },
     {
       "condition_id": "compozy__off",
-      "integration_evidence": "condition-integration-compozy-off-v1.2.json",
-      "integration_evidence_sha256": "15933fdb077b85e2b1eea67ce8e4445e4ac4454f4f57cc3eae435ce798ded61a",
-      "verified": true
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-compozy-off-v1.2.json",
+      "evidence_sha256": "be785c8bdc9b8e406a9b98f618b5a247dad8b0dd1c72cd068208c6b72543bf9a",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
     },
     {
       "condition_id": "compozy__on",
-      "integration_evidence": "condition-integration-compozy-on-v1.2.json",
-      "integration_evidence_sha256": "abe788f013c2939e02d653aecd291d03973812e86a22d11e511fcdc07eb76000",
-      "verified": true
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-compozy-on-v1.2.json",
+      "evidence_sha256": "dd1f20133eb791c8fec7d86d8b7f847250baece384a3dacf7d751db60a180b57",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
     },
     {
       "condition_id": "orca__off",
-      "integration_evidence": "condition-integration-orca-off-v1.2.json",
-      "integration_evidence_sha256": "524d5fc75c66b7457ceb8d2de94c420fade4aa0673f584e5e416466519aad4b5",
-      "verified": true
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-orca-off-v1.2.json",
+      "evidence_sha256": "f63e08123dc38d2fbdb618a00d20bebd47f3cf5140f85ae04bc678bb24d5ef15",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
     },
     {
       "condition_id": "orca__on",
-      "integration_evidence": "condition-integration-orca-on-v1.2.json",
-      "integration_evidence_sha256": "f3acadbef20f866b33e9a063219e0ced8377eee09f724dbda9a006f8caad1388",
-      "verified": true
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-orca-on-v1.2.json",
+      "evidence_sha256": "b7daf9094f9ca774cdf16346a527a1394d8a1638c43a909fd2fa3616f10cd90a",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
     }
   ],
   "generator": "controller/scripts/build_v12_integration_matrix.py",
   "protocol_version": "v1.2",
   "schema_version": "semantic-parity-matrix-v1.2",
-  "scope": "technical integration readiness; not an effect estimate",
+  "scope": "live connectivity smoke only; not condition integration or effect evidence",
   "source_hashes": {
     "controller/src/benchmark_controller/v12_ade_backends.py": "2acd1e11ab20594f9eeae27a6edbe5e80c28d706c0964b56a6eab9c70e1087d0",
     "controller/src/benchmark_controller/v12_execution.py": "dca271299096ce6c61adf9b61117c0530443a6ad6f495db4f01eff39266e6cb9",
@@ -50,5 +104,5 @@
     "protocol/model-policy-v1.2.json": "06ae2588391153991a7b953ee36603ba23735e967738f08472dd28a946c6c66f",
     "protocol/protocol-v1.2.md": "ca6d4518306cf4a875c39fb48f9f9b00d9428b9a7feca1cb65b8ecfc9da73b6b"
   },
-  "status": "verified"
+  "status": "blocked"
 }

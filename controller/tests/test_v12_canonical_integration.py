@@ -3,19 +3,23 @@ import json
 from pathlib import Path
 import unittest
 
-from benchmark_controller.v12_integration import EXPECTED_CONDITIONS, verify_integration_record
+from benchmark_controller.v12_integration import EXPECTED_CONDITIONS
 
 
 class V12CanonicalIntegrationTests(unittest.TestCase):
-    def test_all_six_canonical_records_are_live_and_valid(self) -> None:
+    def test_all_six_canonical_records_are_scoped_as_ineligible_smokes(self) -> None:
         root = Path(__file__).resolve().parents[2]
         observed = set()
         for condition in EXPECTED_CONDITIONS:
-            path = root / "adapters" / f"condition-integration-{condition.replace('__', '-')}-v1.2.json"
-            observed.add(verify_integration_record(path).condition_id)
+            path = root / "adapters" / f"connectivity-smoke-{condition.replace('__', '-')}-v1.2.json"
+            document = json.loads(path.read_text())
+            observed.add(document["condition_id"])
+            self.assertEqual(document["schema_version"], "condition-connectivity-smoke-attestation-v1.2")
+            self.assertFalse(document["semantic_parity_eligible"])
+            self.assertTrue(document["missing_gates"])
         self.assertEqual(observed, EXPECTED_CONDITIONS)
 
-    def test_preflight_binds_verified_matrix_but_blocks_official_collection(self) -> None:
+    def test_preflight_binds_blocked_matrix_and_blocks_pilot_and_collection(self) -> None:
         root = Path(__file__).resolve().parents[2]
         preflight = json.loads((root / "adapters/preflight-v1.2.json").read_text())
         matrix_path = root / "adapters" / preflight["v12_semantic_parity"]["matrix"]
@@ -23,6 +27,11 @@ class V12CanonicalIntegrationTests(unittest.TestCase):
             hashlib.sha256(matrix_path.read_bytes()).hexdigest(),
             preflight["v12_semantic_parity"]["matrix_sha256"],
         )
-        self.assertEqual(preflight["status"], "technical-pilot-ready")
+        matrix = json.loads(matrix_path.read_text())
+        self.assertEqual(preflight["status"], "connectivity-smoke-ready")
+        self.assertEqual(preflight["technical_pilot_status"], "blocked-full-runner-and-evidence-contract")
+        self.assertEqual(preflight["v12_semantic_parity"]["status"], "blocked")
+        self.assertEqual(matrix["status"], "blocked")
+        self.assertTrue(all(item["verified"] is False for item in matrix["conditions"]))
         self.assertEqual(preflight["official_collection_status"], "blocked-runner-not-implemented")
         self.assertFalse(preflight["technical_pilot"]["analysis_eligible"])
