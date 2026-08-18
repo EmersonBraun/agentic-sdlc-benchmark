@@ -246,26 +246,32 @@ def main() -> int:
             elif session_id:
                 code, output, _ = _run("compozy", "session", "remove", session_id, "--json")
                 attestation["cleanup"]["session_remove"] = {"returncode": code, "output_sha256": _sha256(output)}
-            _, sessions_output, _ = _run("compozy", "session", "list", "--json")
-            sessions_payload = _json(sessions_output)
-            sessions = sessions_payload.get("sessions", []) if isinstance(sessions_payload, dict) else []
-            session_residual = any(
-                isinstance(item, dict) and item.get("id") == session_id
-                for item in sessions
-            )
-            _, workspaces_output, _ = _run("compozy", "workspace", "list", "--json")
-            workspaces_payload = _json(workspaces_output)
-            workspaces = workspaces_payload if isinstance(workspaces_payload, list) else []
-            workspace_residual = any(
-                isinstance(item, dict) and item.get("id") == workspace_id
-                for item in workspaces
-            )
-            cleanup_verified = bool(session_id) and not session_residual and not workspace_residual
-            attestation["cleanup"]["session_residual"] = session_residual
-            attestation["cleanup"]["workspace_residual"] = workspace_residual
-            attestation["cleanup"]["verified"] = cleanup_verified
-            attestation["content_persisted"] = not cleanup_verified
-            attestation["cleanup"]["fixture_destroyed"] = True
+    attestation["cleanup"]["fixture_destroyed"] = True
+    session_residual = True
+    workspace_residual = True
+    for _ in range(10):
+        _, sessions_output, _ = _run("compozy", "session", "list", "--json")
+        sessions_payload = _json(sessions_output)
+        sessions = sessions_payload.get("sessions", []) if isinstance(sessions_payload, dict) else []
+        session_residual = any(
+            isinstance(item, dict) and item.get("id") == session_id
+            for item in sessions
+        )
+        _, workspaces_output, _ = _run("compozy", "workspace", "list", "--json")
+        workspaces_payload = _json(workspaces_output)
+        workspaces = workspaces_payload if isinstance(workspaces_payload, list) else []
+        workspace_residual = any(
+            isinstance(item, dict) and item.get("id") == workspace_id
+            for item in workspaces
+        )
+        if not session_residual and not workspace_residual:
+            break
+        time.sleep(0.5)
+    cleanup_verified = bool(session_id) and not session_residual and not workspace_residual
+    attestation["cleanup"]["session_residual"] = session_residual
+    attestation["cleanup"]["workspace_residual"] = workspace_residual
+    attestation["cleanup"]["verified"] = cleanup_verified
+    attestation["content_persisted"] = not cleanup_verified
 
     technical_pass = technical_acceptance and bool(attestation["cleanup"].get("verified"))
     if technical_acceptance and not technical_pass and failure is None:
