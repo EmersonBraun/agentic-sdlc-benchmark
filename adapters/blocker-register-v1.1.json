@@ -33,13 +33,6 @@
       "blocking_conditions": ["normal dependency resolution failed for all tested versions"],
       "resolution_gate": "Clean pinned environment resolves the declared SDK/tool/workspace graph without --no-deps or dependency overrides, then passes workspace, permissions, and ledger probes.",
       "safe_next_action": "Wait for or identify an upstream-compatible dependency set; do not weaken the resolver policy."
-    },
-    {
-      "component": "agentskit:on",
-      "evidence_refs": ["preflight-v1.1.json", "agentskit-component-attestation-v1.0.json", "agentskit-integrated-fixture-attestation-v1.0.json", "agentskit-v1.1-preflight-attestation.json", "protocol/model-policy-v1.1.json"],
-      "blocking_conditions": ["integrated fixture is provider-free and does not prove a real controlled task", "provider-backed task semantic parity and matched OFF comparison remain unverified"],
-      "resolution_gate": "Public source is isolated and version-pinned, all declared ON component actions are mapped to ledger-compatible events in a controlled v1.1 task, and the matched OFF control remains unchanged.",
-      "safe_next_action": "Use the integrated fixture as the preflight gate, then obtain explicit controlled model/auth configuration before any model-backed session."
     }
   ],
   "external_references": {

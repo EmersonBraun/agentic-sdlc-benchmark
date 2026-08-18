@@ -1,0 +1,71 @@
+{
+  "schema_version": "component-readiness-attestation-v1.1",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-18",
+  "component": "agentskit:on",
+  "status": "installed-ready",
+  "scope": "component-local readiness; not an AgentsKit effect estimate or official-collection eligibility",
+  "source": {
+    "repository": "https://github.com/AgentsKit-io/agentskit",
+    "commit": "353d6e38a60deebd6556cddb58d322d242f4df0d",
+    "working_tree_clean": true,
+    "public_only": true,
+    "agentskit_os_used": false
+  },
+  "public_components": {
+    "doc_bridge": "1.4.3@9a03016932b9e3024604712183152025c0577fe4",
+    "playbook": "0.1.0@0818d860655c2d367f4d8b8c281c9b73ec5adad2",
+    "code_review": "0.1.0@467cfa570a6b5f1076098b3c76be4e812562f23e",
+    "specialized_agents": "@agentskit/skills@0.9.3",
+    "telemetry": "@agentskit/observability@0.11.4",
+    "versioned_memory": "@agentskit/memory@0.11.8"
+  },
+  "fresh_contract_recheck": {
+    "core_runtime_event_count": 15,
+    "integrated_component_action_count": 6,
+    "integrated_ledger_event_count": 21,
+    "integrated_contract_fingerprint_sha256": "93dfa2244ad657f3912c49ef55cbc13e905a9475d61e2cba4cd999a54779fc91",
+    "full_bridge_event_count": 23,
+    "full_bridge_contract_fingerprint_sha256": "622680540dec1cf6f5722cd6773c1b83c759644a26b7ebe6112408756697e600",
+    "raw_content_persisted": false
+  },
+  "provider_backed_pair": {
+    "pair": "../analysis/technical-pair-compozy-reference-v1.1.json",
+    "pair_sha256": "fbac6e3d343f60db92a39f25feac1797b0e13c9cb0615b8b4c4fa6c048bb0cbd",
+    "same_task": "pilot_greenfield_service_readiness",
+    "same_base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
+    "same_ade": "compozy",
+    "same_harness": "reference",
+    "same_provider": "codex",
+    "same_model": "gpt-5.4",
+    "off": {
+      "run_id": "run_technical-compozy-reference-off-r5",
+      "terminal_state": "TECHNICAL_PASS",
+      "manifest_sha256": "14f6b5c112e7a5c4ff65a9d4a2be7cee4f11861277d2503aa7a8ef53a253fed5",
+      "attestation_sha256": "3a9fc836828d9995b5deebe2505501386bdb2f630648cce54a629896b0eba627",
+      "ledger_sha256": "bb9fa429f2fa1ae920c5cc36307040498d41d83b8f8e79589ae0e8e31f7887fc",
+      "agentskit_event_count": 0
+    },
+    "on": {
+      "run_id": "run_technical-compozy-reference-on-r3",
+      "terminal_state": "TECHNICAL_PASS",
+      "manifest_sha256": "790bcad6b132e14e09c8d014187479da523f7f023d32ff786f1e758c23212eb9",
+      "attestation_sha256": "5e6e409d8f16e673a39ca3babf648839d77562b4133e7fef35fc7ac079bcd8e6",
+      "ledger_sha256": "3686faf1e217c345f26c3764193d519efd6a95911604eaefae373106a89276e0",
+      "agentskit_event_count": 6,
+      "native_components_executed": ["doc-bridge", "playbook", "code-review"]
+    },
+    "cleanup_verified": true,
+    "analysis_eligible": false
+  },
+  "invariants": {
+    "public_source_pinned": "passed",
+    "declared_actions_mapped_to_ledger": "passed",
+    "provider_backed_controlled_task": "passed",
+    "matched_off_control_unchanged": "passed",
+    "redaction": "passed",
+    "cleanup": "passed",
+    "no_private_component": "passed"
+  },
+  "decision": "AgentsKit ON satisfies its independently testable v1.1 component contract. This validates integration, not benefit: effect estimation still requires preregistered official ON/OFF replications after every ADE and harness is ready."
+}

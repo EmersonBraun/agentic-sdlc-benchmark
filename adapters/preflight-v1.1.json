@@ -136,7 +136,7 @@
   },
   "agentskit": {
     "off": {"installed": true, "status": "contract-ready", "technical_pilot_status": "contract-ready", "evidence": {"neutral_control": "contract-tested"}},
-    "on": {"installed": true, "status": "installed-not-ready", "technical_pilot_status": "installed-ready", "evidence": {"public_only": true, "agentskit_os_used": false, "event_bridge": "live", "ledger_redaction": "live", "ledger_emission": "technical-pilot-ready", "provider_backed_parity": "condition-scoped"}}
+    "on": {"installed": true, "status": "installed-ready", "technical_pilot_status": "installed-ready", "evidence": {"public_only": true, "agentskit_os_used": false, "agentskit_help": "public-source-runtime-verified", "event_bridge": "live", "ledger_redaction": "live", "ledger_emission": "live", "provider_backed_parity": "matched-on-off-technical-pair", "native_public_components": "doc-bridge,playbook,code-review", "component_readiness_attestation": "agentskit-v1.1-component-readiness-attestation.json"}}
   },
   "evidence_refs": [
     "machine-inventory-v1.1.json",
@@ -159,6 +159,7 @@
     "mini-swe-v1.1-preflight-attestation.json",
     "mini-swe-cli-bridge-attestation-v1.1.json",
     "agentskit-integrated-fixture-attestation-v1.0.json",
-    "agentskit-v1.1-preflight-attestation.json"
+    "agentskit-v1.1-preflight-attestation.json",
+    "agentskit-v1.1-component-readiness-attestation.json"
   ]
 }

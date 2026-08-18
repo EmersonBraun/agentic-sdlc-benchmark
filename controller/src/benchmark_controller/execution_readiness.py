@@ -97,11 +97,11 @@ BLOCKER_SPECS: dict[str, ExecutionBlocker] = {
         "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection",
     ),
     "agentskit:on": ExecutionBlocker(
-        "agentskit-official-replication", "agentskit:on", "protocol",
-        "Native public components pass one excluded technical condition, not the preregistered official replication gate.",
-        "adapters/agentskit-v1.1-preflight-attestation.json",
-        "Run AgentsKit ON only after each paired ADE/harness condition is officially ready; preserve matched OFF controls.",
-        "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection",
+        "agentskit-component-parity", "agentskit:on", "protocol",
+        "AgentsKit ON has not independently proved public-only execution, ledger mapping, redaction, and a provider-backed matched OFF control.",
+        "adapters/agentskit-v1.1-component-readiness-attestation.json",
+        "Repeat the controlled public-component probes and matched provider-backed ON/OFF task.",
+        "PYTHONPATH=controller/src:controller/scripts python3 controller/scripts/probe_agentskit_integrated_fixture.py --source /path/to/pinned/public/agentskit",
     ),
 }
 

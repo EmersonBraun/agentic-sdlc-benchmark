@@ -2,7 +2,7 @@
   "schema_version": "agentskit-v1.1-preflight-attestation",
   "protocol_version": "v1.1",
   "verified_on": "2026-08-17",
-  "status": "partial-ready",
+  "status": "component-ready",
   "source": {"repository": "https://github.com/AgentsKit-io/agentskit", "commit": "353d6e38a60deebd6556cddb58d322d242f4df0d", "public_only": true, "agentskit_os_used": false},
   "model_policy": {"provider_called": true, "agent_session_started": true, "policy_model": "gpt-5.4", "model_backed_parity": "technical-condition-passed"},
   "core_probe": {"status": "passed", "observer_events": 3, "ledger_events": 3, "ledger_redaction": "live", "output_sha256": "d810ed97e5073e2f8f256e76a982dc6b00340929e2cf0ab2889e1c00bc5e7a57"},
@@ -10,5 +10,5 @@
   "integrated_fixture": {"status": "provider-free-semantic-wiring-verified", "core_runtime_event_count": 15, "component_action_count": 6, "ledger_event_count": 21, "contract_fingerprint_sha256": "93dfa2244ad657f3912c49ef55cbc13e905a9475d61e2cba4cd999a54779fc91", "raw_content_persisted": false, "output_sha256": "4c5a18a6665105a632a13a50f57ffc50a0dd245cc9f1f6fbb622b8562f04c673"},
   "external_components": {"status": "offline-verified", "provider_called": false, "agent_session_started": false, "doc_bridge_commit": "9a03016932b9e3024604712183152025c0577fe4", "playbook_commit": "0818d860655c2d367f4d8b8c281c9b73ec5adad2", "code_review_commit": "467cfa570a6b5f1076098b3c76be4e812562f23e"},
   "technical_pilot": {"status": "passed", "run_id": "run_technical-compozy-reference-on-r3", "condition_id": "compozy__reference__on", "component_action_records": 6, "native_external_components_executed": true, "native_components": {"doc_bridge": {"commit": "9a03016932b9e3024604712183152025c0577fe4", "version": "1.4.3"}, "playbook": {"commit": "0818d860655c2d367f4d8b8c281c9b73ec5adad2", "version": "0.1.0"}, "code_review": {"commit": "467cfa570a6b5f1076098b3c76be4e812562f23e", "version": "0.1.0", "provider": "codex-cli", "model": "gpt-5.4", "lenses_completed": 7}}, "public_only": true, "agentskit_os_used": false, "analysis_eligible": false, "attestation_sha256": "5e6e409d8f16e673a39ca3babf648839d77562b4133e7fef35fc7ac079bcd8e6"},
-  "decision": "The pinned public AgentsKit source passes provider-free probes and one model-backed Compozy technical condition with native Doc Bridge, Playbook, and Code Review execution. Bounded hashed evidence was consumed by gpt-5.4 and six redacted action records shared the run ledger. This validates condition-scoped technical integration only; AgentsKit ON remains not-ready for official collection until the full parity and replication gates pass."
+  "decision": "The pinned public AgentsKit source and native Doc Bridge, Playbook, and Code Review runtimes pass a matched provider-backed ON/OFF task with six redacted action records. AgentsKit ON is component-ready; effect estimation and official collection remain separately gated by preregistered replication and global semantic parity."
 }
