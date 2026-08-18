@@ -29,6 +29,7 @@ V12_REQUIRED_SOURCE_REFS = {
     "controller/src/benchmark_controller/v12_integration.py",
     "controller/src/benchmark_controller/v12_runner.py",
     "controller/src/benchmark_controller/v12_native_backend.py",
+    "controller/src/benchmark_controller/compozy_v12_executor.py",
 }
 
 

@@ -58,6 +58,13 @@ instrumentation files never enter the product tree, so they cannot change the
 product diff. Review and completion verification are frozen to the independent
 Codex `gpt-5.4-mini` evaluator.
 
+The Compozy implementation uses one local, workspace-bound session per run.
+Every prompt carries stable message and idempotency identities, explicitly pins
+the role provider/model, validates the returned event stream, and redacts raw
+prompt/output content. Model execution is measured as effective work; session
+setup and cleanup are recorded separately as orchestration overhead. The
+session is stopped after merge or by terminal cleanup.
+
 Checkpoints are not permission to resume a measurement after process failure.
 They support bounded retries during one process and idempotent cleanup after a
 terminal state. Interrupted measurements remain invalid and are replaced by a

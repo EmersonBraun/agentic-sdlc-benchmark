@@ -47,6 +47,7 @@ class NativeStepExecution:
     workspace: Path
     effective_work_ms: float
     external_wait_ms: float
+    orchestration_overhead_ms: float
     tokens: Mapping[str, int]
     cost_usd: float
     metadata: Mapping[str, Any]
@@ -137,10 +138,14 @@ class V12NativeStageBackend:
         if execution.workspace.resolve() != request.worktree:
             return "native-workspace-boundary-mismatch"
         if not all(math.isfinite(value) for value in (
-            execution.effective_work_ms, execution.external_wait_ms, execution.cost_usd,
+            execution.effective_work_ms, execution.external_wait_ms,
+            execution.orchestration_overhead_ms, execution.cost_usd,
         )):
             return "native-accounting-non-finite"
-        if execution.effective_work_ms < 0 or execution.external_wait_ms < 0 or execution.cost_usd < 0:
+        if (
+            execution.effective_work_ms < 0 or execution.external_wait_ms < 0
+            or execution.orchestration_overhead_ms < 0 or execution.cost_usd < 0
+        ):
             return "native-accounting-negative"
         if set(execution.tokens) != {"input", "output", "cached", "reasoning"}:
             return "native-token-accounting-incomplete"
@@ -178,6 +183,19 @@ class V12NativeStageBackend:
             event_type="backend.attempt.external-wait",
             time_category="external_wait",
             duration_ms=max(0, execution.external_wait_ms) if math.isfinite(execution.external_wait_ms) else 0,
+            status="completed" if valid else "failed",
+            payload={"idempotency_key": context.idempotency_key},
+            tool=context.accounting_tool,
+        )
+        context.bundle.ledger.record(
+            stage_id=context.step.stage_id,
+            actor="infrastructure",
+            event_type="backend.attempt.orchestration-overhead",
+            time_category="orchestration_overhead",
+            duration_ms=(
+                max(0, execution.orchestration_overhead_ms)
+                if math.isfinite(execution.orchestration_overhead_ms) else 0
+            ),
             status="completed" if valid else "failed",
             payload={"idempotency_key": context.idempotency_key},
             tool=context.accounting_tool,

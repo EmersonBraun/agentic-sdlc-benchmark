@@ -29,7 +29,7 @@ class Executor:
         return NativeStepExecution(
             status="completed", role=request.role, provider=request.provider, model=request.model,
             workspace=Path("/tmp/wrong") if self.wrong_workspace else request.worktree,
-            effective_work_ms=10, external_wait_ms=2,
+            effective_work_ms=10, external_wait_ms=2, orchestration_overhead_ms=3,
             tokens={"input": 1, "output": 2, "cached": 0, "reasoning": 1},
             cost_usd=0.01, metadata=metadata,
         )
@@ -79,7 +79,7 @@ class V12NativeBackendTests(unittest.TestCase):
             result = V12NativeStageBackend(Executor(wrong_workspace=True)).execute_step(context)
             self.assertEqual(result.status, "invalid-measurement")
             events = [line for line in context.bundle.ledger.path.read_text().splitlines() if line]
-            self.assertEqual(len(events), 2)
+            self.assertEqual(len(events), 3)
 
     def test_rejects_non_finite_accounting_without_serializing_nan(self):
         class NonFiniteExecutor(Executor):
