@@ -51,6 +51,8 @@ jobs:
       - name: Validate dashboard and empty-result analysis
         run: |
           node --check dashboard/app.js
+          PYTHONPATH=controller/src python3 controller/scripts/check_execution_readiness.py --preflight adapters/preflight-v1.1.json > /tmp/execution-readiness-v1.1.json || test $? = 1
+          python3 -c 'import json; assert json.load(open("adapters/execution-readiness-v1.1.json")) == json.load(open("/tmp/execution-readiness-v1.1.json"))'
           python3 analysis/aggregate_runs.py --runs-root runs --tasks-root tasks/public --protocol v1.1 --output /tmp/processed-results-v1.1.json
           test "$(python3 -c 'import json; print(json.load(open("/tmp/processed-results-v1.1.json"))["status"])')" = "no-results"
 
