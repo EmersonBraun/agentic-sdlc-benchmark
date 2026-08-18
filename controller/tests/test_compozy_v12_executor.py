@@ -50,7 +50,10 @@ class Transport:
             runtime["model"] = model
         return CommandResult([
             {"type": "agent_message", "text": text, "prompt_runtime": runtime},
-            {"type": "usage", "content": {"input_tokens": 10, "output_tokens": 5, "cost_usd": 0.01}},
+            {"type": "usage", "content": {
+                "input_tokens": 10, "output_tokens": 5, "cached_tokens": 0,
+                "reasoning_tokens": 0, "cost_usd": 0.01,
+            }},
             {"type": "done", "prompt_runtime": runtime},
         ], 20)
 
@@ -90,11 +93,11 @@ class FailingConfigTransport(Transport):
 class FailingStopTransport(Transport):
     def __init__(self):
         super().__init__()
-        self.fail_stop = True
+        self.stop_failures = 3
 
     def run_json(self, argv, *, timeout_seconds):
-        if argv[:2] == ("session", "stop") and self.fail_stop:
-            self.fail_stop = False
+        if argv[:2] == ("session", "stop") and self.stop_failures:
+            self.stop_failures -= 1
             raise RuntimeError("temporary stop failure")
         return super().run_json(argv, timeout_seconds=timeout_seconds)
 
@@ -182,9 +185,10 @@ class CompozyV12ExecutorTests(unittest.TestCase):
 
     def test_live_context_only_usage_is_explicitly_unavailable_not_measured_zero(self):
         events = [{"type": "usage", "usage": {"context_used": 34766, "context_size": 258400}}]
-        tokens, cost = CompozyV12RoleExecutor._usage(events)
+        tokens, cost, complete = CompozyV12RoleExecutor._usage(events)
         observation = CompozyV12RoleExecutor._usage_observation(events, tokens)
         self.assertEqual(tokens, {"input": 0, "output": 0, "cached": 0, "reasoning": 0})
         self.assertEqual(cost, 0)
+        self.assertFalse(complete)
         self.assertFalse(observation["token_breakdown_observed"])
         self.assertEqual(observation["context_used"], 34766)

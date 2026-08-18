@@ -678,7 +678,7 @@ class ComposedConditionRunner:
             events = [json.loads(line) for line in bundle.ledger.path.read_text().splitlines() if line.strip()]
         if bundle.manifest.get("gate_mode") == "official-collection" and any(
             event.get("event_type") == "backend.attempt.effective-work"
-            and event.get("payload", {}).get("token_cost_accounting_observed") is not True
+            and event.get("token_cost_accounting_observed") is not True
             for event in events
         ):
             return ExecutionOutcome(

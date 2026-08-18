@@ -187,6 +187,7 @@ class V12NativeStageBackend:
             tool=context.accounting_tool,
             tokens=tokens,
             cost_usd=max(0, execution.cost_usd) if math.isfinite(execution.cost_usd) else 0,
+            token_cost_accounting_observed=execution.token_cost_accounting_observed,
         )
         context.bundle.ledger.record(
             stage_id=context.step.stage_id,

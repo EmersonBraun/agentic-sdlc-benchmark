@@ -252,9 +252,10 @@ class V12RunnerTests(unittest.TestCase):
             object(), lambda assignment, bundle: backend, lambda assignment, bundle: object(),
         )
         expected = SimpleNamespace(terminal_state="MERGED")
+        current_bundle = SimpleNamespace(ledger=SimpleNamespace(record=Mock()))
         with patch("benchmark_controller.v12_runner.V12NativeConditionRunner") as runner:
             runner.return_value.execute.return_value = expected
-            self.assertIs(collection.execute(assignment("off"), object()), expected)
+            self.assertIs(collection.execute(assignment("off"), current_bundle), expected)
             runner.assert_called_once()
             backend.close.assert_called_once_with()
 

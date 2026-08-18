@@ -7,6 +7,7 @@ import hashlib
 import json
 from pathlib import Path
 import tempfile
+import time
 from typing import Any, Callable, Mapping
 
 from .condition_runner import (
@@ -335,4 +336,20 @@ class V12NativeCollectionBackend:
         finally:
             close = getattr(backend, "close", None)
             if callable(close):
-                close()
+                started = time.monotonic_ns()
+                cleanup_error: Exception | None = None
+                try:
+                    close()
+                except Exception as exc:
+                    cleanup_error = exc
+                bundle.ledger.record(
+                    stage_id="documentation", actor="infrastructure",
+                    event_type="condition.backend.cleanup",
+                    time_category="orchestration_overhead",
+                    duration_ms=(time.monotonic_ns() - started) / 1_000_000,
+                    status="failed" if cleanup_error else "completed",
+                    payload={"condition_id": assignment.condition_id},
+                    tool="condition-runner-v1.2",
+                )
+                if cleanup_error is not None:
+                    raise cleanup_error

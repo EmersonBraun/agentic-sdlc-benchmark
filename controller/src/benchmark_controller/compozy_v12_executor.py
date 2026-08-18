@@ -39,7 +39,7 @@ class SubprocessCompozyTransport:
         started = time.monotonic_ns()
         completed = subprocess.run(
             (self.executable, *argv), capture_output=True, text=True, check=False,
-            timeout=max(1, timeout_seconds),
+            timeout=timeout_seconds,
         )
         duration_ms = (time.monotonic_ns() - started) / 1_000_000
         if completed.returncode != 0:
@@ -104,14 +104,16 @@ class CompozyV12RoleExecutor:
             text = self._agent_text(events)
             self._verify_turn(request, events, text, sentinel, runtime_provider)
             metadata = self._metadata(request, text, events, sentinel)
-            tokens, cost = self._usage(events)
+            tokens, cost, accounting_complete = self._usage(events)
             metadata["usage_observation"] = self._usage_observation(events, tokens)
+            if self._remaining_seconds(request) <= 0:
+                raise subprocess.TimeoutExpired("compozy", 0)
             cleanup_ms = self._stop(request, session_id) if request.step == "merge" else 0
             outcome = NativeStepExecution(
                 status="completed", role=request.role, provider=request.provider, model=request.model,
                 workspace=request.worktree, effective_work_ms=prompt_ms,
                 external_wait_ms=0, orchestration_overhead_ms=setup_ms + cleanup_ms,
-                token_cost_accounting_observed=any(tokens.values()) or cost > 0,
+                token_cost_accounting_observed=accounting_complete,
                 tokens=tokens, cost_usd=cost,
                 metadata=metadata, completion_proof=metadata.get("completion_proof"),
             )
@@ -133,14 +135,18 @@ class CompozyV12RoleExecutor:
 
         failed = False
         for run_id, session_id in tuple(self._sessions.items()):
-            try:
-                self.transport.run_json(
-                    ("session", "stop", session_id, "-o", "json"), timeout_seconds=30,
-                )
-            except Exception:
-                failed = True
-            else:
+            stopped = False
+            for _ in range(3):
+                try:
+                    self.transport.run_json(
+                        ("session", "stop", session_id, "-o", "json"), timeout_seconds=30,
+                    )
+                except Exception:
+                    continue
+                stopped = True
                 self._sessions.pop(run_id, None)
+                break
+            failed = failed or not stopped
         if failed:
             raise RuntimeError("Compozy terminal session cleanup failed")
 
@@ -339,9 +345,11 @@ class CompozyV12RoleExecutor:
         raise RuntimeError("Compozy stage output omitted required JSON")
 
     @staticmethod
-    def _usage(events: Sequence[Mapping[str, Any]]) -> tuple[dict[str, int], float]:
+    def _usage(events: Sequence[Mapping[str, Any]]) -> tuple[dict[str, int], float, bool]:
         tokens = {"input": 0, "output": 0, "cached": 0, "reasoning": 0}
         cost = 0.0
+        observed_fields: set[str] = set()
+        cost_observed = False
         for event in events:
             if event.get("type") != "usage":
                 continue
@@ -353,10 +361,13 @@ class CompozyV12RoleExecutor:
                 "cached": ("cached_tokens", "cached"), "reasoning": ("reasoning_tokens", "reasoning"),
             }.items():
                 value = next((content.get(alias) for alias in aliases if isinstance(content.get(alias), int)), 0)
+                if any(isinstance(content.get(alias), int) for alias in aliases):
+                    observed_fields.add(target)
                 tokens[target] += int(value)
             if isinstance(content.get("cost_usd"), (int, float)):
+                cost_observed = True
                 cost += float(content["cost_usd"])
-        return tokens, cost
+        return tokens, cost, observed_fields == set(tokens) and cost_observed
 
     @staticmethod
     def _usage_observation(
