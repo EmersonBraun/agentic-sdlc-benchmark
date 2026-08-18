@@ -23,8 +23,10 @@ gate reports ready.
 
 ## Gate sequence
 
-Run the gates in this order. Stop at the first failed gate and preserve its
-redacted evidence.
+Run the gates in this order for the final release decision. Independent,
+preparation-only probes may proceed after an earlier failure when they cannot
+contaminate a task, disclose hidden material, or create an official run. Always
+preserve the redacted failure evidence.
 
 | Order | Gate | Operator action | Passing evidence |
 |---:|---|---|---|
@@ -43,8 +45,8 @@ For each gate:
    workspace/session identifiers as hashes, and the exact probe command.
 2. Capture only redacted summaries and SHA-256 hashes in a versioned attestation.
 3. Run the relevant read-only probe and the shared semantic-parity tests.
-4. Update `blocker-register-v1.0.json`, `preflight-v1.0.json`, and the
-   deterministic readiness snapshots together.
+4. Update the blocker register, preflight record, and deterministic readiness
+   snapshots for the active protocol cohort together.
 5. Run the validation suite and commit the evidence before attempting the next
    gate.
 
@@ -64,7 +66,11 @@ create no benchmark run or external session.
 
 ## Current state
 
-As of 2026-08-17, the local closure checks pass, but all 18 conditions remain
-blocked by external runtime, model/authentication, or upstream dependency gates.
-The next action requiring operator involvement is ORCA graph registration or
-provider/model setup; no provider call is made by this runbook automatically.
+As of 2026-08-18, the local closure checks pass, but all 18 v1.1 conditions
+remain blocked. Compozy plus the reference harness has a valid excluded ON/OFF
+technical pair. ORCA executes `gpt-5.4` but rejects authoritative lifecycle
+settlement; Agent Orchestrator lacks observable model output/native events;
+OpenHands 1.42.1 does not resolve normally; and mini-SWE-agent lacks the
+temporary non-production `XAI_API_KEY` required by the frozen `grok-4.5`
+executor policy. The credential is the only current operator-owned gate. It
+must be supplied through the local environment and never committed or printed.

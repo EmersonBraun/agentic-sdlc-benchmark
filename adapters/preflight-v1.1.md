@@ -17,7 +17,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 
 | Component | Status | What is verified | What remains |
 |---|---|---|---|
-| ORCA 1.4.184 | installed-not-ready | Runtime, graph, workspace, and candidate `gpt-5.4` launch | Worker stalled during MCP bootstrap; normalized lifecycle parity is unverified |
+| ORCA 1.4.184 | installed-not-ready | Runtime, graph, workspace, three supervised `gpt-5.4` executions, cleanup, and release | Runtime rejected every authoritative `worker_done` with `dispatch_capability_invalid`; lifecycle settlement is unverified |
 | Agent Orchestrator 0.12.6 | installed-not-ready | Isolated spawn, polling, termination, cleanup, and redacted ledger bridge | `gpt-5.4` execution and native event treatment are unverified |
 | Compozy 0.3.0-beta.16 | installed-not-ready | Exact `gpt-5.4` provider-bound prompt, isolated workspace cleanup, and redacted event-to-ledger bridge | Cross-ADE/harness/AgentsKit semantic parity is still unverified |
 | Reference Harness | contract-ready | Common argv, workspace, permissions, and ledger contract | External ADE readiness still gates every primary condition |
@@ -35,12 +35,14 @@ Evidence from v1.0 and v1.1 is never mixed.
 - [ORCA lifecycle probe](orca-v1.1-lifecycle-probe-attestation.json)
 - [Latest ORCA lifecycle probe](orca-v1.1-lifecycle-probe-attestation-2.json)
 - [Latest ORCA bootstrap diagnostic](orca-v1.1-lifecycle-probe-attestation-3.json)
+- [Latest ORCA Dispatch-capability diagnostic](orca-v1.1-lifecycle-probe-attestation-4.json)
 - [Agent Orchestrator session probe](agent-orchestrator-v1.1-session-probe-attestation.json)
 - [Compozy session probe](compozy-v1.1-session-probe-attestation.json)
 - [Latest Compozy availability probe](compozy-v1.1-availability-probe-attestation-2.json)
 - [Compozy provider/lifecycle bridge probe](compozy-v1.1-session-probe-attestation.json)
 - [mini-SWE boundary probe](mini-swe-v1.1-preflight-attestation.json)
 - [AgentsKit pinned preflight](agentskit-v1.1-preflight-attestation.json)
+- [Deterministic execution-readiness report](execution-readiness-v1.1.json)
 - [Private evaluation companion](https://github.com/EmersonBraun/agentic-sdlc-benchmark-private) (access-controlled; manifest hash is recorded in the preflight JSON)
 
 All public evidence is redacted. It records bounded metadata, hashes, state

@@ -1,15 +1,15 @@
 {
   "schema_version": "blocker-register-v1.1",
   "protocol_version": "v1.1",
-  "verified_on": "2026-08-17",
+  "verified_on": "2026-08-18",
   "status": "pilot-blocked",
   "policy": "A blocker may be closed only by fresh evidence satisfying the stated resolution gate. Installation, inferred readiness, dependency overrides, fallback adapters, and empty-session observations do not close a blocker.",
   "derived_from": "blocker-register-v1.0.json",
   "blockers": [
     {
       "component": "ade:orca",
-      "evidence_refs": ["preflight-v1.1.json", "orca-workspace-attestation-v1.0.json", "orca-session-attestation-v1.0.json", "orca-v1.1-lifecycle-probe-attestation.json", "orca-v1.1-lifecycle-probe-attestation-3.json", "model-compatibility-v1.1.json"],
-      "blocking_conditions": ["live workflow lifecycle not verified", "worker stalled during MCP bootstrap before task execution"],
+      "evidence_refs": ["preflight-v1.1.json", "orca-workspace-attestation-v1.0.json", "orca-session-attestation-v1.0.json", "orca-v1.1-lifecycle-probe-attestation.json", "orca-v1.1-lifecycle-probe-attestation-3.json", "orca-v1.1-lifecycle-probe-attestation-4.json", "model-compatibility-v1.1.json"],
+      "blocking_conditions": ["authoritative lifecycle settlement not verified", "three supervised worker_done attempts were rejected with dispatch_capability_invalid"],
       "resolution_gate": "Registered isolated benchmark workspace, reachable ready graph, live lifecycle events normalized into the ledger, and no session leakage using the v1.1 model policy.",
       "safe_next_action": "Wait for an ORCA runtime fix for dispatch_capability_invalid, then run one fresh supervised gpt-5.4 Dispatch and require accepted worker_done plus complete cleanup before changing readiness. Three current-runtime attempts are preserved in orca-v1.1-lifecycle-probe-attestation-4.json."
     },

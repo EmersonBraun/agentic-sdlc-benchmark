@@ -38,3 +38,26 @@ class ExecutionReadinessTests(unittest.TestCase):
         self.assertTrue(report.can_start_official_collection)
         self.assertEqual(report.official_conditions_ready, 18)
         self.assertEqual(report.blockers, ())
+
+    def test_current_public_blocker_evidence_exists(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+        report = json.loads(
+            (root / "adapters" / "execution-readiness-v1.1.json").read_text(encoding="utf-8")
+        )
+        register = json.loads(
+            (root / "adapters" / "blocker-register-v1.1.json").read_text(encoding="utf-8")
+        )
+
+        missing = [
+            blocker["evidence_ref"]
+            for blocker in report["blockers"]
+            if not (root / blocker["evidence_ref"]).is_file()
+        ]
+        for blocker in register["blockers"]:
+            missing.extend(
+                f"adapters/{reference}"
+                for reference in blocker["evidence_refs"]
+                if not (root / "adapters" / reference).is_file()
+                and not (root / reference).is_file()
+            )
+        self.assertEqual(missing, [])

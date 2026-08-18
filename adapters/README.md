@@ -34,7 +34,7 @@ The integrated provider-free fixture is [`agentskit-integrated-fixture-attestati
 
 ORCA workspace and graph evidence is [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json), with the controlled Run probe in [`orca-session-attestation-v1.0.json`](orca-session-attestation-v1.0.json). The graph is ready, but worker/workflow lifecycle parity is still blocked. Compozy's model connectivity evidence is [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json); the alternate model is excluded, and the exact protocol model remains blocked by the installed ACP provider despite an official configuration attempt.
 
-The first v1.1 lifecycle recheck is [`orca-v1.1-lifecycle-probe-attestation.json`](orca-v1.1-lifecycle-probe-attestation.json). ORCA accepted `gpt-5.4`, but the worker stalled during MCP bootstrap before task execution; the worker and coordinator terminals were stopped and released, and the pilot remains blocked.
+The ORCA v1.1 probe sequence starts at [`orca-v1.1-lifecycle-probe-attestation.json`](orca-v1.1-lifecycle-probe-attestation.json). The latest evidence, [`orca-v1.1-lifecycle-probe-attestation-4.json`](orca-v1.1-lifecycle-probe-attestation-4.json), records three supervised `gpt-5.4` executions with cleanup and release. Every authoritative `worker_done` was rejected with `dispatch_capability_invalid`, so lifecycle settlement and the pilot remain blocked.
 
 The v1.1 Agent Orchestrator session recheck is [`agent-orchestrator-v1.1-session-probe-attestation.json`](agent-orchestrator-v1.1-session-probe-attestation.json). Spawn, polling, termination, cleanup, and the redacted ledger bridge pass, but model-backed execution and native event-stream parity remain unverified.
 
