@@ -35,7 +35,7 @@ preserve the redacted failure evidence.
 | 3 | Compozy provider/model | Closed for v1.1; recheck only after a version, provider, model-policy, or adapter change. | [`compozy-v1.1-component-readiness-attestation.json`](compozy-v1.1-component-readiness-attestation.json) remains hash-consistent with exact-model, lifecycle, ledger, and cleanup evidence. |
 | 4 | OpenHands resolver | Re-run the normal resolver in a clean pinned container when an upstream-compatible release is available. | SDK, tools, and workspace resolve without `--no-deps` or overrides, followed by workspace, permission, and ledger probes. |
 | 5 | mini-SWE-agent model boundary | Closed for v1.1; recheck after bridge, image, model, or task-contract changes. | Native Grok CLI/OAuth execution, frozen image identity, independent product tests, lifecycle, cleanup, and ledger parity pass. |
-| 6 | AgentsKit ON parity | Use the public pinned source and the same controlled task contract as OFF with the approved model boundary. | All declared component actions map to the ledger, the task completes, the OFF control is unchanged, and matched semantic parity passes. |
+| 6 | AgentsKit ON parity | Closed for component-local v1.1 readiness; preserve the pinned public source and matched OFF treatment. | Public components map to the ledger, the provider-backed task passes, OFF contains zero AgentsKit events, and no private component is used. |
 | 7 | Global semantic parity | Regenerate the matrix only after every component-local gate is ready. | All seven invariants pass for 18/18 conditions; this gate is not attributed to any individual ADE. |
 
 ## Evidence procedure

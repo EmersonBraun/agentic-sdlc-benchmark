@@ -1,0 +1,102 @@
+{
+  "analysis_eligible": false,
+  "artifacts": [
+    {
+      "path": "technical-pilot-attestation.json",
+      "sha256": "33813fbf67840d4546a1f0187a6ecb13a97a01b5d53c5a07727b31e8a7d124ca",
+      "visibility": "public"
+    }
+  ],
+  "base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
+  "budgets": {},
+  "component_versions": {
+    "ade_compozy": "0.3.0-beta.16",
+    "agentskit_code_review": "0.1.0@467cfa570a6b5f1076098b3c76be4e812562f23e",
+    "agentskit_doc_bridge": "1.4.3@9a03016932b9e3024604712183152025c0577fe4",
+    "agentskit_off_control": "v1.0",
+    "agentskit_on_public": "0.3.0-source",
+    "agentskit_playbook": "0.1.0@0818d860655c2d367f4d8b8c281c9b73ec5adad2",
+    "controller_gate": "technical-pilot-v1.0",
+    "harness_reference": "v1.0",
+    "protocol": "v1.1"
+  },
+  "condition_id": "compozy__reference__on",
+  "environment": {
+    "captured_on": "2026-08-17",
+    "displays": [
+      {
+        "resolution": "3456x2234",
+        "type": "built-in Liquid Retina XDR"
+      },
+      {
+        "model_family": "C27F390",
+        "refresh_hz": 60,
+        "resolution": "1920x1080"
+      },
+      {
+        "model_family": "C27F390",
+        "refresh_hz": 60,
+        "resolution": "1920x1080"
+      }
+    ],
+    "hardware": {
+      "chip": "Apple M1 Pro",
+      "cpu_core_layout": "8 performance, 2 efficiency",
+      "cpu_cores": 10,
+      "gpu_cores": 16,
+      "memory_gb": 16,
+      "model_family": "MacBook Pro",
+      "model_identifier": "MacBookPro18,1"
+    },
+    "interpretation": "This is contextual evidence for one local run host, not a cross-machine performance claim. The local Node and pnpm versions differ from the product CI toolchain and must remain recorded per run.",
+    "privacy": {
+      "credentials": "excluded",
+      "hardware_uuids": "excluded",
+      "serial_numbers": "excluded",
+      "user_and_host_names": "excluded"
+    },
+    "protocol_version": "v1.1",
+    "runtime_context": {
+      "battery_percent": 90,
+      "filesystem_root_available": "85Gi",
+      "filesystem_root_total": "460Gi",
+      "filesystem_root_used_percent": 13,
+      "load_average_15m": 3.0,
+      "load_average_1m": 2.05,
+      "load_average_5m": 2.64,
+      "locale": "C.UTF-8",
+      "performance_warning": false,
+      "power_source": "battery",
+      "thermal_warning": false,
+      "timezone": "-03"
+    },
+    "schema_version": "machine-inventory-v1.1",
+    "scope": "personal-local-machine",
+    "software": {
+      "architecture": "arm64",
+      "docker_server": "29.4.0",
+      "git": "2.53.0",
+      "kernel": "Darwin 25.5.0",
+      "node": "v25.7.0",
+      "os": "macOS 26.5.2",
+      "pnpm": "10.33.0",
+      "python": "3.14.6"
+    }
+  },
+  "failure": null,
+  "gate_mode": "technical-pilot",
+  "model_snapshots": {
+    "executor_fixer": "grok:grok-4.5",
+    "independent_evaluator": "codex:gpt-5.4-mini",
+    "planner_requirements_lead": "codex:gpt-5.4"
+  },
+  "product_id": "greenfield",
+  "protocol_version": "v1.1",
+  "randomization_seed": 20260817,
+  "replicate": 6,
+  "run_id": "run_technical-compozy-reference-on-r6",
+  "schema_version": "1.1",
+  "task_id": "pilot_greenfield_service_readiness",
+  "task_manifest_sha256": "c1519a12c2d44360321b4033bd35e0cd7436ac7ab579f8faa07046b72651f8bd",
+  "terminal_state": "TECHNICAL_PASS"
+}

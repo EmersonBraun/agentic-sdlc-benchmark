@@ -23,7 +23,7 @@
       "append_only_ledger": "contract-tested",
       "no_fallback_resolution": "enforced"
     },
-    "decision": "The v1.1 cohort inherits the parity contract. Compozy is component-ready and two component-complete conditions are ready, but collection remains blocked until all seven invariants are verified for the full 18-condition matrix."
+    "decision": "The v1.1 cohort inherits the parity contract. Compozy and AgentsKit ON are component-ready and four component-complete conditions are ready, but collection remains blocked until all seven invariants are verified for the full 18-condition matrix."
   },
   "technical_pilot": {
     "status": "verified",
@@ -41,13 +41,19 @@
       "../runs/run_technical-compozy-reference-on-r1/manifest.json",
       "../runs/run_technical-compozy-reference-on-r2/manifest.json",
       "../runs/run_technical-compozy-reference-on-r3/manifest.json",
-      "../analysis/technical-pair-compozy-reference-v1.1.json"
+      "../runs/run_technical-compozy-reference-on-r4/manifest.json",
+      "../runs/run_technical-compozy-reference-on-r5/manifest.json",
+      "../runs/run_technical-compozy-reference-on-r6/manifest.json",
+      "../analysis/technical-pair-compozy-reference-v1.1.json",
+      "../analysis/technical-pair-compozy-reference-v1.1-2.json",
+      "../analysis/technical-pair-compozy-reference-v1.1-3.json",
+      "../analysis/technical-pair-compozy-reference-v1.1-4.json"
     ],
     "execution": {
-      "attempts": 8,
-      "technical_passes": 5,
+      "attempts": 11,
+      "technical_passes": 8,
       "technical_failures": 3,
-      "latest_successful_run": "run_technical-compozy-reference-on-r3",
+      "latest_successful_run": "run_technical-compozy-reference-on-r6",
       "latest_cleanup_verified": true,
       "official_observations_created": 0,
       "first_on_off_pair_complete": true
@@ -136,7 +142,7 @@
   },
   "agentskit": {
     "off": {"installed": true, "status": "contract-ready", "technical_pilot_status": "contract-ready", "evidence": {"neutral_control": "contract-tested"}},
-    "on": {"installed": true, "status": "installed-not-ready", "technical_pilot_status": "installed-ready", "evidence": {"public_only": true, "agentskit_os_used": false, "event_bridge": "live", "ledger_redaction": "live", "ledger_emission": "technical-pilot-ready", "provider_backed_parity": "condition-scoped"}}
+    "on": {"installed": true, "status": "installed-ready", "technical_pilot_status": "installed-ready", "evidence": {"public_only": true, "agentskit_os_used": false, "agentskit_help": "public-source-runtime-verified", "event_bridge": "live", "ledger_redaction": "live", "ledger_emission": "live", "provider_backed_parity": "matched-on-off-technical-pair", "native_public_components": "doc-bridge,playbook,code-review", "component_readiness_attestation": "agentskit-v1.1-component-readiness-attestation.json"}}
   },
   "evidence_refs": [
     "machine-inventory-v1.1.json",
@@ -159,6 +165,11 @@
     "mini-swe-v1.1-preflight-attestation.json",
     "mini-swe-cli-bridge-attestation-v1.1.json",
     "agentskit-integrated-fixture-attestation-v1.0.json",
-    "agentskit-v1.1-preflight-attestation.json"
+    "agentskit-v1.1-preflight-attestation.json",
+    "agentskit-v1.1-component-readiness-attestation.json",
+    "agentskit-v1.1-contract-recheck-attestation.json",
+    "../analysis/technical-pair-compozy-reference-v1.1-2.json",
+    "../analysis/technical-pair-compozy-reference-v1.1-3.json",
+    "../analysis/technical-pair-compozy-reference-v1.1-4.json"
   ]
 }

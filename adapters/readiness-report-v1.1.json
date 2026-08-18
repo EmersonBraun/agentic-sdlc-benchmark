@@ -1,5 +1,5 @@
 {
-  "blocked_components": 4,
+  "blocked_components": 3,
   "components": [
     {
       "blockers": [
@@ -149,21 +149,17 @@
       "status": "contract-ready"
     },
     {
-      "blockers": [
-        "implementation-status",
-        "cli",
-        "live-ledger"
-      ],
+      "blockers": [],
       "checks": [
         {
           "check_id": "implementation-status",
-          "evidence": "status=installed-not-ready",
-          "passed": false
+          "evidence": "status=installed-ready",
+          "passed": true
         },
         {
           "check_id": "cli",
-          "evidence": "missing; available=['agentskit_os_used', 'event_bridge', 'ledger_emission', 'ledger_redaction', 'provider_backed_parity', 'public_only']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         },
         {
           "check_id": "event-bridge",
@@ -177,14 +173,14 @@
         },
         {
           "check_id": "live-ledger",
-          "evidence": "missing; available=['agentskit_os_used', 'event_bridge', 'ledger_emission', 'ledger_redaction', 'provider_backed_parity', 'public_only']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         }
       ],
       "factor": "agentskit",
       "key": "on",
-      "ready": false,
-      "status": "installed-not-ready"
+      "ready": true,
+      "status": "installed-ready"
     },
     {
       "blockers": [],
@@ -296,5 +292,5 @@
     }
   ],
   "protocol_version": "v1.1",
-  "ready_components": 4
+  "ready_components": 5
 }

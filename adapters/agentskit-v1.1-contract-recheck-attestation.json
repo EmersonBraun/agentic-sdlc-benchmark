@@ -1,0 +1,34 @@
+{
+  "schema_version": "agentskit-contract-recheck-attestation-v1.1",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-18",
+  "source": {
+    "repository": "https://github.com/AgentsKit-io/agentskit",
+    "commit": "353d6e38a60deebd6556cddb58d322d242f4df0d",
+    "working_tree_clean": true,
+    "public_only": true,
+    "agentskit_os_used": false
+  },
+  "integrated_fixture": {
+    "provider_called": false,
+    "agent_session_started": false,
+    "core_runtime_event_count": 15,
+    "component_action_count": 6,
+    "ledger_event_count": 21,
+    "contract_fingerprint_sha256": "93dfa2244ad657f3912c49ef55cbc13e905a9475d61e2cba4cd999a54779fc91",
+    "raw_content_persisted": false
+  },
+  "full_bridge_contract": {
+    "actual_runtime_event_count": 15,
+    "synthetic_bridge_event_count": 8,
+    "accepted_event_count": 23,
+    "ledger_event_count": 23,
+    "contract_fingerprint_sha256": "622680540dec1cf6f5722cd6773c1b83c759644a26b7ebe6112408756697e600",
+    "raw_content_persisted": false
+  },
+  "reproduction": {
+    "integrated_command": "PYTHONPATH=controller/src:controller/scripts python3 controller/scripts/probe_agentskit_integrated_fixture.py --source <pinned-public-source>",
+    "component_command": "PYTHONPATH=controller/src:controller/scripts python3 controller/scripts/probe_agentskit_components.py --source <pinned-public-source>"
+  },
+  "decision": "Fresh provider-free source and bridge probes reproduce the frozen fingerprints. Provider-backed native-component evidence is retained separately in the matched technical pair."
+}

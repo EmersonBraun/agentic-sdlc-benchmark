@@ -23,7 +23,7 @@ const fallback = {
   },
   readiness: { protocol_version: "v1.1", ready_conditions: 0, blocked_conditions: 18, conditions: [] },
   results: { status: "no-results", summary: { runs: 0, evaluated_runs: 0, quality_pass_count: 0, excluded_runs: 0 }, metrics: {} },
-  execution: { blocker_summary: { operator: 0, upstream: 3, protocol: 2 }, blockers: [], technical_conditions_ready: [] },
+  execution: { blocker_summary: { operator: 0, upstream: 3, protocol: 1 }, blockers: [], technical_conditions_ready: [] },
 };
 
 const $ = (selector) => document.querySelector(selector);

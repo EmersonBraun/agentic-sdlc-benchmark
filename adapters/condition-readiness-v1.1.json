@@ -1,5 +1,5 @@
 {
-  "blocked_conditions": 16,
+  "blocked_conditions": 14,
   "can_start": false,
   "conditions": [
     {
@@ -18,12 +18,11 @@
       "condition_id": "agent-orchestrator__mini-swe-agent__on",
       "factor_statuses": {
         "ade": "installed-not-ready",
-        "agentskit": "installed-not-ready",
+        "agentskit": "installed-ready",
         "harness": "installed-ready"
       },
       "missing_components": [
-        "ade:agent-orchestrator:installed-not-ready",
-        "agentskit:on:installed-not-ready"
+        "ade:agent-orchestrator:installed-not-ready"
       ],
       "ready": false
     },
@@ -44,13 +43,12 @@
       "condition_id": "agent-orchestrator__openhands-sdk__on",
       "factor_statuses": {
         "ade": "installed-not-ready",
-        "agentskit": "installed-not-ready",
+        "agentskit": "installed-ready",
         "harness": "dependency-resolution-failed"
       },
       "missing_components": [
         "ade:agent-orchestrator:installed-not-ready",
-        "harness:openhands-sdk:dependency-resolution-failed",
-        "agentskit:on:installed-not-ready"
+        "harness:openhands-sdk:dependency-resolution-failed"
       ],
       "ready": false
     },
@@ -70,12 +68,11 @@
       "condition_id": "agent-orchestrator__reference__on",
       "factor_statuses": {
         "ade": "installed-not-ready",
-        "agentskit": "installed-not-ready",
+        "agentskit": "installed-ready",
         "harness": "contract-ready"
       },
       "missing_components": [
-        "ade:agent-orchestrator:installed-not-ready",
-        "agentskit:on:installed-not-ready"
+        "ade:agent-orchestrator:installed-not-ready"
       ],
       "ready": false
     },
@@ -93,13 +90,11 @@
       "condition_id": "compozy__mini-swe-agent__on",
       "factor_statuses": {
         "ade": "installed-ready",
-        "agentskit": "installed-not-ready",
+        "agentskit": "installed-ready",
         "harness": "installed-ready"
       },
-      "missing_components": [
-        "agentskit:on:installed-not-ready"
-      ],
-      "ready": false
+      "missing_components": [],
+      "ready": true
     },
     {
       "condition_id": "compozy__openhands-sdk__off",
@@ -117,12 +112,11 @@
       "condition_id": "compozy__openhands-sdk__on",
       "factor_statuses": {
         "ade": "installed-ready",
-        "agentskit": "installed-not-ready",
+        "agentskit": "installed-ready",
         "harness": "dependency-resolution-failed"
       },
       "missing_components": [
-        "harness:openhands-sdk:dependency-resolution-failed",
-        "agentskit:on:installed-not-ready"
+        "harness:openhands-sdk:dependency-resolution-failed"
       ],
       "ready": false
     },
@@ -140,13 +134,11 @@
       "condition_id": "compozy__reference__on",
       "factor_statuses": {
         "ade": "installed-ready",
-        "agentskit": "installed-not-ready",
+        "agentskit": "installed-ready",
         "harness": "contract-ready"
       },
-      "missing_components": [
-        "agentskit:on:installed-not-ready"
-      ],
-      "ready": false
+      "missing_components": [],
+      "ready": true
     },
     {
       "condition_id": "orca__mini-swe-agent__off",
@@ -164,12 +156,11 @@
       "condition_id": "orca__mini-swe-agent__on",
       "factor_statuses": {
         "ade": "installed-not-ready",
-        "agentskit": "installed-not-ready",
+        "agentskit": "installed-ready",
         "harness": "installed-ready"
       },
       "missing_components": [
-        "ade:orca:installed-not-ready",
-        "agentskit:on:installed-not-ready"
+        "ade:orca:installed-not-ready"
       ],
       "ready": false
     },
@@ -190,13 +181,12 @@
       "condition_id": "orca__openhands-sdk__on",
       "factor_statuses": {
         "ade": "installed-not-ready",
-        "agentskit": "installed-not-ready",
+        "agentskit": "installed-ready",
         "harness": "dependency-resolution-failed"
       },
       "missing_components": [
         "ade:orca:installed-not-ready",
-        "harness:openhands-sdk:dependency-resolution-failed",
-        "agentskit:on:installed-not-ready"
+        "harness:openhands-sdk:dependency-resolution-failed"
       ],
       "ready": false
     },
@@ -216,19 +206,18 @@
       "condition_id": "orca__reference__on",
       "factor_statuses": {
         "ade": "installed-not-ready",
-        "agentskit": "installed-not-ready",
+        "agentskit": "installed-ready",
         "harness": "contract-ready"
       },
       "missing_components": [
-        "ade:orca:installed-not-ready",
-        "agentskit:on:installed-not-ready"
+        "ade:orca:installed-not-ready"
       ],
       "ready": false
     }
   ],
   "gate_mode": "official-collection",
   "protocol_version": "v1.1",
-  "ready_conditions": 2,
+  "ready_conditions": 4,
   "schema_version": "condition-readiness-v1.1",
   "source": "adapters/preflight-v1.1.json"
 }

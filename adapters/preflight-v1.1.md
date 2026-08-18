@@ -3,8 +3,9 @@
 ## Decision
 
 The v1.1 cohort is approved as a separate model-topology cohort, but it is
-**not ready for benchmark collection**. The deterministic gate reports **0 of
-18 conditions ready**. No benchmark run or performance result exists.
+**not ready for benchmark collection**. Four conditions are component-complete,
+but the global gate remains closed until **18 of 18** are ready. No official
+benchmark run or performance result exists.
 
 ## Model policy
 
@@ -24,7 +25,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 | OpenHands SDK | dependency-resolution-failed | Normal resolver failure is reproduced for tested versions | Upstream-compatible dependency graph |
 | mini-SWE-agent 2.4.6 | installed-ready | Grok `grok-4.5` through native CLI/OAuth, mini-SWE-controlled tools, append-only ledger, greenfield and Umami product tests, submission, source integrity, session cleanup, and container cleanup | Reliability is measured during repetitions; no readiness blocker remains |
 | AgentsKit OFF | contract-ready | Neutral control contract | None at the contract level |
-| AgentsKit ON | installed-not-ready | Pinned public source, core bridge, redaction, integrated fixture, and offline component checks | Model-backed task parity with all declared components and matched OFF |
+| AgentsKit ON | installed-ready | Pinned public source, live redacted ledger, native Doc Bridge/Playbook/Code Review, and a provider-backed matched ON/OFF task | Benefit estimation remains an official-replication outcome behind the global gate |
 
 ## Evidence
 
@@ -43,6 +44,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 - [mini-SWE boundary probe](mini-swe-v1.1-preflight-attestation.json)
 - [mini-SWE native CLI bridge and cross-product task probes](mini-swe-cli-bridge-attestation-v1.1.json)
 - [AgentsKit pinned preflight](agentskit-v1.1-preflight-attestation.json)
+- [AgentsKit component readiness](agentskit-v1.1-component-readiness-attestation.json)
 - [Deterministic execution-readiness report](execution-readiness-v1.1.json)
 - [Private evaluation companion](https://github.com/EmersonBraun/agentic-sdlc-benchmark-private) (access-controlled; manifest hash is recorded in the preflight JSON)
 

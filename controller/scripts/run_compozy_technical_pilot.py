@@ -26,6 +26,24 @@ from benchmark_controller.ledger import Ledger  # noqa: E402
 from benchmark_controller.pilot_executor import ConditionedPilotExecutor  # noqa: E402
 from benchmark_controller.run_bundles import PreparedRunBundle, RunBundleWriter  # noqa: E402
 
+PUBLIC_NATIVE_COMPONENTS = {
+    "doc_bridge": {
+        "directory": "doc-bridge",
+        "repository": "https://github.com/AgentsKit-io/doc-bridge",
+        "commit": "9a03016932b9e3024604712183152025c0577fe4",
+    },
+    "playbook": {
+        "directory": "agents-playbook",
+        "repository": "https://github.com/AgentsKit-io/agents-playbook",
+        "commit": "0818d860655c2d367f4d8b8c281c9b73ec5adad2",
+    },
+    "code_review": {
+        "directory": "code-review-cli",
+        "repository": "https://github.com/AgentsKit-io/code-review-cli",
+        "commit": "467cfa570a6b5f1076098b3c76be4e812562f23e",
+    },
+}
+
 
 def _sha256(value: str | bytes) -> str:
     data = value.encode("utf-8") if isinstance(value, str) else value
@@ -88,6 +106,67 @@ def _write_json(path: Path, value: dict[str, Any]) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _normalized_repository(value: str) -> str:
+    return value.strip().removesuffix(".git").rstrip("/")
+
+
+def _verify_public_checkout(name: str, source: Path) -> dict[str, Any]:
+    expected = PUBLIC_NATIVE_COMPONENTS[name]
+    code, revision, _ = _run("git", "rev-parse", "HEAD", cwd=source)
+    if code != 0 or revision.strip() != expected["commit"]:
+        raise RuntimeError(f"native_{name}_revision_mismatch")
+    code, origin, _ = _run("git", "remote", "get-url", "origin", cwd=source)
+    if code != 0 or _normalized_repository(origin) != expected["repository"]:
+        raise RuntimeError(f"native_{name}_origin_mismatch")
+    code, status, _ = _run("git", "status", "--porcelain", cwd=source)
+    if code != 0 or status.strip():
+        raise RuntimeError(f"native_{name}_working_tree_not_clean")
+    return {
+        "commit": revision.strip(),
+        "repository": expected["repository"],
+        "working_tree_clean": True,
+        "provenance_verified": True,
+    }
+
+
+def _materialize_public_runtime(name: str, source: Path, executable: Path) -> dict[str, Any]:
+    commands = {
+        "doc_bridge": (
+            ("pnpm", "install", "--frozen-lockfile", "--ignore-scripts"),
+            ("pnpm", "build"),
+        ),
+        "playbook": (
+            ("pnpm", "install", "--frozen-lockfile", "--ignore-scripts"),
+            ("pnpm", "test:playbook-package"),
+        ),
+        "code_review": (
+            ("npm", "ci", "--ignore-scripts"),
+            ("npm", "run", "build"),
+        ),
+    }[name]
+    command_evidence = []
+    for command in commands:
+        code, output, duration = _run(*command, timeout=600, cwd=source)
+        command_evidence.append({
+            "argv_sha256": _sha256(json.dumps(command, separators=(",", ":"))),
+            "output_sha256": _sha256(output),
+            "duration_ms": duration,
+            "returncode": code,
+        })
+        if code != 0:
+            raise RuntimeError(f"native_{name}_materialization_failed")
+    if not executable.is_file():
+        raise RuntimeError(f"native_{name}_executable_missing_after_materialization")
+    code, tracked_status, _ = _run("git", "status", "--porcelain", "--untracked-files=no", cwd=source)
+    if code != 0 or tracked_status.strip():
+        raise RuntimeError(f"native_{name}_materialization_modified_tracked_source")
+    return {
+        "materialized_from_lockfile": True,
+        "executable_sha256": _sha256(executable.read_bytes()),
+        "materialization_commands": command_evidence,
+    }
+
+
 def _run_native_agentskit(
     native_root: Path,
     fixture: Path,
@@ -95,24 +174,25 @@ def _run_native_agentskit(
 ) -> tuple[dict[str, Any], str]:
     """Execute the three public component runtimes and retain bounded evidence only."""
 
-    doc_bridge = native_root / "doc-bridge"
-    playbook = native_root / "agents-playbook"
-    code_review = native_root / "code-review-cli"
+    doc_bridge = native_root / PUBLIC_NATIVE_COMPONENTS["doc_bridge"]["directory"]
+    playbook = native_root / PUBLIC_NATIVE_COMPONENTS["playbook"]["directory"]
+    code_review = native_root / PUBLIC_NATIVE_COMPONENTS["code_review"]["directory"]
     required = (
         doc_bridge / "bin" / "ak-docs.js",
         playbook / "packages" / "playbook" / "bin" / "agents-playbook.mjs",
         code_review / "dist" / "src" / "cli.js",
     )
-    if not all(path.is_file() for path in required):
-        raise RuntimeError("native_agentskit_runtime_missing")
-
     components: dict[str, Any] = {}
     for name, source in (("doc_bridge", doc_bridge), ("playbook", playbook), ("code_review", code_review)):
-        code, revision, _ = _run("git", "rev-parse", "HEAD", cwd=source)
-        if code != 0:
-            raise RuntimeError(f"native_{name}_revision_failed")
+        provenance = _verify_public_checkout(name, source)
         manifest = json.loads((source / "package.json").read_text(encoding="utf-8"))
-        components[name] = {"commit": revision.strip(), "version": manifest["version"]}
+        executable = {
+            "doc_bridge": required[0],
+            "playbook": required[1],
+            "code_review": required[2],
+        }[name]
+        materialization = _materialize_public_runtime(name, source, executable)
+        components[name] = {**provenance, **materialization, "version": manifest["version"]}
 
     evidence: dict[str, Any] = {
         "native_external_components_executed": True,
@@ -144,7 +224,10 @@ def _run_native_agentskit(
     evidence["commands"]["code_review"] = {"returncode": code, "output_sha256": _sha256(output), "duration_ms": duration}
     if code != 0 or "7/7 lens executions succeeded" not in output:
         raise RuntimeError("native_code_review_failed")
-    bridge.record({"component": "specialized-agents", "operation": "delegate", "phase": "complete", "name": "code-review", "depth": 0, "durationMs": duration, "stage_id": "review"})
+    # Delegation and review describe the same wall-clock operation. Keep the
+    # delegation lifecycle event at zero duration and attribute work once to
+    # the concrete code-review action.
+    bridge.record({"component": "specialized-agents", "operation": "delegate", "phase": "complete", "name": "code-review", "depth": 0, "stage_id": "review"})
     bridge.record({"component": "code-review", "operation": "review", "phase": "complete", "durationMs": duration, "stage_id": "review"})
 
     evidence["component_action_records"] = 6

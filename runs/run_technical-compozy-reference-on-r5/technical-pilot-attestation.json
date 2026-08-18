@@ -1,0 +1,103 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "commands": {
+      "code_review": {
+        "duration_ms": 181575.33625,
+        "output_sha256": "067058ea00c4b8c58279d10c42d189b64b17f1d63f6eeff61ef119a99d16dc20",
+        "returncode": 0
+      },
+      "doc_bridge": {
+        "duration_ms": 232.907875,
+        "output_sha256": "e222dae25b79ee26b3893f41abf362e67bb1d058a99f83fa6a3509499ad361f7",
+        "returncode": 0
+      },
+      "playbook": {
+        "duration_ms": 95.537792,
+        "output_sha256": "634f3caa5ba2e04695e40e06351239e640250b959282bb79544368b2339833ac",
+        "returncode": 0
+      }
+    },
+    "component_action_records": 6,
+    "components": {
+      "code_review": {
+        "commit": "467cfa570a6b5f1076098b3c76be4e812562f23e",
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/code-review-cli",
+        "version": "0.1.0",
+        "working_tree_clean": true
+      },
+      "doc_bridge": {
+        "commit": "9a03016932b9e3024604712183152025c0577fe4",
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/doc-bridge",
+        "version": "1.4.3",
+        "working_tree_clean": true
+      },
+      "playbook": {
+        "commit": "0818d860655c2d367f4d8b8c281c9b73ec5adad2",
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/agents-playbook",
+        "version": "0.1.0",
+        "working_tree_clean": true
+      }
+    },
+    "context_sha256": "6f963edd43b613248f75d2c096eab8308d19df87d5c86c8a730db2a9073f148e",
+    "enabled": true,
+    "native_external_components_executed": true,
+    "public_only": true
+  },
+  "analysis_eligible": false,
+  "cleanup": {
+    "fixture_destroyed": true,
+    "session_residual": false,
+    "session_stop": {
+      "output_sha256": "c9c00113049f2ea266027d8e8535f51e0f5742c2f47fd3c0ae16a3c1ea9b4e91",
+      "returncode": 0
+    },
+    "verified": true,
+    "workspace_remove": {
+      "output_sha256": "dbc246e37280f86e00693f139465879a8d5892239c8a72c6143ed05e869d211c",
+      "returncode": 65
+    },
+    "workspace_residual": false
+  },
+  "commands": {
+    "session_events": {
+      "output_sha256": "9e44403903658d8eff6b179ec343d4e148fe9b3ab910cd5d2ce18f67d7bbe00b",
+      "returncode": 0
+    },
+    "session_new": {
+      "output_sha256": "908f722629577284a0c6eb779cf811f98461828a16c851a2405518eeaa4043d2",
+      "returncode": 0
+    },
+    "session_prompt": {
+      "output_sha256": "9d297c3fc40bb2b4b6a92cf69c231a32fd8cb03d15c16fcd9c0906b3aef187a0",
+      "returncode": 0
+    }
+  },
+  "condition_id": "compozy__reference__on",
+  "content_persisted": false,
+  "event_count": 18,
+  "event_types": {
+    "agent_message": 8,
+    "done": 1,
+    "hook.dispatch.complete": 1,
+    "hook.dispatch.start": 1,
+    "system": 3,
+    "thought": 2,
+    "usage": 1,
+    "user_message": 1
+  },
+  "fixture_unchanged": true,
+  "model": "gpt-5.4",
+  "normalized_lifecycle_count": 3,
+  "prompt_sha256": "c88772fee2cc0916885e0f794745605a29baf2f6e232bb7cf0f3f6bd08936c0a",
+  "provider": "codex",
+  "run_id": "run_technical-compozy-reference-on-r5",
+  "schema_version": "compozy-technical-pilot-v1.0",
+  "sentinel_observed": true,
+  "session_id_sha256": "8418cdec7e39892d289530e28374203e7fea5642c4dffbb2bd8ea7bd36aa99d1",
+  "status": "technical-pass",
+  "workspace_id_sha256": "aca12d3a4171c882785c89ea8c808b31a8259067d8372f19a5a05e14037197fa"
+}
