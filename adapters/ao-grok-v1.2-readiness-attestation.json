@@ -1,0 +1,61 @@
+{
+  "ade": "agent-orchestrator",
+  "analysis_eligible": false,
+  "capture_sha256": "3fd842d841d6816877f0fbcd84dc77b9491bfb92ff54bdc33f72d70d54396507",
+  "cleanup": {
+    "kill": {
+      "output_sha256": "89b989c0bd084a2eb10173b82fa7edd7d0513b9b458aecd698e4b52cf4845eda",
+      "returncode": 0
+    },
+    "reclaim": {
+      "output_sha256": "480adc02e6e84488a2f17b6e8a20e853c0fcfc750fad888f68ae6bb3015cbfbe",
+      "returncode": 0
+    },
+    "session_residual": false,
+    "verified": true
+  },
+  "commands": {
+    "project_get": {
+      "output_sha256": "65c6e697c874ebac04fbd2e9cdd7932ec59191046528c9a0dfea68f86ac54b49",
+      "returncode": 0
+    },
+    "session_get": {
+      "output_sha256": "19d7b5b5d14a441785332b892ecc0bae29b5b2dd3cfa2ee7921ce33f720f69fd",
+      "returncode": 0
+    },
+    "spawn": {
+      "output_sha256": "55d7640d56291b9f032bcafb1e4c758ab089c1d4a41e66ccf535a7f676629678",
+      "returncode": 0
+    }
+  },
+  "configured_model": "grok-4.5",
+  "effective_model_observed": true,
+  "observed_at": "2026-08-18T20:14:54.150360+00:00",
+  "project_config_sha256": "e3f8f0fa8cfce92cc874cae0bedba8e83fa0681012e3941812c5fbba0829aaf0",
+  "protocol_version": "v1.2",
+  "provider": "grok-cli",
+  "raw_content_persisted": false,
+  "role": "executor_fixer",
+  "role_topology_configured": true,
+  "schema_version": "ao-grok-v1.2-readiness-attestation",
+  "sentinel_observed": true,
+  "session_id_sha256": "c9ddd5f6ee3b8eeb447a2068e9e732ea6abfcee6f65b5e63b5643815080e0883",
+  "source_hashes": {
+    "ao_executable": "1223e55763f43a99ef8ccf42b11247b7b9d77a793d43bcfe4fc2e28baf7cf419",
+    "grok_executable": "3dfa7f04fbb5427a8fbead286591543aaecb478b3a0ab222c4329eca1a3b2f86",
+    "probe": "7f02fe3c31278b17b32120f6388a8c177d4544f74af1584e9a3f2960f4394820"
+  },
+  "status": "passed",
+  "transport": "ao-native-tui-session",
+  "trust_prompt_observed": false,
+  "versions": {
+    "agent_orchestrator": "0.12.6",
+    "grok": "grok 1.0.5 (5115b46bc909) [stable]"
+  },
+  "workspace": {
+    "changed_paths": [],
+    "clean": true,
+    "path_sha256": "7e2adf583ff46511dab0375dd228452f4853b90f7315c1ece0859f41d4f26c29",
+    "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
