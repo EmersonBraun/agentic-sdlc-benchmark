@@ -85,6 +85,7 @@ class V12HandoffBackend:
         delegate: ConditionStepBackend,
         *,
         agentskit_context_factory: Callable[[StepContext], Mapping[str, Any]] | None = None,
+        agentskit_evidence_verifier: Callable[[StepContext, Mapping[str, Any]], bool] | None = None,
     ) -> None:
         if getattr(delegate, "supports_idempotent_replay", False) is not True:
             raise ValueError("v1.2 ADE backend must support idempotent replay")
@@ -92,6 +93,9 @@ class V12HandoffBackend:
             raise ValueError("v1.2 ADE backend must enforce deadlines")
         self.delegate = delegate
         self.agentskit_context_factory = agentskit_context_factory
+        self.agentskit_evidence_verifier = agentskit_evidence_verifier
+        self._factor_digest: str | None = None
+        self._handoff_digest: str | None = None
 
     def execute_step(self, context: StepContext) -> StepResult:
         if context.assignment.harness is not None:
@@ -156,16 +160,25 @@ class V12HandoffBackend:
             return None
         if context.assignment.agentskit != "on" or self.agentskit_context_factory is None:
             raise RuntimeError("AgentsKit ON has no public context factory")
+        if self.agentskit_evidence_verifier is None:
+            raise RuntimeError("AgentsKit ON has no independent execution-evidence verifier")
         if path.is_file():
             document = json.loads(path.read_text())
             if not self._valid_factor(context, document):
                 raise RuntimeError("persisted AgentsKit context identity mismatch")
-            return self._verify_frozen_digest(path, self._lock_path(path))
+            if not self.agentskit_evidence_verifier(context, document):
+                raise RuntimeError("AgentsKit native execution evidence was not independently verified")
+            observed = _sha(path.read_bytes())
+            if self._factor_digest != observed:
+                raise RuntimeError("frozen runtime evidence digest mismatch")
+            return observed
         payload = dict(self.agentskit_context_factory(context))
         if not self._valid_factor(context, payload):
             raise RuntimeError("AgentsKit context violates the public-only contract")
+        if not self.agentskit_evidence_verifier(context, payload):
+            raise RuntimeError("AgentsKit native execution evidence was not independently verified")
         digest = _atomic_json(path, payload)
-        self._write_digest_lock(self._lock_path(path), digest)
+        self._factor_digest = digest
         context.bundle.ledger.record(
             stage_id=context.step.stage_id,
             actor="controller",
@@ -224,8 +237,7 @@ class V12HandoffBackend:
                 return True
         return False
 
-    @staticmethod
-    def _write_handoff(context: StepContext, path: Path, payload: Any) -> str:
+    def _write_handoff(self, context: StepContext, path: Path, payload: Any) -> str:
         if not isinstance(payload, Mapping) or set(payload) != HANDOFF_KEYS:
             raise ValueError("planner handoff payload is incomplete")
         if any(not isinstance(payload[key], (str, list, dict)) or not payload[key] for key in HANDOFF_KEYS):
@@ -241,7 +253,7 @@ class V12HandoffBackend:
             "payload": dict(payload),
         }
         digest = _atomic_json(path, envelope)
-        V12HandoffBackend._write_digest_lock(V12HandoffBackend._lock_path(path), digest)
+        self._handoff_digest = digest
         context.bundle.ledger.record(
             stage_id="decomposition",
             actor="planner",
@@ -254,8 +266,7 @@ class V12HandoffBackend:
         )
         return digest
 
-    @staticmethod
-    def _validate_handoff(context: StepContext, path: Path) -> str:
+    def _validate_handoff(self, context: StepContext, path: Path) -> str:
         document = json.loads(path.read_text())
         if not all((
             set(document) == {"schema_version", "condition_id", "task_id", "task_manifest_sha256", "base_commit", "from", "to", "payload"},
@@ -274,24 +285,8 @@ class V12HandoffBackend:
             set(document.get("payload", {})) == HANDOFF_KEYS,
         )):
             raise ValueError("planner handoff identity mismatch")
-        return V12HandoffBackend._verify_frozen_digest(path, V12HandoffBackend._lock_path(path))
-
-    @staticmethod
-    def _lock_path(path: Path) -> Path:
-        return path.with_suffix(path.suffix + ".sha256")
-
-    @staticmethod
-    def _write_digest_lock(path: Path, digest: str) -> None:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        if path.exists():
-            raise RuntimeError("integrity lock already exists")
-        path.write_text(digest + "\n")
-
-    @staticmethod
-    def _verify_frozen_digest(path: Path, lock_path: Path) -> str:
-        expected = lock_path.read_text().strip()
         observed = _sha(path.read_bytes())
-        if expected != observed:
+        if self._handoff_digest != observed:
             raise RuntimeError("frozen runtime evidence digest mismatch")
         return observed
 

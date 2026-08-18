@@ -48,8 +48,11 @@ each component with the product worktree as its workspace, and requires
 planner/executor acknowledgement. OFF rejects any such context as treatment
 contamination.
 
-ON evidence is not self-declared: every public component records its pinned
-source, command and output digests, exit status, and exact run workspace. OFF
+ON evidence passes two distinct seams: the runtime factory records pinned
+source, command and output digests, exit status, and exact run workspace, then
+a separate controller verifier must validate those observations before the
+context is admissible. The concrete native verifier remains a preflight gate;
+the generic runner alone does not claim component execution. OFF
 also rejects AgentsKit ledger events emitted by the ADE delegate. These
 instrumentation files never enter the product tree, so they cannot change the
 product diff. Review and completion verification are frozen to the independent

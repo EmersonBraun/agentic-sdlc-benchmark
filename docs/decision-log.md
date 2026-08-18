@@ -87,7 +87,8 @@ Hashes alone are public evidence, but the receiving role must acknowledge the
 exact handoff/context digest before its step can complete.
 
 AgentsKit context is admissible only with per-component native execution
-evidence bound to the run worktree. OFF conditions reject both factor files and
+evidence bound to the run worktree and accepted by a separate controller
+verifier. A structural factory response alone is insufficient. OFF conditions reject both factor files and
 AgentsKit ledger events. Instrumentation never enters the product tree, and the
 independent evaluator identity is enforced in the runner rather than delegated
 to ADE configuration.

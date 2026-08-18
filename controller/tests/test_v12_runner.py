@@ -125,6 +125,11 @@ class V12RunnerTests(unittest.TestCase):
                         for name in ("doc-bridge", "playbook", "code-review")
                     },
                 },
+                agentskit_evidence_verifier=lambda context, payload: all(
+                    record["workspace"] == str(context.worktree.resolve())
+                    and record["exit_code"] == 0
+                    for record in payload["executions"].values()
+                ),
             )
             base = dict(
                 assignment=assignment(), bundle=current_bundle, attempt=1,
@@ -228,14 +233,18 @@ class V12RunnerTests(unittest.TestCase):
             worktree = root / "worktree"
             worktree.mkdir()
             current_bundle = bundle(root)
-            backend = V12HandoffBackend(Delegate(), agentskit_context_factory=lambda context: {
-                "condition_id": context.assignment.condition_id,
-                "task_id": context.assignment.task_id,
-                "public_only": True,
-                "agentskit_os_used": False,
-                "components": ["doc-bridge", "playbook", "code-review"],
-                "guidance": "unverified",
-            })
+            backend = V12HandoffBackend(
+                Delegate(),
+                agentskit_context_factory=lambda context: {
+                    "condition_id": context.assignment.condition_id,
+                    "task_id": context.assignment.task_id,
+                    "public_only": True,
+                    "agentskit_os_used": False,
+                    "components": ["doc-bridge", "playbook", "code-review"],
+                    "guidance": "unverified",
+                },
+                agentskit_evidence_verifier=lambda context, payload: False,
+            )
             context = StepContext(
                 assignment=assignment(), bundle=current_bundle,
                 step=ConditionStep("requirements", "requirements", "planner"), attempt=1,
