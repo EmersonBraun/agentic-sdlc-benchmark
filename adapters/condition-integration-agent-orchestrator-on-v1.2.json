@@ -1,0 +1,179 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "commands": {
+      "code_review": {
+        "duration_ms": 173570.1085,
+        "output_sha256": "78afb32c1e07b3019bc8bdf2fe933eac4e6dcef449e5fef9477e52e6fcb6b85e",
+        "returncode": 0
+      },
+      "doc_bridge": {
+        "duration_ms": 82.75175,
+        "output_sha256": "9256b4e7c64ce5807cbc000e7d8f45a54a6a9067a94253512a74bbfb3c70436f",
+        "returncode": 0
+      },
+      "playbook": {
+        "duration_ms": 88.375375,
+        "output_sha256": "c5822f9013d5a14aceb183dd0e9960996f00649efd9b33194dab23e7a3eb8cf2",
+        "returncode": 0
+      }
+    },
+    "component_action_records": 6,
+    "components": {
+      "code_review": {
+        "commit": "467cfa570a6b5f1076098b3c76be4e812562f23e",
+        "executable_sha256": "57befe7aec1eb2e6a8d06ba40dc6c0a884de635a0db980ceadbfe4e3927c29bc",
+        "materialization_commands": [
+          {
+            "argv_sha256": "25b2e2447434e1486d25ce617d01a3d1de2c008b7405891a5f21c210621acc5f",
+            "duration_ms": 1574.748958,
+            "output_sha256": "e629bc7e138553b920afa38870c432f0cdddb9449a3e5c431ee5d6e5c4de8d0c",
+            "returncode": 0
+          },
+          {
+            "argv_sha256": "9adf315bbd4238afbdfe1554bc58cc5a41b1dcd01b14668a68ba9cde3b462993",
+            "duration_ms": 1094.785333,
+            "output_sha256": "1e209434515f93a9fcf1cb5b60d662175f02770fd18e666efbce8cd605a15d7c",
+            "returncode": 0
+          }
+        ],
+        "materialized_from_lockfile": true,
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/code-review-cli",
+        "version": "0.1.0",
+        "working_tree_clean": true
+      },
+      "doc_bridge": {
+        "commit": "9a03016932b9e3024604712183152025c0577fe4",
+        "executable_sha256": "177b03c3550e50990724ef3830ba03e0f24c74edea47ba7d327260350be1714b",
+        "materialization_commands": [
+          {
+            "argv_sha256": "753697b8e53f6224528bac452692deb749cf015ca5566ea1cdc6933d30343dc0",
+            "duration_ms": 660.119917,
+            "output_sha256": "e7e9d52d4483627cab85d644ff4b0900c65b07faea31268e50c13303e191b070",
+            "returncode": 0
+          },
+          {
+            "argv_sha256": "18bfd5adfe957ed94fa3757f54fb0a7e2600255fcc86941ca28c6aac9ae8da6f",
+            "duration_ms": 3887.873791,
+            "output_sha256": "f33fab225c61189c2fd490c3472f401ce4d194c453d6a15df467b8b84f679006",
+            "returncode": 0
+          }
+        ],
+        "materialized_from_lockfile": true,
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/doc-bridge",
+        "version": "1.4.3",
+        "working_tree_clean": true
+      },
+      "playbook": {
+        "commit": "0818d860655c2d367f4d8b8c281c9b73ec5adad2",
+        "executable_sha256": "991f7a12d08062d4f86f8b4ac752fd9f9d6e42dfb6b99a6538beb8d4a2f92669",
+        "materialization_commands": [
+          {
+            "argv_sha256": "753697b8e53f6224528bac452692deb749cf015ca5566ea1cdc6933d30343dc0",
+            "duration_ms": 657.957209,
+            "output_sha256": "2b3f77b18adbb6880e8513bc702ba4eef3ad38e05cb01db0cc1e0de997203dad",
+            "returncode": 0
+          },
+          {
+            "argv_sha256": "98d8a5cd8059be2f838c49a2eddc4a7842bed788a908e9ead3c35d4f440287b5",
+            "duration_ms": 1996.507917,
+            "output_sha256": "87df4c6db31a76e16b558cca670c74617e6bf4ac4f0bb4e77952eba00c11d889",
+            "returncode": 0
+          }
+        ],
+        "materialized_from_lockfile": true,
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/agents-playbook",
+        "version": "0.1.0",
+        "working_tree_clean": true
+      }
+    },
+    "context_sha256": "6f963edd43b613248f75d2c096eab8308d19df87d5c86c8a730db2a9073f148e",
+    "enabled": true,
+    "event_count": 6,
+    "native_external_components_executed": true,
+    "public_only": true
+  },
+  "analysis_eligible": false,
+  "base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
+  "cleanup": {
+    "cleanup_returncode": 0,
+    "kill_returncodes": [
+      0,
+      0
+    ],
+    "session_residual_count": 0,
+    "verified": true
+  },
+  "condition_id": "agent-orchestrator__on",
+  "factors": {
+    "ade": "agent-orchestrator",
+    "agentskit": "on"
+  },
+  "invariants": {
+    "agentskit_attribution": "passed",
+    "lifecycle_cleanup": "passed",
+    "no_fallback": "passed",
+    "permission_policy": "passed",
+    "role_topology": "passed",
+    "same_base_commit": "passed",
+    "same_task": "passed",
+    "workspace_boundary": "passed"
+  },
+  "ledger_sha256": "1d4b67db1fdae7c3595e3295eb6901fb2b6105ebc08bb26a86030efa6f981924",
+  "live_execution": true,
+  "observed_at": "2026-08-18T21:05:05.357914+00:00",
+  "protocol_version": "v1.2",
+  "redaction": {
+    "raw_outputs_persisted_publicly": false,
+    "raw_prompts_persisted_publicly": false
+  },
+  "schema_version": "condition-integration-attestation-v1.2",
+  "source_hashes": {
+    "ao_executable": "1223e55763f43a99ef8ccf42b11247b7b9d77a793d43bcfe4fc2e28baf7cf419",
+    "probe": "41b7c106e864322a0111605cecb2168b3a2983a1ca016ff1a91306f0459f06fc"
+  },
+  "status": "passed",
+  "task_id": "pilot_greenfield_service_readiness",
+  "topology": {
+    "executor": {
+      "execution": {
+        "capture_sha256": "d60fdf365b45851bb2aae96b39e431f67fc77eeaed6555f75b176e110546f1ef",
+        "changed_paths": [],
+        "effective_model_observed": true,
+        "sentinel_observed": true,
+        "session_id_sha256": "e47fcf3921c93d6ea20daddb05293feb3320c923ec453e91b4c47caac18269e5",
+        "spawn_output_sha256": "f2a4d52e08ae32ad94c54ccf65716d4f0a152b6c724c87925ddc5d7e5cdfed99",
+        "trust_prompt_observed": false,
+        "workspace_clean": true,
+        "workspace_path_sha256": "469adf78e155d5918d5666026497294e4fbae4d13a29466dd94f3bc03c07e6f1",
+        "workspace_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "model": "grok-4.5",
+      "provider": "grok-cli"
+    },
+    "native_separate_sessions": true,
+    "planner": {
+      "execution": {
+        "capture_sha256": "af38e7671f9f8f7fb3a1484c0ce966b43022ad3c1c5420ea0609bc98a653a219",
+        "changed_paths": [],
+        "effective_model_observed": true,
+        "sentinel_observed": true,
+        "session_id_sha256": "d2a4aebfcbc2df910100a68e02eb456eaeb5b936ad38b4e25a23ec206c13de5a",
+        "spawn_output_sha256": "fa6ce6e41c9ef5e029364b00c5045de4f5c025bc5761738d620f9d0fe3523e47",
+        "trust_prompt_observed": false,
+        "workspace_clean": true,
+        "workspace_path_sha256": "5c0cee86b3124b23796cb387266eb5dc9e72134d6b6e2f7c58508d8f1c861e16",
+        "workspace_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "model": "gpt-5.4",
+      "provider": "codex-cli"
+    }
+  },
+  "versions": {
+    "agent_orchestrator": "0.12.6",
+    "grok": "grok 1.0.5 (5115b46bc909) [stable]"
+  }
+}

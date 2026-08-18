@@ -1,0 +1,54 @@
+{
+  "analysis_eligible": false,
+  "conditions": [
+    {
+      "condition_id": "agent-orchestrator__off",
+      "integration_evidence": "condition-integration-agent-orchestrator-off-v1.2.json",
+      "integration_evidence_sha256": "9394bd3c9a884273c3201ce0847f6de9efae006525caa65db89effe48ff8c364",
+      "verified": true
+    },
+    {
+      "condition_id": "agent-orchestrator__on",
+      "integration_evidence": "condition-integration-agent-orchestrator-on-v1.2.json",
+      "integration_evidence_sha256": "351d49d1c3080d9b5265d726bbe19e7e44548201b9d92578eea131687d9b8a9f",
+      "verified": true
+    },
+    {
+      "condition_id": "compozy__off",
+      "integration_evidence": "condition-integration-compozy-off-v1.2.json",
+      "integration_evidence_sha256": "15933fdb077b85e2b1eea67ce8e4445e4ac4454f4f57cc3eae435ce798ded61a",
+      "verified": true
+    },
+    {
+      "condition_id": "compozy__on",
+      "integration_evidence": "condition-integration-compozy-on-v1.2.json",
+      "integration_evidence_sha256": "abe788f013c2939e02d653aecd291d03973812e86a22d11e511fcdc07eb76000",
+      "verified": true
+    },
+    {
+      "condition_id": "orca__off",
+      "integration_evidence": "condition-integration-orca-off-v1.2.json",
+      "integration_evidence_sha256": "524d5fc75c66b7457ceb8d2de94c420fade4aa0673f584e5e416466519aad4b5",
+      "verified": true
+    },
+    {
+      "condition_id": "orca__on",
+      "integration_evidence": "condition-integration-orca-on-v1.2.json",
+      "integration_evidence_sha256": "f3acadbef20f866b33e9a063219e0ced8377eee09f724dbda9a006f8caad1388",
+      "verified": true
+    }
+  ],
+  "generator": "controller/scripts/build_v12_integration_matrix.py",
+  "protocol_version": "v1.2",
+  "schema_version": "semantic-parity-matrix-v1.2",
+  "scope": "technical integration readiness; not an effect estimate",
+  "source_hashes": {
+    "controller/src/benchmark_controller/v12_ade_backends.py": "2acd1e11ab20594f9eeae27a6edbe5e80c28d706c0964b56a6eab9c70e1087d0",
+    "controller/src/benchmark_controller/v12_execution.py": "dca271299096ce6c61adf9b61117c0530443a6ad6f495db4f01eff39266e6cb9",
+    "controller/src/benchmark_controller/v12_integration.py": "776f847be18ace08d3e0acf78e288d3d8dd24ae74c8b36398a9ceed0a4ea54e8",
+    "protocol/conditions-v1.2.json": "56848248d1fc340b06f82259691a7330c86b66607c8bb6ce4ff2bd76524d4c1b",
+    "protocol/model-policy-v1.2.json": "06ae2588391153991a7b953ee36603ba23735e967738f08472dd28a946c6c66f",
+    "protocol/protocol-v1.2.md": "ca6d4518306cf4a875c39fb48f9f9b00d9428b9a7feca1cb65b8ecfc9da73b6b"
+  },
+  "status": "verified"
+}

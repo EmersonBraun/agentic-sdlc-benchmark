@@ -1,0 +1,88 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "enabled": false,
+    "event_count": 0,
+    "public_only": false
+  },
+  "analysis_eligible": false,
+  "base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
+  "cleanup": {
+    "cleanup_returncode": 0,
+    "kill_returncodes": [
+      0,
+      0
+    ],
+    "session_residual_count": 0,
+    "verified": true
+  },
+  "condition_id": "agent-orchestrator__off",
+  "factors": {
+    "ade": "agent-orchestrator",
+    "agentskit": "off"
+  },
+  "invariants": {
+    "agentskit_attribution": "passed",
+    "lifecycle_cleanup": "passed",
+    "no_fallback": "passed",
+    "permission_policy": "passed",
+    "role_topology": "passed",
+    "same_base_commit": "passed",
+    "same_task": "passed",
+    "workspace_boundary": "passed"
+  },
+  "ledger_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "live_execution": true,
+  "observed_at": "2026-08-18T21:01:35.765053+00:00",
+  "protocol_version": "v1.2",
+  "redaction": {
+    "raw_outputs_persisted_publicly": false,
+    "raw_prompts_persisted_publicly": false
+  },
+  "schema_version": "condition-integration-attestation-v1.2",
+  "source_hashes": {
+    "ao_executable": "1223e55763f43a99ef8ccf42b11247b7b9d77a793d43bcfe4fc2e28baf7cf419",
+    "probe": "41b7c106e864322a0111605cecb2168b3a2983a1ca016ff1a91306f0459f06fc"
+  },
+  "status": "passed",
+  "task_id": "pilot_greenfield_service_readiness",
+  "topology": {
+    "executor": {
+      "execution": {
+        "capture_sha256": "7c709b0e3febd558a5b196b8400bd389572666f72574b8e4c465d1e390ff8790",
+        "changed_paths": [],
+        "effective_model_observed": true,
+        "sentinel_observed": true,
+        "session_id_sha256": "902e738dc638b92a9f806367ee85861ef77d6983d06cae4a1ee2a1513b100a31",
+        "spawn_output_sha256": "7ea56bd885e5ecee93b8119ed8523cd3c6a6f0eed589b9dbddcc4d53008cc4f1",
+        "trust_prompt_observed": false,
+        "workspace_clean": true,
+        "workspace_path_sha256": "370ab7d29b4a6638f825846f69f938e6a68baf1619270a02065237b74274d269",
+        "workspace_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "model": "grok-4.5",
+      "provider": "grok-cli"
+    },
+    "native_separate_sessions": true,
+    "planner": {
+      "execution": {
+        "capture_sha256": "8c1ec1f1fa7047df429a4f5a3265226d153927c022d7db3945ed91bc18b90588",
+        "changed_paths": [],
+        "effective_model_observed": true,
+        "sentinel_observed": true,
+        "session_id_sha256": "f739ec0073ba82ada8f2a5531152cdedc87772e057ae18f3b6b35f1807b471db",
+        "spawn_output_sha256": "06bb172b24af47adb5198ffe69ea6a6b7ad1a217c7bf894c0273cbdc6e35af03",
+        "trust_prompt_observed": false,
+        "workspace_clean": true,
+        "workspace_path_sha256": "5c0cee86b3124b23796cb387266eb5dc9e72134d6b6e2f7c58508d8f1c861e16",
+        "workspace_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "model": "gpt-5.4",
+      "provider": "codex-cli"
+    }
+  },
+  "versions": {
+    "agent_orchestrator": "0.12.6",
+    "grok": "grok 1.0.5 (5115b46bc909) [stable]"
+  }
+}
