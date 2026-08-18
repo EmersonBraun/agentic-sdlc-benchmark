@@ -8,7 +8,20 @@
   "runtime": {"workspace_boundary": "passed", "fixture_mutated": false, "fixture_destroyed": true},
   "session": {"spawn": "passed", "observed_count": 1, "observed_states": ["idle"], "polling_bridge": "verified", "kill": "passed", "ledger_event_count": 2, "session_id_sha256": "75ab3f4bd46edbf0e3cdf57c6679b81a2e95cb0114464758cb08d377f10dd6c1"},
   "commands": {"project_add_returncode": 0, "spawn_returncode": 0, "kill_returncode": 0, "project_remove_returncode": 0, "project_add_output_sha256": "19b34fe055d42ba2fecfabab4b222d2560bc7d74efe2130e7c790824da9f50c2", "spawn_output_sha256": "bcc5a5839220d0e1b3772306641ed8cf5979e66d2c7f6d5a0aed1f1052ec0191", "kill_output_sha256": "f404bf0577abadc9f98673f0fb71c6a57a78bd0340b5672f0239789c67b433df", "project_remove_output_sha256": "4cfd69a644a2689a018f0b7aae4ab2309e868de777f4846cfc9f371e61fccc03"},
-  "model": {"policy_model": "gpt-5.4", "execution": "not-verified"},
+  "model": {
+    "policy_model": "gpt-5.4",
+    "worker_configuration": "accepted",
+    "worker_config_sha256": "79f5eace4e0c7a9f33fd72341b23c042b1e10fda0f3ce062d5b9af2c7c6ea85e",
+    "execution": "not-observed",
+    "execution_probe": {
+      "spawn_returncode": 0,
+      "spawn_output_sha256": "3e7e747c573d3e84294b1fe52cb37e9da29fbfecac15757f49591bbe08f0fa93",
+      "session_id_sha256": "625f634c4bb1f7d0b7bcf58e8b126871997c748f4a519f17575fae924e93d731",
+      "session_snapshot": {"status": "idle"},
+      "session_get_sha256": "3f6b7acfb1eb96dc761038bcd59313ccd2d698400f608b9e6935a78b00e654a1",
+      "cleanup_verified": true
+    }
+  },
   "native_event_stream": "not-exposed",
-  "decision": "The Agent Orchestrator bounded session lifecycle and cleanup pass, but this probe does not establish gpt-5.4 execution or native event-stream parity. The ADE remains blocked until model-backed execution and the accepted lifecycle-event treatment are verified."
+  "decision": "The Agent Orchestrator accepts the gpt-5.4 worker configuration and passes bounded session lifecycle and cleanup, but its public CLI does not expose model output or native event-stream parity. The ADE remains blocked until model-backed execution and the accepted lifecycle-event treatment are independently observable."
 }

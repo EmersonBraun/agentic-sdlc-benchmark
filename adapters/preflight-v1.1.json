@@ -56,9 +56,10 @@
         "native_event_stream": "not-exposed",
         "session_cleanup": "passed",
         "model_candidate": "gpt-5.4",
-        "model_execution": "not-verified"
+        "model_configuration": "accepted",
+        "model_execution": "not-observed"
       },
-      "decision": "Polling lifecycle and cleanup are bounded-verified; full semantic parity remains blocked."
+      "decision": "Polling lifecycle, cleanup, and gpt-5.4 worker configuration are bounded-verified; model output and full semantic parity remain blocked because the public CLI does not expose them."
     },
     "compozy": {
       "installed": true,
