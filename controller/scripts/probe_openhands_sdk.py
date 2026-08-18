@@ -158,6 +158,7 @@ def main() -> int:
     command_bridge = root / "controller" / "scripts" / "openhands_command_bridge.py"
     adapter_source = root / "controller" / "src" / "benchmark_controller" / "openhands_sdk.py"
     controller_manifest = root / "controller" / "pyproject.toml"
+    validation_workflow = root / ".github" / "workflows" / "validate.yml"
     lockfile = root / "adapters" / "openhands-sdk-v1.1.requirements.lock"
     before = tree_sha256(fixture)
     name = f"benchmark-openhands-{int(time.time())}"
@@ -230,6 +231,7 @@ def main() -> int:
         "command_bridge_source_sha256": sha256_bytes(command_bridge.read_bytes()),
         "adapter_source_sha256": sha256_bytes(adapter_source.read_bytes()),
         "controller_manifest_sha256": sha256_bytes(controller_manifest.read_bytes()),
+        "validation_workflow_sha256": sha256_bytes(validation_workflow.read_bytes()),
         "resolver_returncode": build.returncode,
         "runtime_returncode": runtime.returncode if runtime else None,
         "resolver_output_sha256": sha256_bytes(combined.encode()),
