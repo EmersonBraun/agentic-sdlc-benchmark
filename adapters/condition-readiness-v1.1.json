@@ -1,5 +1,5 @@
 {
-  "blocked_conditions": 18,
+  "blocked_conditions": 16,
   "can_start": false,
   "conditions": [
     {
@@ -82,24 +82,21 @@
     {
       "condition_id": "compozy__mini-swe-agent__off",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "contract-ready",
         "harness": "installed-ready"
       },
-      "missing_components": [
-        "ade:compozy:installed-not-ready"
-      ],
-      "ready": false
+      "missing_components": [],
+      "ready": true
     },
     {
       "condition_id": "compozy__mini-swe-agent__on",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "installed-not-ready",
         "harness": "installed-ready"
       },
       "missing_components": [
-        "ade:compozy:installed-not-ready",
         "agentskit:on:installed-not-ready"
       ],
       "ready": false
@@ -107,12 +104,11 @@
     {
       "condition_id": "compozy__openhands-sdk__off",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "contract-ready",
         "harness": "dependency-resolution-failed"
       },
       "missing_components": [
-        "ade:compozy:installed-not-ready",
         "harness:openhands-sdk:dependency-resolution-failed"
       ],
       "ready": false
@@ -120,12 +116,11 @@
     {
       "condition_id": "compozy__openhands-sdk__on",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "installed-not-ready",
         "harness": "dependency-resolution-failed"
       },
       "missing_components": [
-        "ade:compozy:installed-not-ready",
         "harness:openhands-sdk:dependency-resolution-failed",
         "agentskit:on:installed-not-ready"
       ],
@@ -134,24 +129,21 @@
     {
       "condition_id": "compozy__reference__off",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "contract-ready",
         "harness": "contract-ready"
       },
-      "missing_components": [
-        "ade:compozy:installed-not-ready"
-      ],
-      "ready": false
+      "missing_components": [],
+      "ready": true
     },
     {
       "condition_id": "compozy__reference__on",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "installed-not-ready",
         "harness": "contract-ready"
       },
       "missing_components": [
-        "ade:compozy:installed-not-ready",
         "agentskit:on:installed-not-ready"
       ],
       "ready": false
@@ -236,7 +228,7 @@
   ],
   "gate_mode": "official-collection",
   "protocol_version": "v1.1",
-  "ready_conditions": 0,
+  "ready_conditions": 2,
   "schema_version": "condition-readiness-v1.1",
   "source": "adapters/preflight-v1.1.json"
 }

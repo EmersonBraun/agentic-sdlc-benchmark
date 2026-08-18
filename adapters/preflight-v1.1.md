@@ -19,7 +19,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 |---|---|---|---|
 | ORCA 1.4.184 | installed-not-ready | Runtime, graph, workspace, three supervised `gpt-5.4` executions, cleanup, and release | Runtime rejected every authoritative `worker_done` with `dispatch_capability_invalid`; lifecycle settlement is unverified |
 | Agent Orchestrator 0.12.6 | installed-not-ready | Isolated spawn, polling, termination, cleanup, and redacted ledger bridge | `gpt-5.4` execution and native event treatment are unverified |
-| Compozy 0.3.0-beta.16 | installed-not-ready | Exact `gpt-5.4` provider-bound prompt, isolated workspace cleanup, and redacted event-to-ledger bridge | Cross-ADE/harness/AgentsKit semantic parity is still unverified |
+| Compozy 0.3.0-beta.16 | installed-ready | Exact `gpt-5.4` provider-bound prompt, isolated workspace cleanup, and redacted event-to-ledger bridge | Component ready; global 18-condition semantic parity remains a separate protocol gate |
 | Reference Harness | contract-ready | Common argv, workspace, permissions, and ledger contract | External ADE readiness still gates every primary condition |
 | OpenHands SDK | dependency-resolution-failed | Normal resolver failure is reproduced for tested versions | Upstream-compatible dependency graph |
 | mini-SWE-agent 2.4.6 | installed-ready | Grok `grok-4.5` through native CLI/OAuth, mini-SWE-controlled tools, append-only ledger, greenfield and Umami product tests, submission, source integrity, session cleanup, and container cleanup | Reliability is measured during repetitions; no readiness blocker remains |

@@ -1,0 +1,47 @@
+{
+  "schema_version": "component-readiness-attestation-v1.1",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-18",
+  "component": "ade:compozy",
+  "status": "installed-ready",
+  "scope": "component-local readiness; not official-collection eligibility",
+  "runtime": {
+    "cli_version": "0.3.0-beta.16",
+    "commit": "c38ba0fa",
+    "daemon_health": "passed",
+    "active_sessions_before_recheck": 0,
+    "provider": "codex",
+    "provider_transport": "native-cli",
+    "policy_model": "gpt-5.4"
+  },
+  "invariants": {
+    "stable_cli_path": "passed",
+    "workspace_resolution": "passed",
+    "controlled_permission_mode": "passed",
+    "provider_bound_model_execution": "passed",
+    "lifecycle_normalization": "passed",
+    "append_only_redacted_ledger": "passed",
+    "isolated_cleanup": "passed",
+    "unknown_event_policy": "fail-closed",
+    "fallback_resolution": "forbidden"
+  },
+  "fresh_recheck": {
+    "session_creation": "passed",
+    "session_stop": "passed",
+    "workspace_removal": "passed",
+    "fixture_mutated": false,
+    "fixture_destroyed": true,
+    "attestation": "compozy-v1.1-session-recheck-attestation.json",
+    "attestation_sha256": "cc8a1a5d3e34fe0df544c1c81f3a49bbf2970763e0852d2124bdc8a4e44f3998"
+  },
+  "evidence": {
+    "provider_lifecycle_attestation": "compozy-v1.1-session-probe-attestation.json",
+    "provider_lifecycle_attestation_sha256": "05999b4775d3629b3e9246d06d24d87d676f3e562cc405c4271957bfe3879c08",
+    "matched_technical_pair": "../analysis/technical-pair-compozy-reference-v1.1.json",
+    "matched_technical_pair_sha256": "fbac6e3d343f60db92a39f25feac1797b0e13c9cb0615b8b4c4fa6c048bb0cbd",
+    "raw_prompts_published": false,
+    "raw_responses_published": false,
+    "credentials_published": false
+  },
+  "decision": "Compozy satisfies its independently testable v1.1 ADE contract. The global semantic-parity gate remains blocked until every selected component is ready and all seven invariants pass for 18/18 conditions."
+}

@@ -23,7 +23,7 @@
       "append_only_ledger": "contract-tested",
       "no_fallback_resolution": "enforced"
     },
-    "decision": "The v1.1 cohort inherits the parity contract but has no verified cross-component parity result. Collection remains blocked until all seven invariants are verified for the full matrix."
+    "decision": "The v1.1 cohort inherits the parity contract. Compozy is component-ready and two component-complete conditions are ready, but collection remains blocked until all seven invariants are verified for the full 18-condition matrix."
   },
   "technical_pilot": {
     "status": "verified",
@@ -105,11 +105,14 @@
     "compozy": {
       "installed": true,
       "version": "0.3.0-beta.16",
-      "status": "installed-not-ready",
+      "status": "installed-ready",
       "technical_pilot_status": "installed-ready",
       "evidence": {
         "daemon_reachable": true,
+        "daemon_status": "healthy",
         "workspace_resolution": "passed",
+        "registered_workspace_id": "verified-redacted",
+        "permission_mode": "controlled-local",
         "session_cleanup": "passed",
         "candidate_model": "gpt-5.4",
         "candidate_model_execution": "passed",
@@ -119,9 +122,11 @@
         "provider_bound_session": "passed",
         "provider_model_execution": "passed",
         "live_lifecycle_ledger": "controller-bridge-probed",
+        "lifecycle_bridge": "live-verified",
+        "ledger_bridge": "live-redacted",
         "unknown_event_policy": "fail-closed"
       },
-      "decision": "The exact v1.1 model executes in an isolated Compozy session and the public controller bridge produces a redacted ledger. Full cross-component semantic parity remains blocked."
+      "decision": "Compozy independently passes its v1.1 workspace, permission, exact-model execution, lifecycle, redacted-ledger, isolation, and cleanup contract. Official collection remains blocked by the separately represented global 18-condition semantic-parity gate."
     }
   },
   "harness": {
@@ -145,6 +150,8 @@
     "agent-orchestrator-v1.1-session-probe-attestation.json",
     "compozy-session-attestation-v1.0.json",
     "compozy-v1.1-session-probe-attestation.json",
+    "compozy-v1.1-component-readiness-attestation.json",
+    "compozy-v1.1-session-recheck-attestation.json",
     "compozy-v1.1-availability-probe-attestation-2.json",
     "compozy-v1.1-availability-probe-attestation-3.json",
     "openhands-resolver-attestation-v1.0.json",
