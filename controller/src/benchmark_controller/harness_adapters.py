@@ -39,8 +39,8 @@ HARNESS_RUNTIME_SPECS = {
     "openhands-sdk": HarnessRuntimeSpec(
         "openhands-sdk",
         HARNESS_DESCRIPTORS["openhands-sdk"],
-        runtime_image="python:3.12.10-slim",
-        session_entrypoint="openhands.sdk",
+        runtime_image="ghcr.io/astral-sh/uv:python3.12-bookworm-slim@sha256:e5b65587bce7de595f299855d7385fe7fca39b8a74baa261ba1b7147afa78e58",
+        session_entrypoint="controller/scripts/probe_openhands_sdk.py",
     ),
     "mini-swe-agent": HarnessRuntimeSpec(
         "mini-swe-agent",
@@ -111,6 +111,14 @@ def build_harness_adapter(
             workspace,
             ledger,
             permission_mode=permission_mode,
+        )
+    if key == "openhands-sdk":
+        from .openhands_sdk import OpenHandsSDKAdapter
+
+        return OpenHandsSDKAdapter(
+            workspace,
+            ledger,
+            permission_mode=permission_mode,  # type: ignore[arg-type]
         )
     return HarnessAdapter(
         spec,

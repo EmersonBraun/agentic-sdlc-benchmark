@@ -1,5 +1,5 @@
 {
-  "blocked_components": 2,
+  "blocked_components": 1,
   "components": [
     {
       "blockers": [],
@@ -211,44 +211,38 @@
       "status": "installed-ready"
     },
     {
-      "blockers": [
-        "implementation-status",
-        "runtime",
-        "workspace-boundary",
-        "permission-parity",
-        "ledger-bridge"
-      ],
+      "blockers": [],
       "checks": [
         {
           "check_id": "implementation-status",
-          "evidence": "status=dependency-resolution-failed",
-          "passed": false
+          "evidence": "status=installed-ready",
+          "passed": true
         },
         {
           "check_id": "runtime",
-          "evidence": "missing; available=['evidence', 'installed', 'status']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         },
         {
           "check_id": "workspace-boundary",
-          "evidence": "missing; available=['dependency_overrides', 'normal_resolver']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         },
         {
           "check_id": "permission-parity",
-          "evidence": "missing; available=['dependency_overrides', 'normal_resolver']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         },
         {
           "check_id": "ledger-bridge",
-          "evidence": "missing; available=['dependency_overrides', 'normal_resolver']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         }
       ],
       "factor": "harness",
       "key": "openhands-sdk",
-      "ready": false,
-      "status": "dependency-resolution-failed"
+      "ready": true,
+      "status": "installed-ready"
     },
     {
       "blockers": [],
@@ -286,5 +280,5 @@
     }
   ],
   "protocol_version": "v1.1",
-  "ready_components": 6
+  "ready_components": 7
 }

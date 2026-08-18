@@ -12,7 +12,7 @@ Agent Orchestrator lifecycle-surface evidence is [`agent-orchestrator-lifecycle-
 
 The historical blocker register is [`blocker-register-v1.0.json`](blocker-register-v1.0.json). The v1.1 cohort has its own [`blocker-register-v1.1.json`](blocker-register-v1.1.json); each blocker has a resolution gate and a safe next action, and no shortcut is allowed to silently change the experiment.
 
-The operator-facing closure procedure is [`operator-readiness-runbook-v1.0.md`](operator-readiness-runbook-v1.0.md). It sequences the remaining external gates, preserves the no-fallback policy, and defines the evidence required before collection. The public v1.1 status summary is [`preflight-v1.1.md`](preflight-v1.1.md).
+The current operator-facing closure procedure is [`operator-readiness-runbook-v1.1.md`](operator-readiness-runbook-v1.1.md). The v1.0 runbook remains frozen historical evidence. The public v1.1 status summary is [`preflight-v1.1.md`](preflight-v1.1.md).
 
 The isolated session probe is specified in [`session-parity-test-v1.0.json`](session-parity-test-v1.0.json). It is preparation-only and requires explicit operator confirmation before any session or provider call.
 
@@ -39,6 +39,8 @@ The ORCA v1.1 probe sequence starts at [`orca-v1.1-lifecycle-probe-attestation.j
 The v1.1 Agent Orchestrator session recheck is [`agent-orchestrator-v1.1-session-probe-attestation.json`](agent-orchestrator-v1.1-session-probe-attestation.json). Spawn, polling, termination, cleanup, and the redacted ledger bridge pass, but model-backed execution and native event-stream parity remain unverified.
 
 The closing v1.1 execution evidence is [`agent-orchestrator-v1.1-execution-attestation.json`](agent-orchestrator-v1.1-execution-attestation.json). It proves one isolated `gpt-5.4` completion, the required persisted provider-event sequence, token use, normalized ledger transitions, and zero active-session leakage. The public CLI still exposes no event stream; the probe therefore uses bounded read-only local-datastore access and persists only hashes, counts, event names, and booleans.
+
+OpenHands SDK v1.1 readiness is recorded in [`openhands-sdk-v1.1-readiness-attestation.json`](openhands-sdk-v1.1-readiness-attestation.json) with its retained redacted ledger. The official `uv` resolver succeeds for the exact 1.42.1 SDK/tools/workspace graph in a digest-pinned Python 3.12 image; the offline runtime verifies native workspace access, denied writes, source integrity, and complete container/image cleanup. The historical pip failure remains preserved as v1.0 evidence.
 
 The v1.1 Compozy session recheck is [`compozy-v1.1-session-probe-attestation.json`](compozy-v1.1-session-probe-attestation.json). Exact `gpt-5.4` execution, isolated cleanup, and the live event-stream-to-redacted-ledger bridge establish component-local readiness. Full 18-condition semantic parity remains an independent protocol gate.
 

@@ -117,8 +117,8 @@ def _harness_descriptors() -> dict[str, ComponentDescriptor]:
             "harness",
             "openhands-sdk",
             "openhands-sdk-1.42.1",
-            "dependency-resolution-failed",
-            "external:openhands-sdk",
+            "installed-ready",
+            "controller:openhands-sdk-container-bridge",
             COMMON_HARNESS_CAPABILITIES,
         ),
         "mini-swe-agent": ComponentDescriptor(

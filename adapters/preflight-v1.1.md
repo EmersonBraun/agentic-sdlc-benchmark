@@ -22,7 +22,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 | Agent Orchestrator 0.12.6 | installed-ready | Isolated `gpt-5.4` completion, persisted provider-event sequence, polling ledger bridge, termination, cleanup, and zero leakage | Public CLI event stream remains unavailable; bounded read-only datastore observation is documented |
 | Compozy 0.3.0-beta.16 | installed-ready | Exact `gpt-5.4` provider-bound prompt, isolated workspace cleanup, and redacted event-to-ledger bridge | Component ready; global 18-condition semantic parity remains a separate protocol gate |
 | Reference Harness | contract-ready | Common argv, workspace, permissions, and ledger contract | External ADE readiness still gates every primary condition |
-| OpenHands SDK | dependency-resolution-failed | Normal resolver failure is reproduced for tested versions | Upstream-compatible dependency graph |
+| OpenHands SDK 1.42.1 | installed-ready | Official `uv` resolver, exact four-package graph, pinned image digest, native `LocalWorkspace`, read/write permission probe, ledger, unchanged fixture, and complete cleanup | Runtime probe is provider-free and excluded from official analysis |
 | mini-SWE-agent 2.4.6 | installed-ready | Grok `grok-4.5` through native CLI/OAuth, mini-SWE-controlled tools, append-only ledger, greenfield and Umami product tests, submission, source integrity, session cleanup, and container cleanup | Reliability is measured during repetitions; no readiness blocker remains |
 | AgentsKit OFF | contract-ready | Neutral control contract | None at the contract level |
 | AgentsKit ON | installed-ready | Pinned public source, live redacted ledger, native Doc Bridge/Playbook/Code Review, and a provider-backed matched ON/OFF task | Benefit estimation remains an official-replication outcome behind the global gate |
@@ -39,6 +39,8 @@ Evidence from v1.0 and v1.1 is never mixed.
 - [Latest ORCA Dispatch-capability diagnostic](orca-v1.1-lifecycle-probe-attestation-4.json)
 - [Agent Orchestrator session probe](agent-orchestrator-v1.1-session-probe-attestation.json)
 - [Agent Orchestrator execution attestation](agent-orchestrator-v1.1-execution-attestation.json)
+- [OpenHands SDK readiness attestation](openhands-sdk-v1.1-readiness-attestation.json)
+- [Operator readiness runbook](operator-readiness-runbook-v1.1.md)
 - [Compozy session probe](compozy-v1.1-session-probe-attestation.json)
 - [Latest Compozy availability probe](compozy-v1.1-availability-probe-attestation-2.json)
 - [Compozy provider/lifecycle bridge probe](compozy-v1.1-session-probe-attestation.json)

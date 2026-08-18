@@ -19,13 +19,6 @@
       "blocking_conditions": ["all seven invariants are not verified across the complete 18-condition matrix"],
       "resolution_gate": "Every component is independently ready and all seven semantic-parity invariants are verified for 18/18 conditions before official collection.",
       "safe_next_action": "Resolve the remaining component-local blockers, regenerate condition readiness, and promote this global protocol gate only at 18/18."
-    },
-    {
-      "component": "harness:openhands-sdk",
-      "evidence_refs": ["preflight-v1.1.json", "openhands-resolver-attestation-v1.0.json"],
-      "blocking_conditions": ["normal dependency resolution failed for all tested versions"],
-      "resolution_gate": "Clean pinned environment resolves the declared SDK/tool/workspace graph without --no-deps or dependency overrides, then passes workspace, permissions, and ledger probes.",
-      "safe_next_action": "Wait for or identify an upstream-compatible dependency set; do not weaken the resolver policy."
     }
   ],
   "external_references": {

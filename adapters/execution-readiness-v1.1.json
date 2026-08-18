@@ -2,7 +2,7 @@
   "blocker_summary": {
     "operator": 0,
     "protocol": 1,
-    "upstream": 2
+    "upstream": 1
   },
   "blockers": [
     {
@@ -13,15 +13,6 @@
       "owner": "upstream",
       "reason": "gpt-5.4 executes, but authoritative worker_done is rejected with dispatch_capability_invalid.",
       "recheck_command": "orca status --json"
-    },
-    {
-      "blocker_id": "openhands-dependency-graph",
-      "component": "harness:openhands-sdk",
-      "evidence_ref": "adapters/openhands-resolver-attestation-v1.0.json",
-      "next_action": "Re-run the normal resolver when a compatible OpenHands release is published; do not use dependency overrides.",
-      "owner": "upstream",
-      "reason": "The latest approved SDK dependency graph does not resolve on pinned Python without overrides.",
-      "recheck_command": "docker run --rm python:3.12.10-slim python -m pip install --dry-run --no-cache-dir openhands-sdk==1.42.1 openhands-tools==1.42.1 openhands-workspace==1.42.1"
     },
     {
       "blocker_id": "global-semantic-parity",

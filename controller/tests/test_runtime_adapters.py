@@ -2,11 +2,14 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from subprocess import CompletedProcess
+from unittest.mock import patch
 
 from benchmark_controller.ade_adapters import ADENotReadyError, build_ade_adapter
-from benchmark_controller.harness_adapters import HarnessNotReadyError, build_harness_adapter
+from benchmark_controller.harness_adapters import build_harness_adapter
 from benchmark_controller.ledger import Ledger
 from benchmark_controller.mini_swe import MiniSweAgentAdapter
+from benchmark_controller.openhands_sdk import OpenHandsSDKAdapter, RUNTIME_IMAGE, _assert_supported_dependency_layout, _replace_workspace
 
 
 class RuntimeAdapterRegistryTests(unittest.TestCase):
@@ -25,20 +28,69 @@ class RuntimeAdapterRegistryTests(unittest.TestCase):
             )
             self.assertEqual(result.stdout.strip(), "ok")
 
-    def test_openhands_fails_closed_without_session(self) -> None:
+    def test_openhands_resolves_ready_pinned_container_bridge(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             ledger = Ledger(root / "ledger.jsonl", run_id="run_harness_blocked", task_id="pilot_smoke")
             harness = build_harness_adapter(
                 "openhands-sdk", root / "openhands-sdk", ledger, permission_mode="approve-all"
             )
-            with self.assertRaises(HarnessNotReadyError):
-                harness.run_command(
-                    ["python3", "--version"],
-                    stage_id="implementation",
-                    actor="executor",
-                    access="read",
-                )
+            harness.assert_ready()
+            self.assertIsInstance(harness, OpenHandsSDKAdapter)
+            self.assertEqual(harness.descriptor.adapter_version, "openhands-sdk-1.42.1")
+
+    def test_openhands_executes_through_container_and_records_cleanup(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            ledger = Ledger(root / "ledger.jsonl", run_id="run_openhands_mock", task_id="pilot_smoke")
+            harness = build_harness_adapter("openhands-sdk", root / "workspace", ledger, permission_mode="approve-all")
+            harness.runtime_image_id = "sha256:test"
+
+            def fake_run(command, **kwargs):
+                argv = tuple(command)
+                if argv[:3] == ("docker", "container", "inspect"):
+                    return CompletedProcess(argv, 1, "", "Error: No such object")
+                if argv[:3] == ("docker", "image", "inspect"):
+                    if RUNTIME_IMAGE in argv or "sha256:test" in argv:
+                        return CompletedProcess(argv, 0, "sha256:test", "")
+                    return CompletedProcess(argv, 1, "", "Error: No such image")
+                if argv[:2] == ("docker", "start"):
+                    payload = {"schema_version": "openhands-command-result-v1.1", "returncode": 0, "stdout": "ok\n", "stderr": ""}
+                    return CompletedProcess(argv, 0, json.dumps(payload) + "\n", "")
+                return CompletedProcess(argv, 0, "", "")
+
+            with patch("benchmark_controller.openhands_sdk.subprocess.run", side_effect=fake_run):
+                result = harness.run_command(["git", "status", "--short"], stage_id="local-testing", actor="executor", access="read")
+            self.assertEqual(result.stdout, "ok\n")
+            event = json.loads(ledger.path.read_text().splitlines()[-1])
+            self.assertEqual(event["status"], "completed")
+
+    def test_openhands_writeback_preserves_git_state(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target, source = root / "target", root / "source"
+            (target / ".git").mkdir(parents=True)
+            (target / ".git/HEAD").write_text("old")
+            (source / ".git").mkdir(parents=True)
+            (source / ".git/HEAD").write_text("new")
+            (source / "result.txt").write_text("done")
+            _replace_workspace(target, source)
+            self.assertEqual((target / ".git/HEAD").read_text(), "new")
+            self.assertEqual((target / "result.txt").read_text(), "done")
+
+    def test_openhands_rejects_local_workspace_dependencies(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            (workspace / "package.json").write_text(json.dumps({"dependencies": {"local": "workspace:*"}}))
+            with self.assertRaisesRegex(ValueError, "local package dependencies"):
+                _assert_supported_dependency_layout(workspace)
+
+    def test_openhands_parses_and_rejects_quoted_workspace_packages(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            (workspace / "pnpm-workspace.yaml").write_text('"packages": ["packages/*"]\n')
+            with self.assertRaisesRegex(ValueError, "multi-package"):
+                _assert_supported_dependency_layout(workspace)
 
     def test_mini_swe_registry_resolves_live_cli_bridge(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
