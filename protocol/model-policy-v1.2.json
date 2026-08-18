@@ -1,0 +1,15 @@
+{
+  "schema_version": "model-policy-v1.2",
+  "protocol_version": "v1.2",
+  "status": "approved-for-technical-pilot",
+  "cohort": "v1.2",
+  "roles": {
+    "planner_requirements_lead": {"provider": "codex-cli", "model": "gpt-5.4"},
+    "executor_fixer": {"provider": "grok-cli", "model": "grok-4.5"},
+    "independent_evaluator": {"provider": "codex", "model": "gpt-5.4-mini"}
+  },
+  "role_policy": "Role assignments are constants shared by every condition, not experimental factors.",
+  "native_harness_policy": "Each CLI may use its native agent loop. No third-party harness is an independent v1.2 factor.",
+  "substitution_policy": "No aliases, fallbacks, or silent model or provider substitutions.",
+  "runtime_evidence": "Every run records resolved executables, versions, arguments, configuration digests, and observed provider identity where exposed. Unobservable claims are configuration-bound only."
+}
