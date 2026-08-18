@@ -1,6 +1,6 @@
 {
-  "blocked_conditions": 6,
-  "can_start": false,
+  "blocked_conditions": 0,
+  "can_start": true,
   "conditions": [
     {
       "condition_id": "agent-orchestrator__mini-swe-agent__off",
@@ -125,79 +125,67 @@
     {
       "condition_id": "orca__mini-swe-agent__off",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "contract-ready",
         "harness": "installed-ready"
       },
-      "missing_components": [
-        "ade:orca:installed-not-ready"
-      ],
-      "ready": false
+      "missing_components": [],
+      "ready": true
     },
     {
       "condition_id": "orca__mini-swe-agent__on",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "installed-ready",
         "harness": "installed-ready"
       },
-      "missing_components": [
-        "ade:orca:installed-not-ready"
-      ],
-      "ready": false
+      "missing_components": [],
+      "ready": true
     },
     {
       "condition_id": "orca__openhands-sdk__off",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "contract-ready",
         "harness": "installed-ready"
       },
-      "missing_components": [
-        "ade:orca:installed-not-ready"
-      ],
-      "ready": false
+      "missing_components": [],
+      "ready": true
     },
     {
       "condition_id": "orca__openhands-sdk__on",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "installed-ready",
         "harness": "installed-ready"
       },
-      "missing_components": [
-        "ade:orca:installed-not-ready"
-      ],
-      "ready": false
+      "missing_components": [],
+      "ready": true
     },
     {
       "condition_id": "orca__reference__off",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "contract-ready",
         "harness": "contract-ready"
       },
-      "missing_components": [
-        "ade:orca:installed-not-ready"
-      ],
-      "ready": false
+      "missing_components": [],
+      "ready": true
     },
     {
       "condition_id": "orca__reference__on",
       "factor_statuses": {
-        "ade": "installed-not-ready",
+        "ade": "installed-ready",
         "agentskit": "installed-ready",
         "harness": "contract-ready"
       },
-      "missing_components": [
-        "ade:orca:installed-not-ready"
-      ],
-      "ready": false
+      "missing_components": [],
+      "ready": true
     }
   ],
   "gate_mode": "official-collection",
   "protocol_version": "v1.1",
-  "ready_conditions": 12,
+  "ready_conditions": 18,
   "schema_version": "condition-readiness-v1.1",
   "source": "adapters/preflight-v1.1.json"
 }

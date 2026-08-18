@@ -14,6 +14,7 @@
     "model-policy-v1.1.json",
     "model-compatibility-v1.0.json",
     "orca-session-attestation-v1.0.json",
+    "orca-v1.1-lifecycle-probe-attestation-5.json",
     "agent-orchestrator-v1.1-execution-attestation.json",
     "compozy-model-connectivity-attestation-v1.0.json"
   ],
@@ -24,10 +25,6 @@
     "codex_cli": {"model": "gpt-5.4", "status": "executed", "sandbox": "read-only", "workspace_mutated": false},
     "evaluator": {"model": "gpt-5.4-mini", "status": "executed-in-compozy-and-codex-cli"}
   },
-  "remaining_gates": [
-    "mini-SWE-agent controlled model boundary",
-    "AgentsKit ON provider-backed parity",
-    "matched OFF comparison"
-  ],
+  "remaining_gates": ["global 18-condition semantic parity"],
   "decision": "Use v1.1 as a separate cohort. Do not combine v1.0 and v1.1 results or claim that the model revision is an ADE, harness, or AgentsKit effect."
 }

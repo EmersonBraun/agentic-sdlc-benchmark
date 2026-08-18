@@ -1,5 +1,5 @@
 {
-  "blocked_components": 1,
+  "blocked_components": 0,
   "components": [
     {
       "blockers": [],
@@ -80,17 +80,12 @@
       "status": "installed-ready"
     },
     {
-      "blockers": [
-        "implementation-status",
-        "permissions",
-        "lifecycle-bridge",
-        "ledger-bridge"
-      ],
+      "blockers": [],
       "checks": [
         {
           "check_id": "implementation-status",
-          "evidence": "status=installed-not-ready",
-          "passed": false
+          "evidence": "status=installed-ready",
+          "passed": true
         },
         {
           "check_id": "health",
@@ -104,24 +99,24 @@
         },
         {
           "check_id": "permissions",
-          "evidence": "missing; available=['candidate_model', 'candidate_provider_execution', 'dispatch_attempts', 'graph_state', 'live_lifecycle_ledger', 'model_execution', 'read_only_probe', 'registered_project', 'required_model', 'required_model_provider_result', 'runtime_reachable', 'runtime_state', 'worker_done', 'workspace_boundary']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         },
         {
           "check_id": "lifecycle-bridge",
-          "evidence": "missing; available=['candidate_model', 'candidate_provider_execution', 'dispatch_attempts', 'graph_state', 'live_lifecycle_ledger', 'model_execution', 'read_only_probe', 'registered_project', 'required_model', 'required_model_provider_result', 'runtime_reachable', 'runtime_state', 'worker_done', 'workspace_boundary']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         },
         {
           "check_id": "ledger-bridge",
-          "evidence": "missing; available=['candidate_model', 'candidate_provider_execution', 'dispatch_attempts', 'graph_state', 'live_lifecycle_ledger', 'model_execution', 'read_only_probe', 'registered_project', 'required_model', 'required_model_provider_result', 'runtime_reachable', 'runtime_state', 'worker_done', 'workspace_boundary']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         }
       ],
       "factor": "ade",
       "key": "orca",
-      "ready": false,
-      "status": "installed-not-ready"
+      "ready": true,
+      "status": "installed-ready"
     },
     {
       "blockers": [],
@@ -280,5 +275,5 @@
     }
   ],
   "protocol_version": "v1.1",
-  "ready_components": 7
+  "ready_components": 8
 }

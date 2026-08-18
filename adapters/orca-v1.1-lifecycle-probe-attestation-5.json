@@ -1,0 +1,54 @@
+{
+  "schema_version": "orca-v1.1-lifecycle-probe-attestation",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-18",
+  "status": "passed",
+  "analysis_eligible": false,
+  "runtime": {
+    "app_version": "1.4.184",
+    "state": "ready",
+    "graph_state": "ready",
+    "runtime_id_sha256": "c78754c98168daf852b193511a3edb188791f7a8748354b6114f39990f0f7907"
+  },
+  "model": {
+    "provider": "codex",
+    "model": "gpt-5.4",
+    "reasoning_effort": "medium",
+    "execution_observed": true,
+    "sentinel_sha256": "d5eb6ccfec9bf3df15ee1c5a6dd7beb73f0ec6fba3971fd0029f171387b10a50"
+  },
+  "orchestration": {
+    "run_id_sha256": "14ab2fa057f54e4625a2dcf12ee3636909c4f2d1e55577977e52ff677ec01419",
+    "task_id_sha256": "daa5eda4dd9733b20d0cd2f2dc79f623392dcd97264be58b8bddd87d70e573e9",
+    "dispatch_id_sha256": "e8ca3c00e01a6ef4f2a8ceaac41ea4340292ef6b68b38d03043ed9938d199f56",
+    "coordinator_terminal_sha256": "a92e0adce2ee2cf2f6a8cd6a7d025052e3262923c7e39daeebb645324da9abc8",
+    "worker_terminal_sha256": "f0f89a2b910176b3128010103e09deb87ac92e04bb92f941358095b530ceaac5",
+    "dispatch_capability_hash": "e3a82f7530fb2e4687e1c8441b1fcbd79e587a4a30ccce54a7c564a08ee96414",
+    "terminal_ready_before_dispatch": true,
+    "dispatch_injected": true,
+    "worker_done_accepted": true,
+    "dispatch_terminal_state": "completed",
+    "delivery_acknowledged": true,
+    "required_path": "terminal-create; terminal-wait-tui-idle; orchestration-dispatch-inject",
+    "unsupported_path": "worker-start-before-agent-tui-readiness"
+  },
+  "cleanup": {
+    "failed_composed_worker_fenced": true,
+    "failed_composed_worker_released": true,
+    "successful_worker_terminal_closed": true,
+    "coordinator_terminal_closed": true,
+    "live_probe_terminals_remaining": 0,
+    "workspace_mutated": false
+  },
+  "evidence": {
+    "ledger": "orca-v1.1-lifecycle-probe-ledger-5.jsonl",
+    "ledger_sha256": "8ed7111030b4b6a15c9ee27ac9a12477bd3a15820169ddc1a517ae9f5b1407e9",
+    "ledger_event_count": 8,
+    "orca_adapter_source_sha256": "907ab6b8b3b2dd3407a3dfb9eb2c49463591f83276dd3e2449fef0b42475b6c4",
+    "ade_registry_source_sha256": "c1280a1e2a174a966ec59aac4fbbe103c189fdd30ada31a403ac220b4af89000",
+    "descriptor_source_sha256": "ab67a7b7b4fc5cba9b6ef8440a96232026eca190425fd340e74d16d82d266a67",
+    "raw_model_output_published": false,
+    "public_evidence_is_redacted": true
+  },
+  "decision": "ORCA 1.4.184 is component-ready through the explicit terminal-ready then dispatch --inject path. The composed worker-start path remains excluded because it can inject before Codex TUI readiness and lose the Dispatch capability. The supported path executed codex/gpt-5.4, accepted capability-bound worker_done, completed the Dispatch, acknowledged delivery, preserved the workspace, and removed all live probe terminals."
+}

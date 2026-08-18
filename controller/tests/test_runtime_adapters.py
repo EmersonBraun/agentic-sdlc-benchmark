@@ -10,9 +10,21 @@ from benchmark_controller.harness_adapters import build_harness_adapter
 from benchmark_controller.ledger import Ledger
 from benchmark_controller.mini_swe import MiniSweAgentAdapter
 from benchmark_controller.openhands_sdk import OpenHandsSDKAdapter, RUNTIME_IMAGE, _assert_supported_dependency_layout, _replace_workspace
+from benchmark_controller.orca import OrcaAdapter
 
 
 class RuntimeAdapterRegistryTests(unittest.TestCase):
+    def test_orca_registry_resolves_terminal_ready_dispatch_adapter(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adapter = build_ade_adapter(
+                "orca", root / "workspace",
+                Ledger(root / "ledger.jsonl", run_id="run_orca_registry", task_id="pilot_smoke"),
+                permission_mode="approve-all",
+            )
+            self.assertIsInstance(adapter, OrcaAdapter)
+            self.assertEqual(adapter.descriptor.entrypoint, "controller:orca-terminal-ready-dispatch")
+
     def test_reference_harness_uses_shared_boundary(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

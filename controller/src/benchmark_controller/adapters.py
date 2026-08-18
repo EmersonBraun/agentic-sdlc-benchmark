@@ -87,7 +87,7 @@ def _ade_descriptors() -> dict[str, ComponentDescriptor]:
     )
     return {
         "orca": ComponentDescriptor(
-            "ade", "orca", "orca-runtime-1.4.184", "installed-not-ready", "external:orca", lifecycle
+            "ade", "orca", "orca-runtime-1.4.184", "installed-ready", "controller:orca-terminal-ready-dispatch", lifecycle
         ),
         "agent-orchestrator": ComponentDescriptor(
             "ade",

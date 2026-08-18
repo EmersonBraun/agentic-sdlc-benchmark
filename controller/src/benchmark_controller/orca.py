@@ -70,12 +70,42 @@ class OrcaAdapter:
             accounts=_account_summary(accounts),
         )
 
-    def start_workflow(self, *, objective: str) -> dict[str, Any]:
+    def start_workflow(self, *, objective: str, coordinator_handle: str) -> dict[str, Any]:
         self._assert_ready()
         return self._json_command(
-            ("orchestration", "run-create", "--objective", objective, "--json"),
+            ("orchestration", "run-create", "--objective", objective, "--from", coordinator_handle, "--json"),
             stage_id="intake",
             access="write",
+        )
+
+    def create_task(self, *, run_id: str, coordinator_handle: str, spec: str, title: str) -> dict[str, Any]:
+        self._assert_ready()
+        if not all((run_id, coordinator_handle, spec, title)):
+            raise ValueError("run_id, coordinator_handle, spec, and title must be non-empty")
+        return self._json_command(
+            ("orchestration", "task-create", "--run", run_id, "--from", coordinator_handle,
+             "--task-title", title, "--spec", spec, "--json"),
+            stage_id="planning", access="write",
+        )
+
+    def dispatch_to_ready_terminal(
+        self, *, task_id: str, terminal_handle: str, coordinator_handle: str
+    ) -> dict[str, Any]:
+        """Inject only after the caller has obtained terminal wait tui-idle=true."""
+        self._assert_ready()
+        if not all((task_id, terminal_handle, coordinator_handle)):
+            raise ValueError("task_id, terminal_handle, and coordinator_handle must be non-empty")
+        return self._json_command(
+            ("orchestration", "dispatch", "--task", task_id, "--to", terminal_handle,
+             "--from", coordinator_handle, "--inject", "--json"),
+            stage_id="implementation", access="write",
+        )
+
+    def inspect_dispatch(self, *, task_id: str) -> dict[str, Any]:
+        self._assert_ready()
+        return self._json_command(
+            ("orchestration", "dispatch-show", "--task", task_id, "--json"),
+            stage_id="implementation",
         )
 
     def record_lifecycle_event(

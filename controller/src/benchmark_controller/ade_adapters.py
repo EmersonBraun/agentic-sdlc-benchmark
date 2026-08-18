@@ -111,10 +111,14 @@ def build_ade_adapter(
     ledger: Ledger,
     *,
     permission_mode: str,
-) -> ADEAdapter:
+) -> Any:
     try:
         spec = ADE_RUNTIME_SPECS[key]
     except KeyError as exc:
         raise ValueError(f"Unknown ADE adapter: {key!r}") from exc
+    if key == "orca":
+        from .orca import OrcaAdapter
+
+        return OrcaAdapter(workspace, ledger, permission_mode=permission_mode)
     runtime = ControlledAdapter(workspace, ledger, permission_mode=permission_mode)  # type: ignore[arg-type]
     return ADEAdapter(spec, runtime, ledger)

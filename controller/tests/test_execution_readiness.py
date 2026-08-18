@@ -14,10 +14,10 @@ class ExecutionReadinessTests(unittest.TestCase):
 
         self.assertFalse(report.can_start_official_collection)
         self.assertEqual(report.official_conditions_ready, 0)
-        self.assertEqual(len(report.blockers), 2)
+        self.assertEqual(len(report.blockers), 1)
         self.assertEqual(
             {blocker.owner for blocker in report.blockers},
-            {"upstream", "protocol"},
+            {"protocol"},
         )
         self.assertNotIn("harness:mini-swe-agent", {blocker.component for blocker in report.blockers})
         self.assertNotIn("ade:compozy", {blocker.component for blocker in report.blockers})
