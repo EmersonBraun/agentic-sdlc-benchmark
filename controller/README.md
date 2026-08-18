@@ -37,27 +37,38 @@ The adapter contract tests cover all 18 ADE × harness × AgentsKit conditions:
 PYTHONPATH=controller/src python -m unittest discover -s controller/tests -p 'test_*.py'
 ```
 
-The pilot gate checks every one of the 18 primary conditions and exits non-zero if any required ADE, harness, or AgentsKit factor is not ready:
+The official collection gate checks every one of the 18 primary conditions and exits non-zero if any required ADE, harness, or AgentsKit factor is not ready:
 
 ```bash
 PYTHONPATH=controller/src python controller/scripts/check_pilot_gate.py \
   --preflight adapters/preflight-v1.0.json
 ```
 
-The conditioned pilot executor requires the complete 18/18 gate, verified semantic-parity evidence, and no fallback resolution before it returns a preparation plan. Preparation has no run, task, or external-session side effect:
+Condition-scoped technical readiness is reported separately:
+
+```bash
+PYTHONPATH=controller/src python controller/scripts/check_pilot_gate.py \
+  --preflight adapters/preflight-v1.1.json \
+  --gate-mode technical-pilot
+```
+
+The conditioned executor has two explicit modes. `official-collection` requires the complete 18/18 gate and global semantic parity. `technical-pilot` accepts only preregistered, condition-scoped readiness evidence and marks every bundle as ineligible for official analysis. Neither mode permits fallback resolution.
 
 ```python
 from benchmark_controller.pilot_executor import ConditionedPilotExecutor
 
-prepared = ConditionedPilotExecutor(preflight).prepare_condition(
+prepared = ConditionedPilotExecutor(
+    preflight,
+    gate_mode="technical-pilot",
+).prepare_condition(
     run_id="run_example",
-    ade="orca",
+    ade="compozy",
     harness="reference",
     agentskit="off",
 )
 ```
 
-Once the gate and semantic-parity evidence are verified, [`benchmark_controller.run_bundles.RunBundleWriter`](src/benchmark_controller/run_bundles.py) validates the frozen task manifest and creates the immutable run directory with `manifest.json`, an append-only `ledger.jsonl`, `artifact-index.json`, and `evaluation-refs.json`. It records the task-manifest SHA-256, performs all gate checks before touching the output root, and therefore creates no bundle from the current blocked v1.1 preflight.
+Once the selected gate and semantic-parity evidence are verified, [`benchmark_controller.run_bundles.RunBundleWriter`](src/benchmark_controller/run_bundles.py) validates the frozen task manifest and creates the immutable run directory with `manifest.json`, an append-only `ledger.jsonl`, `artifact-index.json`, and `evaluation-refs.json`. It records the task-manifest SHA-256 and gate mode before touching the output root. Technical-pilot bundles carry `analysis_eligible: false`; the official v1.1 collection remains blocked until the full matrix passes.
 
 The operational entrypoints are `scripts/prepare_run_bundle.py` and
 `scripts/validate_run_bundle.py`. The former is fail-closed and creates no

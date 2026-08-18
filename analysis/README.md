@@ -10,6 +10,10 @@ bootstrap confidence intervals. Missing evaluations and invalid runs remain
 visible. With no run bundles it emits `status: no-results`, never synthetic
 performance numbers.
 
+Run manifests with `analysis_eligible: false` are reported under
+`excluded_runs` and are not aggregated. This keeps technical pipeline pilots
+separate from the official controlled-study observations.
+
 Example:
 
 ```bash

@@ -1,0 +1,5 @@
+{
+  "planner_requirements_lead": "codex:gpt-5.4",
+  "executor_fixer": "grok:grok-4.5",
+  "independent_evaluator": "codex:gpt-5.4-mini"
+}

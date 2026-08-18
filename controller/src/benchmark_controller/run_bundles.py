@@ -11,12 +11,13 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from .ledger import Ledger
+from .pilot import GateMode
 from .pilot_executor import ConditionedPilotExecutor, PreparedCondition
 
 
 _COMMIT = re.compile(r"^[a-f0-9]{40}$")
 _ARTIFACT_SHA256 = re.compile(r"^[a-f0-9]{64}$")
-_TERMINAL_STATES = {
+_OFFICIAL_TERMINAL_STATES = {
     "MERGED",
     "FAILED",
     "TIMEOUT",
@@ -25,6 +26,7 @@ _TERMINAL_STATES = {
     "INFRASTRUCTURE_FAILURE",
     "INVALID_MEASUREMENT",
 }
+_TECHNICAL_TERMINAL_STATES = {"TECHNICAL_PASS", "TECHNICAL_FAIL"}
 
 
 class RunBundleError(RuntimeError):
@@ -44,10 +46,18 @@ class PreparedRunBundle:
 class RunBundleWriter:
     """Create a run bundle only after all pilot gates and parity checks pass."""
 
-    def __init__(self, preflight: Mapping[str, Any], output_root: Path, tasks_root: Path | None = None) -> None:
+    def __init__(
+        self,
+        preflight: Mapping[str, Any],
+        output_root: Path,
+        tasks_root: Path | None = None,
+        *,
+        gate_mode: GateMode = "official-collection",
+    ) -> None:
         self._preflight = dict(preflight)
         self._output_root = output_root
         self._tasks_root = tasks_root
+        self._gate_mode = gate_mode
 
     def create(
         self,
@@ -72,7 +82,7 @@ class RunBundleWriter:
         blocked or invalid preparation therefore leaves no partial run behind.
         """
 
-        prepared = ConditionedPilotExecutor(self._preflight).prepare_condition(
+        prepared = ConditionedPilotExecutor(self._preflight, gate_mode=self._gate_mode).prepare_condition(
             run_id=run_id,
             ade=ade,
             harness=harness,
@@ -115,6 +125,8 @@ class RunBundleWriter:
         manifest = {
             "schema_version": "1.1",
             "protocol_version": prepared.plan.protocol_version,
+            "gate_mode": self._gate_mode,
+            "analysis_eligible": self._gate_mode == "official-collection",
             "run_id": run_id,
             "task_id": task_id,
             "task_manifest_sha256": task_manifest_sha256,
@@ -153,9 +165,15 @@ class RunBundleWriter:
     ) -> dict[str, Any]:
         """Close one prepared bundle and record its terminal state exactly once."""
 
-        if terminal_state not in _TERMINAL_STATES:
-            raise RunBundleError(f"Invalid terminal state: {terminal_state!r}")
         current = json.loads((bundle.directory / "manifest.json").read_text(encoding="utf-8"))
+        gate_mode = current.get("gate_mode", "official-collection")
+        allowed_states = (
+            _TECHNICAL_TERMINAL_STATES
+            if gate_mode == "technical-pilot"
+            else _OFFICIAL_TERMINAL_STATES
+        )
+        if terminal_state not in allowed_states:
+            raise RunBundleError(f"Invalid terminal state: {terminal_state!r}")
         if current.get("terminal_state") != "NOT_APPLICABLE":
             raise RunBundleError("Run bundle is already finalized")
         normalized_artifacts = _validate_artifacts(artifacts or [])
@@ -178,7 +196,7 @@ class RunBundleWriter:
             event_type="run.terminal",
             time_category="instrumentation_overhead",
             duration_ms=0,
-            status="completed" if terminal_state == "MERGED" else "failed",
+            status="completed" if terminal_state in {"MERGED", "TECHNICAL_PASS"} else "failed",
             payload={
                 "terminal_state": terminal_state,
                 "artifact_count": len(normalized_artifacts),

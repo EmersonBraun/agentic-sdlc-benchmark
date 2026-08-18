@@ -1,0 +1,59 @@
+{
+  "analysis_eligible": false,
+  "cleanup": {
+    "fixture_destroyed": true,
+    "session_residual": false,
+    "session_stop": {
+      "output_sha256": "688ec09c9cfa1754ab319daabda51bb75e984b44c69e0c0e0b819267d5321ad2",
+      "returncode": 0
+    },
+    "verified": false,
+    "workspace_remove": {
+      "output_sha256": "7a6f248eae26699cd10e2ffb60b7627d3762295ad599dc2afb1b7bf0645b5fb1",
+      "returncode": 65
+    },
+    "workspace_residual": true
+  },
+  "commands": {
+    "session_events": {
+      "output_sha256": "a9a6da14d28355d903e803e5e27e0ce58e243d33ed6df310f67471ba4db16e33",
+      "returncode": 0
+    },
+    "session_new": {
+      "output_sha256": "e7a447226ad3287544f94705679f90b2472b09e4dddfb4a9b9c8305c2e9a494b",
+      "returncode": 0
+    },
+    "session_prompt": {
+      "output_sha256": "3a34d421bde497379e0f5c0f2f5c30ca9bad973a7d1552e626d48f1b9c6e77a9",
+      "returncode": 0
+    }
+  },
+  "condition_id": "compozy__reference__off",
+  "content_persisted": true,
+  "event_count": 18,
+  "event_types": {
+    "agent_message": 8,
+    "done": 1,
+    "hook.dispatch.complete": 1,
+    "hook.dispatch.start": 1,
+    "system": 3,
+    "thought": 2,
+    "usage": 1,
+    "user_message": 1
+  },
+  "failure": {
+    "error_type": "RuntimeError",
+    "reason": "cleanup_verification_failed"
+  },
+  "fixture_unchanged": true,
+  "model": "gpt-5.4",
+  "normalized_lifecycle_count": 3,
+  "prompt_sha256": "522ae37e41b50b8ad4e2829f0ba30d40e26f4cb05c7f333fb2f7d6de873d99d5",
+  "provider": "codex",
+  "run_id": "run_technical-compozy-reference-off-r4",
+  "schema_version": "compozy-technical-pilot-v1.0",
+  "sentinel_observed": true,
+  "session_id_sha256": "d3100425225647bfcc0c77a4111199042d7bfea6577d6821b3ea862a1846bbc0",
+  "status": "technical-fail",
+  "workspace_id_sha256": "d1b24f3f63770f94d93cd342bf75f79845b790feedaebcdb54643743a9614910"
+}

@@ -31,6 +31,7 @@ class CompozyLifecycleTests(unittest.TestCase):
                 {"type": "agent_message", "text": "private response"},
                 {"type": "tool_call", "arguments": {"secret": "private"}},
                 {"type": "tool_result", "result": "private"},
+                {"type": "available_commands_update", "commands": ["private-command"]},
                 {"type": "done"},
             ]
         )

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Mapping
 
 from .adapters import ExecutionPlan, build_execution_plan
-from .pilot import ConditionReadiness, PilotGateReport, evaluate_pilot_gate
+from .pilot import ConditionReadiness, GateMode, PilotGateReport, evaluate_pilot_gate
 from .semantic_parity import evaluate_semantic_parity
 
 
@@ -24,15 +24,16 @@ class PreparedCondition:
 
 
 class ConditionedPilotExecutor:
-    """Prepare, but do not start, a condition after the complete pilot gate passes.
+    """Prepare a condition under an explicit technical or collection gate."""
 
-    The complete 18-condition matrix is the experiment gate. This prevents a
-    partially ready matrix from turning into an opportunistic pilot and keeps
-    the comparison protocol stable across later execution attempts.
-    """
-
-    def __init__(self, preflight: Mapping[str, Any]) -> None:
+    def __init__(
+        self,
+        preflight: Mapping[str, Any],
+        *,
+        gate_mode: GateMode = "official-collection",
+    ) -> None:
         self._preflight = preflight
+        self._gate_mode = gate_mode
 
     def prepare_condition(
         self,
@@ -44,7 +45,7 @@ class ConditionedPilotExecutor:
     ) -> PreparedCondition:
         """Validate one condition without creating a run or invoking a tool."""
 
-        gate = evaluate_pilot_gate(dict(self._preflight))
+        gate = evaluate_pilot_gate(dict(self._preflight), gate_mode=self._gate_mode)
         condition_id = f"{ade}__{harness}__{agentskit}"
         condition = next(
             (item for item in gate.conditions if item.condition_id == condition_id),
@@ -52,7 +53,7 @@ class ConditionedPilotExecutor:
         )
         if condition is None:
             raise PilotNotReadyError(f"Unknown pilot condition: {condition_id}")
-        if not gate.can_start:
+        if self._gate_mode == "official-collection" and not gate.can_start:
             raise PilotNotReadyError(
                 f"Pilot gate blocked: {gate.ready_conditions}/{len(gate.conditions)} "
                 f"conditions ready; {condition_id} blocked by "
@@ -64,7 +65,15 @@ class ConditionedPilotExecutor:
                 + ", ".join(condition.missing_components)
             )
 
-        parity = evaluate_semantic_parity(self._preflight)
+        parity_section = "technical_pilot" if self._gate_mode == "technical-pilot" else "semantic_parity"
+        if self._gate_mode == "technical-pilot":
+            technical = self._preflight.get("technical_pilot", {})
+            allowed = technical.get("allowed_conditions", []) if isinstance(technical, Mapping) else []
+            if not isinstance(technical, Mapping) or technical.get("analysis_eligible") is not False:
+                raise PilotNotReadyError("Technical pilot must be explicitly excluded from official analysis")
+            if condition_id not in allowed:
+                raise PilotNotReadyError(f"Technical pilot condition is not preregistered: {condition_id}")
+        parity = evaluate_semantic_parity(self._preflight, section=parity_section)
         if not parity.verified:
             raise PilotNotReadyError(
                 "Semantic-parity gate is not verified; missing evidence: "
@@ -78,6 +87,7 @@ class ConditionedPilotExecutor:
             agentskit=agentskit,
             protocol_version=str(self._preflight.get("protocol_version", "v1.0")),
             preflight=self._preflight,
+            gate_mode=self._gate_mode,
         )
         if not plan.semantic_parity:
             raise PilotNotReadyError("Resolved execution plan failed semantic-parity validation")

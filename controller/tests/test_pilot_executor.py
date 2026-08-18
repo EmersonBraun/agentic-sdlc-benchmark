@@ -92,3 +92,28 @@ class ConditionedPilotExecutorTests(unittest.TestCase):
         self.assertEqual(prepared.gate.ready_conditions, 18)
         self.assertTrue(prepared.plan.semantic_parity)
         self.assertFalse(prepared.plan.fallback_used)
+
+    def test_current_v11_preflight_prepares_only_preregistered_technical_condition(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+        preflight = json.loads((root / "adapters" / "preflight-v1.1.json").read_text(encoding="utf-8"))
+        executor = ConditionedPilotExecutor(preflight, gate_mode="technical-pilot")
+
+        prepared = executor.prepare_condition(
+            run_id="run_technical-compozy-reference-off",
+            ade="compozy",
+            harness="reference",
+            agentskit="off",
+        )
+
+        self.assertEqual(prepared.condition.condition_id, "compozy__reference__off")
+        self.assertEqual(prepared.gate.ready_conditions, 1)
+        self.assertEqual(prepared.plan.gate_mode, "technical-pilot")
+        self.assertEqual(prepared.plan.ade.implementation_status, "installed-ready")
+
+        with self.assertRaisesRegex(PilotNotReadyError, "not preregistered|blocked"):
+            executor.prepare_condition(
+                run_id="run_technical-orca-reference-off",
+                ade="orca",
+                harness="reference",
+                agentskit="off",
+            )

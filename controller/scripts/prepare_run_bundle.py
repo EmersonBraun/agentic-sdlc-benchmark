@@ -33,6 +33,11 @@ def main() -> int:
     parser.add_argument("--ade", required=True)
     parser.add_argument("--harness", required=True)
     parser.add_argument("--agentskit", choices=("off", "on"), required=True)
+    parser.add_argument(
+        "--gate-mode",
+        choices=("technical-pilot", "official-collection"),
+        default="official-collection",
+    )
     parser.add_argument("--replicate", type=int, required=True)
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--base-commit", required=True)
@@ -47,6 +52,7 @@ def main() -> int:
             _json_object(args.preflight),
             args.runs_root,
             tasks_root=args.tasks_root,
+            gate_mode=args.gate_mode,
         )
         prepared = writer.create(
             run_id=args.run_id,

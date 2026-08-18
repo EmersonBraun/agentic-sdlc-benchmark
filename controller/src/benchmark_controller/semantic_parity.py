@@ -22,8 +22,12 @@ class SemanticParityReport:
     missing_evidence: tuple[str, ...]
 
 
-def evaluate_semantic_parity(preflight: Mapping[str, Any]) -> SemanticParityReport:
-    document = preflight.get("semantic_parity", {})
+def evaluate_semantic_parity(
+    preflight: Mapping[str, Any],
+    *,
+    section: str = "semantic_parity",
+) -> SemanticParityReport:
+    document = preflight.get(section, {})
     if not isinstance(document, Mapping):
         return SemanticParityReport(False, REQUIRED_EVIDENCE_KEYS)
     evidence = document.get("evidence", {})

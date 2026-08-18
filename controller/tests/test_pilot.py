@@ -30,6 +30,32 @@ class PilotGateTests(unittest.TestCase):
         self.assertTrue(report.can_start)
         self.assertEqual(report.ready_conditions, 18)
 
+    def test_technical_gate_can_start_with_one_explicitly_ready_condition(self) -> None:
+        preflight = {
+            "protocol_version": "v1.1",
+            "technical_pilot": {"allowed_conditions": ["compozy__reference__off"]},
+            "ade": {
+                "orca": {"status": "installed-not-ready"},
+                "agent-orchestrator": {"status": "installed-not-ready"},
+                "compozy": {"status": "installed-not-ready", "technical_pilot_status": "installed-ready"},
+            },
+            "harness": {
+                "reference": {"status": "contract-ready"},
+                "openhands-sdk": {"status": "dependency-resolution-failed"},
+                "mini-swe-agent": {"status": "installed-not-ready"},
+            },
+            "agentskit": {
+                "off": {"status": "contract-ready"},
+                "on": {"status": "installed-not-ready"},
+            },
+        }
+        report = evaluate_pilot_gate(preflight, gate_mode="technical-pilot")
+        self.assertTrue(report.can_start)
+        self.assertEqual(report.gate_mode, "technical-pilot")
+        self.assertEqual(report.ready_conditions, 1)
+        ready = [condition.condition_id for condition in report.conditions if condition.ready]
+        self.assertEqual(ready, ["compozy__reference__off"])
+
     def test_published_condition_matrix_matches_current_gate(self) -> None:
         root = Path(__file__).resolve().parents[2]
         preflight = json.loads((root / "adapters" / "preflight-v1.0.json").read_text())

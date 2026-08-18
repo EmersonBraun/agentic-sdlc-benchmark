@@ -1,0 +1,7 @@
+{
+  "protocol": "v1.1",
+  "ade_compozy": "0.3.0-beta.16",
+  "harness_reference": "v1.0",
+  "agentskit_off_control": "v1.0",
+  "controller_gate": "technical-pilot-v1.0"
+}

@@ -55,6 +55,31 @@ class AggregateRunsTests(unittest.TestCase):
             self.assertEqual(report["metrics"]["speedup_vs_baseline"]["median"], 6.0)
             self.assertEqual(report["metrics"]["quality_score"]["median"], 92.0)
 
+    def test_technical_pilot_is_excluded_from_official_analysis(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            run = root / "runs" / "run_technical"
+            run.mkdir(parents=True)
+            (run / "manifest.json").write_text(json.dumps({
+                "run_id": "run_technical",
+                "task_id": "pilot_task",
+                "product_id": "greenfield",
+                "protocol_version": "v1.1",
+                "condition_id": "compozy__reference__off",
+                "replicate": 1,
+                "terminal_state": "MERGED",
+                "gate_mode": "technical-pilot",
+                "analysis_eligible": False,
+            }), encoding="utf-8")
+            (run / "ledger.jsonl").write_text("", encoding="utf-8")
+
+            report = aggregate(runs_root=root / "runs", tasks_root=root / "tasks", protocol_version="v1.1")
+
+            self.assertEqual(report["status"], "no-results")
+            self.assertEqual(report["summary"]["runs"], 0)
+            self.assertEqual(report["summary"]["excluded_runs"], 1)
+            self.assertEqual(report["summary"]["invalid_runs"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

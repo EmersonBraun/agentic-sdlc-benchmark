@@ -21,7 +21,7 @@ const fallback = {
     agentskit: { off: { status: "contract-ready" }, on: { status: "installed-not-ready" } },
   },
   readiness: { protocol_version: "v1.1", ready_conditions: 0, blocked_conditions: 18, conditions: [] },
-  results: { status: "no-results", summary: { runs: 0, evaluated_runs: 0, quality_pass_count: 0 }, metrics: {} },
+  results: { status: "no-results", summary: { runs: 0, evaluated_runs: 0, quality_pass_count: 0, excluded_runs: 0 }, metrics: {} },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -106,13 +106,14 @@ function renderResults(results) {
   const cards = [
     ["Runs", results.summary?.runs ?? 0, "versioned bundles"],
     ["Evaluated", results.summary?.evaluated_runs ?? 0, "blind evaluator records"],
+    ["Technical pilots", results.summary?.excluded_runs ?? 0, "excluded from official analysis"],
     ["Effective work", metricValue(results, "effective_work_hours", (value) => `${value.toFixed(2)} h`), "median per run"],
     ["Speedup", metricValue(results, "speedup_vs_baseline", (value) => `${value.toFixed(2)}×`), "vs Senior Engineer baseline"],
     ["Quality", metricValue(results, "quality_score", (value) => `${value.toFixed(1)}/100`), "median product score"],
   ];
   $("#results-grid").innerHTML = cards.map(([title, value, detail]) => `<article class="result-card${noResults ? " result-empty" : ""}"><span>${title}</span><strong>${value}</strong><small>${detail}</small></article>`).join("");
   $("#results-note").textContent = noResults
-    ? "The study is still in preflight. This empty state is intentional, not a zero-performance result."
+    ? `${results.summary?.excluded_runs ?? 0} technical pilot(s) are tracked separately. No official performance result exists yet.`
     : `${results.summary.runs} run bundles are available in processed dataset ${results.schema_version}.`
   $("#results-caption").textContent = noResults
     ? "No performance number is published before a valid run bundle and evaluator record exist."
