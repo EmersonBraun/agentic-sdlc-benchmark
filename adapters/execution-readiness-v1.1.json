@@ -9,7 +9,7 @@
       "blocker_id": "global-semantic-parity",
       "component": "protocol:semantic-parity",
       "evidence_ref": "adapters/semantic-parity-matrix-v1.1.json",
-      "next_action": "Execute a bounded composed probe for every frozen condition and verify all seven invariants from condition-level artifacts.",
+      "next_action": "Bind native ADE/harness/AgentsKit implementations to the composed runner, then execute all 18 bounded probes and verify the seven invariants from condition-level artifacts.",
       "owner": "protocol",
       "reason": "Components are independently ready, but composed integration evidence is missing for all 18 conditions.",
       "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection"
