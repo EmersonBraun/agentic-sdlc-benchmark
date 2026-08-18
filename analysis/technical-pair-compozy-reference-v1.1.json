@@ -22,16 +22,17 @@
       "attestation_sha256": "3a9fc836828d9995b5deebe2505501386bdb2f630648cce54a629896b0eba627"
     },
     "on": {
-      "run_id": "run_technical-compozy-reference-on-r1",
+      "run_id": "run_technical-compozy-reference-on-r3",
       "terminal_state": "TECHNICAL_PASS",
       "cleanup_verified": true,
       "public_agentskit_only": true,
       "agentskit_os_used": false,
       "component_action_records": 6,
-      "native_external_components_executed": false,
-      "manifest_sha256": "c69190945dc2af8250af5cb3c286241d78ba1724d32c7b0fe4d59a360c7a2ce1",
-      "attestation_sha256": "5f43ca7a3125f1e484ee653297f950ebab2719929bed3cc87d8a0d0af98f2556"
+      "native_external_components_executed": true,
+      "native_components": ["doc-bridge", "playbook", "code-review"],
+      "manifest_sha256": "790bcad6b132e14e09c8d014187479da523f7f023d32ff786f1e758c23212eb9",
+      "attestation_sha256": "5e6e409d8f16e673a39ca3babf648839d77562b4133e7fef35fc7ac079bcd8e6"
     }
   },
-  "interpretation": "This single technical pair validates execution, isolation, cleanup, public AgentsKit contract wiring, and ON/OFF separation. The action records are benchmark-side bridge evidence, not native execution of external component repositories. It is excluded from official analysis and supports no quality, speed, cost, or causal-effect claim."
+  "interpretation": "This single technical pair validates execution, isolation, cleanup, native public AgentsKit component integration, and ON/OFF separation. It is excluded from official analysis and supports no quality, speed, cost, or causal-effect claim."
 }

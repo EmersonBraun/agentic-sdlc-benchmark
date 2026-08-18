@@ -1,0 +1,39 @@
+{
+  "schema_version": "orca-v1.1-lifecycle-probe-attestation",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-17",
+  "status": "blocked-runtime-capability",
+  "runtime": {
+    "app_version": "1.4.184",
+    "state": "ready",
+    "graph_state": "ready",
+    "run_id_sha256": "00e42eb3b86ba80e344fb2a9edb0eac47099d80af78019fc0db9a53d4ad84ac1"
+  },
+  "model": {
+    "provider": "codex",
+    "model": "gpt-5.4",
+    "reasoning_effort": "low",
+    "execution_observed": true,
+    "sentinel_observed": true
+  },
+  "orchestration": {
+    "task_created": true,
+    "dispatch_attempts": 3,
+    "worker_model_outputs_observed": 3,
+    "worker_done_accepted": 0,
+    "worker_done_rejected": 3,
+    "failure_code": "dispatch_capability_invalid",
+    "hook_sha256": "8d026725a7249d92143d1a252315f8ccf9ba9b6887fbb2187983377fe12457bf",
+    "hook_scope": "Orca loopback lifecycle bridge",
+    "hook_trust_tested": ["disabled", "enabled_after-session-start", "enabled-before-session-start"],
+    "coordinator_fencing_observed": true,
+    "raw_model_output_persisted": false
+  },
+  "cleanup": {
+    "worker_terminals_stopped": 3,
+    "worker_resources_released": 3,
+    "coordinator_terminal_closed": true,
+    "workspace_mutated": false
+  },
+  "decision": "The current ORCA runtime launches and executes codex/gpt-5.4, but all three supervised Dispatch attempts reject authoritative worker_done with dispatch_capability_invalid. One worker also fenced the coordinator after attempting run-use as recovery. This is a reproducible lifecycle-capability blocker; ORCA remains excluded from technical and official collection until a fresh Dispatch can settle without manual recovery."
+}
