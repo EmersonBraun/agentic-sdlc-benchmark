@@ -109,7 +109,7 @@ class OrcaV12RoleExecutor:
             worker, worker_ms = self._create_ready_worker(run, request)
             overhead_ms += worker_ms
             self._workers[key] = worker
-            capture_cursor, cursor_ms = self._capture_cursor(worker, request)
+            capture_cursor, model_capture, cursor_ms = self._capture_baseline(worker, request)
             overhead_ms += cursor_ms
             dispatch_started = True
             dispatch_id, dispatch_ms = self._dispatch(run, task_id, worker, request)
@@ -127,6 +127,7 @@ class OrcaV12RoleExecutor:
             ), timeout_seconds=self._timeout(request, 65))
             overhead_ms += output_wait.duration_ms
             capture, capture_ms = self._read_terminal(worker, capture_cursor, request)
+            capture = model_capture + "\n" + capture
             overhead_ms += capture_ms
             durable_output = "\n".join(str(delivery.get(key, "")) for key in ("subject", "body"))
             self._verify(request, dispatch, delivery, capture, durable_output, sentinel)
@@ -370,17 +371,34 @@ class OrcaV12RoleExecutor:
         ), timeout_seconds=self._timeout(request, 30))
         return matched, checked.duration_ms + ack.duration_ms
 
-    def _capture_cursor(self, worker: str, request: NativeStepRequest) -> tuple[int, float]:
+    def _capture_baseline(
+        self, worker: str, request: NativeStepRequest,
+    ) -> tuple[int, str, float]:
         result = self.transport.run_json((
-            "terminal", "read", "--terminal", worker, "--limit", "1", "--json",
+            "terminal", "read", "--terminal", worker, "--limit", "1000", "--json",
         ), timeout_seconds=self._timeout(request, 30))
         terminal = self._nested(result.value, "result", "terminal")
+        if not isinstance(terminal, Mapping) or terminal.get("truncated") is True:
+            raise RuntimeError("ORCA model identity capture was truncated")
         raw_cursor = terminal.get("nextCursor") if isinstance(terminal, Mapping) else None
         try:
             cursor = int(str(raw_cursor))
         except (TypeError, ValueError):
             raise RuntimeError("ORCA terminal cursor missing")
-        return cursor, result.duration_ms
+        chunks: list[str] = []
+        for key in ("output", "text", "content", "lines", "tail"):
+            value = terminal.get(key)
+            if isinstance(value, str):
+                chunks.append(value)
+            elif isinstance(value, list):
+                chunks.append("\n".join(
+                    str(item.get("text", item)) if isinstance(item, Mapping) else str(item)
+                    for item in value
+                ))
+        capture = "\n".join(chunks)
+        if not capture:
+            raise RuntimeError("ORCA model identity capture missing")
+        return cursor, capture, result.duration_ms
 
     def _read_terminal(
         self, worker: str, cursor: int, request: NativeStepRequest,
