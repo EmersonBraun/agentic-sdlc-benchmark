@@ -1,6 +1,7 @@
 import sqlite3
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 from benchmark_controller.ao_evidence import (
@@ -13,7 +14,7 @@ from benchmark_controller.ao_evidence import (
 class AgentOrchestratorEvidenceTests(unittest.TestCase):
     def _database(self, root: Path, *, methods: list[str] | None = None) -> Path:
         database = root / "ao.db"
-        with sqlite3.connect(database) as connection:
+        with closing(sqlite3.connect(database)) as connection:
             connection.executescript(
                 """
                 CREATE TABLE conversations (
@@ -36,6 +37,7 @@ class AgentOrchestratorEvidenceTests(unittest.TestCase):
                 "INSERT INTO conversation_provider_events(session_id, conversation_id, method) VALUES ('s1', 'c1', ?)",
                 ((method,) for method in methods),
             )
+            connection.commit()
         return database
 
     def test_accepts_complete_redacted_gpt54_evidence(self) -> None:

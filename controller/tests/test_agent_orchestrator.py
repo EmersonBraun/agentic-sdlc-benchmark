@@ -44,12 +44,29 @@ class AgentOrchestratorAdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             adapter = self._adapter(root, permission_mode="approve-all")
-            adapter._json_command = lambda *args, **kwargs: {
-                "session": {"id": "session-1", "status": "working"}
-            }
+            snapshots = iter(
+                [
+                    {"session": {"id": "session-1", "status": "working"}},
+                    {"session": {"id": "session-1", "status": "terminated"}},
+                ]
+            )
+            adapter._json_command = lambda *args, **kwargs: next(snapshots)
             adapter.runtime.run = lambda *args, **kwargs: type("Result", (), {"returncode": 0})()
             snapshot = adapter.observe_session(project_id="code-10x", session_id="session-1")
             adapter.terminate_session(project_id="code-10x", session_id="session-1")
             self.assertEqual(snapshot["session"]["status"], "working")
             events = (root / "ledger.jsonl").read_text(encoding="utf-8")
             self.assertIn("session.state", events)
+
+    def test_termination_fails_closed_without_observed_terminal_state(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adapter = self._adapter(root, permission_mode="approve-all")
+            adapter._json_command = lambda *args, **kwargs: {
+                "session": {"id": "session-1", "status": "working"}
+            }
+            adapter.runtime.run = lambda *args, **kwargs: type("Result", (), {"returncode": 0})()
+            with self.assertRaisesRegex(RuntimeError, "not independently observed"):
+                adapter.terminate_session(
+                    project_id="code-10x", session_id="session-1", timeout_seconds=0.01
+                )

@@ -5,30 +5,31 @@
     "fixture_destroyed": true,
     "passed": true,
     "project_remove": {
-      "output_sha256": "db2ffcd45d917eb194d43a74f1cd7f7a44bdfb14b91b7f8a8a2ac17302a6d441",
+      "output_sha256": "937901b26c55eb5f26eafd516f6f85b5f962c62cfefabceff2f2e0a51dd6b868",
       "returncode": 0
     },
     "session_list": {
-      "output_sha256": "2bcbe46d1037d03307fbc589dce7bc2d7b3fb622f613dbb58e1922b02ea79f91",
+      "output_sha256": "89112b3e85aa1936299da73ba504e930b91e4682ba0609706f38e41c03ec2f77",
       "returncode": 0
     },
-    "session_schema_valid": true
+    "session_schema_valid": true,
+    "target_session_terminated": true
   },
   "commands": {
     "kill": {
-      "output_sha256": "a9d40bf781f10be5bd50e026251989d76f99cf9189a51cff162785f10eafd140",
+      "output_sha256": "93e79d74189ab9fa2c7acccdb4d87273694de1f4460d166e82674b2ea7d40439",
       "returncode": 0
     },
     "project_add": {
-      "output_sha256": "a9e4eaae92153c7ecee00751d05a439a09469f0b5cb116b1767a8b5015b14de4",
+      "output_sha256": "22774f8ffa18b124d78f99b7bc67e9f7ecaff9aa61f5a84bfc73c711ee1ccb28",
       "returncode": 0
     },
     "project_config": {
-      "output_sha256": "886928465ec609cc1531283ba719c23ebb1883cf0f6a9a3c9357f6e7535efcac",
+      "output_sha256": "9dd833217e5924e199a8b7958e21bc3081892cc435a0f8882be6eca35507ad43",
       "returncode": 0
     },
     "spawn": {
-      "output_sha256": "7c0da10be5756c8312c916c5cb708786ff4c4c7bb0ed930f4f2c88740e44dc40",
+      "output_sha256": "198331a962f65ab09acda96ea2430b1705bfa8f25e19ebb85a11baed6c39e6fc",
       "returncode": 0
     }
   },
@@ -36,6 +37,7 @@
   "configured_model": "gpt-5.4",
   "datastore_access": "read-only-redacted",
   "datastore_schema_sha256": "214250b58eb7163e32ad6e00ee2bb4e4605d7ec074bc0f9107bddb2c8f6b379f",
+  "fixture_tree_sha256": "7b264674c10546f32590196394b4cbf8bd824da3cdff1619432f1d39160a44df",
   "ledger_event_count": 4,
   "model_configuration_observed": true,
   "model_identity": {
@@ -46,10 +48,10 @@
       "openai"
     ],
     "identity_observed": true,
-    "native_rollout_sha256": "6991f10dcf39b0ff4ab12c27d7e7ade3eff007a3a03e48d44d34fcacbc1046db",
+    "native_rollout_sha256": "2a6fd04028bc56d128b61933cd5d162660c8f6869de72001f9d86f99cb15838a",
     "raw_content_in_attestation": false
   },
-  "observed_at": "2026-08-18T16:22:32.031127+00:00",
+  "observed_at": "2026-08-18T16:24:51.463156+00:00",
   "operator": "local-primary-operator",
   "permission_configuration_observed": true,
   "probe_command": [
@@ -58,13 +60,13 @@
     "controller/scripts/probe_agent_orchestrator_execution.py",
     "--confirm"
   ],
-  "probe_sha256": "8403d98fc549002358c3cb1b3ae79c0d2696e21b8066b25aab6eff2b3025932d",
+  "probe_sha256": "765d35796da338f85e39273954e89e0eeeac776d90276ecf9052565c9d8850f6",
   "provider_evidence": {
     "assistant_message_count": 1,
     "assistant_reply_sha256": "17fee59ddfe89443a0b73c0548f25656e4ffbf756806d9989f023bf3033b646c",
     "expected_reply_observed": true,
     "input_tokens_observed": 20255,
-    "output_tokens_observed": 40,
+    "output_tokens_observed": 28,
     "provider_event_sequence": [
       "turn.started",
       "message.completed",
@@ -79,14 +81,15 @@
   "schema_version": "agent-orchestrator-execution-attestation-v1.1",
   "session": {
     "model_execution_observed": true,
-    "session_id_sha256": "5648b2605d32477845c3496135da0d595591e35380b52080b287e62225d16426"
+    "session_id_sha256": "380d33ca8fe8761853b64b88c865c9c5f23305e83288004e11db3c90858c1b02"
   },
   "status": "passed",
   "workspace": {
     "clean": true,
+    "complete_tree_matches_fixture": true,
     "head_matches_fixture": true,
-    "path_sha256": "4a6019607df6de465a9f0b8e086e1bffdc90f76cfb54caad7090158db2eb9b10",
+    "path_sha256": "dcc58f2a93957d9a63918f6d11977a6289414a06207b2769e95b1ecb07c73bdb",
     "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
-  "workspace_commit_sha256": "e44059c8174e4b8a8551bdd24676857659ecd61427644f2eceda1609dacc3016"
+  "workspace_commit_sha256": "be226df0d4df6bec746362683d5ab56016fab11ac680e3e87ab9b94a168803fe"
 }

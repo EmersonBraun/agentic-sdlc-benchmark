@@ -62,6 +62,22 @@ def _command_record(code: int, output: str) -> dict[str, Any]:
     return {"returncode": code, "output_sha256": sha256_text(output)}
 
 
+def _tree_sha256(root: Path) -> str:
+    digest = hashlib.sha256()
+    for path in sorted(root.rglob("*")):
+        relative = path.relative_to(root)
+        if relative.parts and relative.parts[0] == ".git":
+            continue
+        digest.update(str(relative).encode("utf-8"))
+        if path.is_symlink():
+            digest.update(b"symlink\0" + str(path.readlink()).encode("utf-8"))
+        elif path.is_file():
+            digest.update(b"file\0" + path.read_bytes())
+        elif path.is_dir():
+            digest.update(b"dir\0")
+    return digest.hexdigest()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--confirm", action="store_true")
@@ -111,6 +127,8 @@ def main() -> int:
             ("git", "rev-parse", "HEAD"), cwd=fixture, check=True, capture_output=True, text=True
         ).stdout.strip()
         result["workspace_commit_sha256"] = sha256_text(fixture_commit)
+        fixture_tree_sha256 = _tree_sha256(fixture)
+        result["fixture_tree_sha256"] = fixture_tree_sha256
 
         ledger_path = root / "ledger.jsonl"
         observer = SessionLifecycleObserver(LifecycleBridge(Ledger(ledger_path, run_id="run_ao_execution_probe", task_id="pilot_session_parity"), tool="agent-orchestrator"))
@@ -175,8 +193,9 @@ def main() -> int:
                 "head_matches_fixture": head == fixture_commit,
                 "clean": status == "",
                 "status_sha256": sha256_text(status),
+                "complete_tree_matches_fixture": _tree_sha256(workspace) == fixture_tree_sha256,
             }
-            if status or head != fixture_commit:
+            if status or head != fixture_commit or not result["workspace"]["complete_tree_matches_fixture"]:
                 raise RuntimeError("AO execution workspace was mutated")
             code, output = _run("session", "kill", session_id, "-p", project_id)
             result["commands"]["kill"] = _command_record(code, output)
@@ -204,6 +223,10 @@ def main() -> int:
                 result["cleanup"]["active_session_leak_count"] = sum(
                     not bool(item.get("isTerminated")) for item in cleanup_sessions
                 )
+                target_sessions = [item for item in cleanup_sessions if item.get("id") == session_id]
+                result["cleanup"]["target_session_terminated"] = (
+                    len(target_sessions) == 1 and bool(target_sessions[0].get("isTerminated"))
+                )
             code, output = _run("project", "rm", project_id, "-y", "--json")
             result["cleanup"]["project_remove"] = _command_record(code, output)
             result["cleanup"]["fixture_destroyed"] = True
@@ -212,6 +235,7 @@ def main() -> int:
     cleanup_passed = (
         result["cleanup"].get("active_session_leak_count") == 0
         and result["cleanup"].get("session_schema_valid") is True
+        and result["cleanup"].get("target_session_terminated") is True
         and result["cleanup"].get("session_list", {}).get("returncode") == 0
         and result["cleanup"].get("project_remove", {}).get("returncode") == 0
     )

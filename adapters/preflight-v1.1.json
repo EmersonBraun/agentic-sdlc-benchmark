@@ -110,7 +110,7 @@
         "model_configuration": "accepted",
         "model_execution": "observed",
         "provider_events": ["turn.started", "message.completed", "usage", "turn.completed"],
-        "output_tokens_observed": 40,
+        "output_tokens_observed": 28,
         "raw_content_persisted": false,
         "active_session_leak_count": 0
       },

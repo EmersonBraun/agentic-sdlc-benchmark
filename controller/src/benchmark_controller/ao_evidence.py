@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 from typing import Any
 
@@ -22,7 +23,7 @@ def read_provider_evidence(database: Path, session_id: str, expected_reply: str)
     """Read only bounded metadata from AO's datastore; never return message content."""
 
     uri = f"file:{database}?mode=ro"
-    with sqlite3.connect(uri, uri=True) as connection:
+    with closing(sqlite3.connect(uri, uri=True)) as connection:
         conversation = connection.execute(
             "SELECT id FROM conversations WHERE session_id = ? ORDER BY updated_at DESC LIMIT 1",
             (session_id,),
@@ -43,17 +44,17 @@ def read_provider_evidence(database: Path, session_id: str, expected_reply: str)
             SELECT m.text
             FROM conversations c
             JOIN conversation_messages m ON m.conversation_id = c.id
-            WHERE c.session_id = ? AND m.role = 'assistant' AND m.streaming = 0
+            WHERE c.id = ? AND m.role = 'assistant' AND m.streaming = 0
             ORDER BY m.sequence
             """,
-            (session_id,),
+            (conversation_id,),
         ).fetchall()
         usage = connection.execute(
             """
             SELECT COALESCE(MAX(c.usage_input_tokens), 0), COALESCE(MAX(c.usage_output_tokens), 0)
-            FROM conversations c WHERE c.session_id = ?
+            FROM conversations c WHERE c.id = ?
             """,
-            (session_id,),
+            (conversation_id,),
         ).fetchone()
 
     assistant_text = str(messages[-1][0]).strip() if messages else ""
@@ -112,7 +113,7 @@ def read_codex_execution_identity(sessions_root: Path, provider_conversation_id:
 
 def read_session_metadata(database: Path, session_id: str) -> dict[str, Any]:
     uri = f"file:{database}?mode=ro"
-    with sqlite3.connect(uri, uri=True) as connection:
+    with closing(sqlite3.connect(uri, uri=True)) as connection:
         row = connection.execute(
             "SELECT provider_conversation_id, workspace_path FROM sessions WHERE id = ?",
             (session_id,),
