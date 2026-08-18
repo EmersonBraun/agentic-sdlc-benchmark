@@ -36,6 +36,21 @@ Failed worktrees remain available for audit. Successful worktrees are removed
 only after an independent verifier confirms every protocol quality gate;
 commits and public artifacts remain in the run bundle and Git history.
 
+### Protocol v1.2 native runner
+
+v1.2 reuses the controller-owned state machine but has a separate state schema
+and no harness factor. A clean worktree is verified at the frozen commit before
+the ADE starts. Codex planning produces an integrity-bound handoff file inside
+that worktree; Grok must acknowledge the exact digest before implementation can
+complete. AgentsKit ON similarly materializes public-only context in the same
+worktree and requires planner/executor acknowledgement. OFF rejects any such
+context as treatment contamination.
+
+Checkpoints are not permission to resume a measurement after process failure.
+They support bounded retries during one process and idempotent cleanup after a
+terminal state. Interrupted measurements remain invalid and are replaced by a
+new randomized run ID.
+
 ## Harnesses
 
 1. Reference Harness — neutral benchmark control.

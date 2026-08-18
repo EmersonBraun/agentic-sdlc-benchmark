@@ -98,8 +98,10 @@
   "scope": "live connectivity smoke only; not condition integration or effect evidence",
   "source_hashes": {
     "controller/src/benchmark_controller/v12_ade_backends.py": "2acd1e11ab20594f9eeae27a6edbe5e80c28d706c0964b56a6eab9c70e1087d0",
-    "controller/src/benchmark_controller/v12_execution.py": "dca271299096ce6c61adf9b61117c0530443a6ad6f495db4f01eff39266e6cb9",
+    "controller/src/benchmark_controller/v12_execution.py": "ee948ddbb1f4102f5b17dd481b527fb0babdad177e3608db47598468e6421d60",
     "controller/src/benchmark_controller/v12_integration.py": "776f847be18ace08d3e0acf78e288d3d8dd24ae74c8b36398a9ceed0a4ea54e8",
+    "controller/src/benchmark_controller/v12_native_backend.py": "1968ed150caba0b4e35ab8ee987e0932218c8abff11e34a0c00cb5144aca7e53",
+    "controller/src/benchmark_controller/v12_runner.py": "a5df4e970c659de28adb17a77c58fa62754fbf1e62d02b5b8e34050ca635403f",
     "protocol/conditions-v1.2.json": "56848248d1fc340b06f82259691a7330c86b66607c8bb6ce4ff2bd76524d4c1b",
     "protocol/model-policy-v1.2.json": "06ae2588391153991a7b953ee36603ba23735e967738f08472dd28a946c6c66f",
     "protocol/protocol-v1.2.md": "ca6d4518306cf4a875c39fb48f9f9b00d9428b9a7feca1cb65b8ecfc9da73b6b"
