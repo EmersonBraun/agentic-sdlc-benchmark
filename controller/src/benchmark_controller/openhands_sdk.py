@@ -109,6 +109,7 @@ class OpenHandsSDKAdapter:
         with tempfile.TemporaryDirectory(prefix="agentic-sdlc-openhands-command-") as directory:
             context = Path(directory)
             shutil.copytree(self.runtime.workspace, context / "workspace", ignore=shutil.ignore_patterns(*CONTEXT_IGNORED))
+            (context / "workspace" / "node_modules").symlink_to("/opt/product-node_modules", target_is_directory=True)
             image_probe = subprocess.run(("docker", "image", "inspect", RUNTIME_IMAGE), capture_output=True, text=True, check=False)
             if image_probe.returncode != 0:
                 raise RuntimeError("OpenHands runtime is not materialized; call prepare_runtime() with network permission")

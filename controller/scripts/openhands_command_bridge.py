@@ -20,7 +20,7 @@ def main() -> int:
         raise ValueError("command_json must encode non-empty argv strings")
     dependencies = Path("/opt/product-node_modules")
     workspace_dependencies = Path("/workspace/node_modules")
-    if dependencies.is_dir() and not workspace_dependencies.exists():
+    if dependencies.is_dir() and not workspace_dependencies.exists() and not workspace_dependencies.is_symlink():
         workspace_dependencies.symlink_to(dependencies, target_is_directory=True)
     workspace = LocalWorkspace(working_dir="/workspace")
     with workspace:
