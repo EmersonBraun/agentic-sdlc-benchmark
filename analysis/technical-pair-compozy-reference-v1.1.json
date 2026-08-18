@@ -1,0 +1,37 @@
+{
+  "schema_version": "technical-pair-v1.1",
+  "protocol_version": "v1.1",
+  "pair_id": "compozy-reference-agentskit-on-off-technical-1",
+  "status": "technical-pair-complete",
+  "analysis_eligible": false,
+  "controlled_factors": {
+    "ade": "compozy",
+    "harness": "reference",
+    "provider": "codex",
+    "model": "gpt-5.4",
+    "task_id": "pilot_greenfield_service_readiness",
+    "randomization_seed": 20260817,
+    "base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc"
+  },
+  "runs": {
+    "off": {
+      "run_id": "run_technical-compozy-reference-off-r5",
+      "terminal_state": "TECHNICAL_PASS",
+      "cleanup_verified": true,
+      "manifest_sha256": "14f6b5c112e7a5c4ff65a9d4a2be7cee4f11861277d2503aa7a8ef53a253fed5",
+      "attestation_sha256": "3a9fc836828d9995b5deebe2505501386bdb2f630648cce54a629896b0eba627"
+    },
+    "on": {
+      "run_id": "run_technical-compozy-reference-on-r1",
+      "terminal_state": "TECHNICAL_PASS",
+      "cleanup_verified": true,
+      "public_agentskit_only": true,
+      "agentskit_os_used": false,
+      "component_action_records": 6,
+      "native_external_components_executed": false,
+      "manifest_sha256": "c69190945dc2af8250af5cb3c286241d78ba1724d32c7b0fe4d59a360c7a2ce1",
+      "attestation_sha256": "5f43ca7a3125f1e484ee653297f950ebab2719929bed3cc87d8a0d0af98f2556"
+    }
+  },
+  "interpretation": "This single technical pair validates execution, isolation, cleanup, public AgentsKit contract wiring, and ON/OFF separation. The action records are benchmark-side bridge evidence, not native execution of external component repositories. It is excluded from official analysis and supports no quality, speed, cost, or causal-effect claim."
+}

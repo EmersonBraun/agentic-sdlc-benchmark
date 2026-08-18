@@ -40,7 +40,7 @@ The v1.1 Agent Orchestrator session recheck is [`agent-orchestrator-v1.1-session
 
 The v1.1 Compozy session recheck is [`compozy-v1.1-session-probe-attestation.json`](compozy-v1.1-session-probe-attestation.json). Exact `gpt-5.4` execution, isolated cleanup, and the live event-stream-to-redacted-ledger bridge pass; full cross-component semantic parity remains unverified.
 
-The pinned public AgentsKit v1.1 preflight is [`agentskit-v1.1-preflight-attestation.json`](agentskit-v1.1-preflight-attestation.json). Core, bridge, integrated fixture, and external offline checks pass without `agentskit-os`, provider, or session; model-backed ON parity remains intentionally unverified.
+The pinned public AgentsKit v1.1 preflight is [`agentskit-v1.1-preflight-attestation.json`](agentskit-v1.1-preflight-attestation.json). Core, bridge, integrated fixture, and external offline checks pass, and one excluded model-backed technical condition verifies public-only ON wiring. Official ON parity remains intentionally unverified.
 
 The cross-runtime model investigation is [`model-compatibility-v1.0.json`](model-compatibility-v1.0.json). `gpt-5.4` and `gpt-5.4-mini` execute in Compozy and the Codex CLI, but no replacement is adopted until the remaining ADE, harness, and AgentsKit parity is verified.
 

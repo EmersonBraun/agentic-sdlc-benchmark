@@ -27,7 +27,7 @@
   },
   "technical_pilot": {
     "status": "verified",
-    "allowed_conditions": ["compozy__reference__off"],
+    "allowed_conditions": ["compozy__reference__off", "compozy__reference__on"],
     "analysis_eligible": false,
     "evidence_refs": [
       "compozy-v1.1-session-probe-attestation.json",
@@ -37,15 +37,18 @@
       "../runs/run_technical-compozy-reference-off-r2/manifest.json",
       "../runs/run_technical-compozy-reference-off-r3/manifest.json",
       "../runs/run_technical-compozy-reference-off-r4/manifest.json",
-      "../runs/run_technical-compozy-reference-off-r5/manifest.json"
+      "../runs/run_technical-compozy-reference-off-r5/manifest.json",
+      "../runs/run_technical-compozy-reference-on-r1/manifest.json",
+      "../analysis/technical-pair-compozy-reference-v1.1.json"
     ],
     "execution": {
-      "attempts": 5,
-      "technical_passes": 2,
+      "attempts": 6,
+      "technical_passes": 3,
       "technical_failures": 3,
-      "latest_successful_run": "run_technical-compozy-reference-off-r5",
+      "latest_successful_run": "run_technical-compozy-reference-on-r1",
       "latest_cleanup_verified": true,
-      "official_observations_created": 0
+      "official_observations_created": 0,
+      "first_on_off_pair_complete": true
     },
     "evidence": {
       "same_task_and_acceptance_contract": "verified",
@@ -56,7 +59,7 @@
       "append_only_ledger": "verified",
       "no_fallback_resolution": "verified"
     },
-    "decision": "The preregistered Compozy × Reference Harness × AgentsKit OFF pipeline-validation pilot passed under the strengthened cleanup criterion on its fifth immutable attempt. All outputs remain excluded from official analysis and do not relax the 18/18 collection gate."
+    "decision": "The preregistered Compozy × Reference Harness technical pipeline passed with AgentsKit OFF and ON. The ON run used only public AgentsKit contracts, emitted six redacted benchmark-side component-action records, and passed isolation and cleanup checks. Native external-component runtimes were not executed. Both outputs remain excluded from official analysis; one technical pair supports wiring validation only and does not relax the 18/18 collection gate or support a performance claim."
   },
   "ade": {
     "orca": {
@@ -123,7 +126,7 @@
   },
   "agentskit": {
     "off": {"installed": true, "status": "contract-ready", "technical_pilot_status": "contract-ready", "evidence": {"neutral_control": "contract-tested"}},
-    "on": {"installed": true, "status": "installed-not-ready", "evidence": {"event_bridge": "live", "ledger_redaction": "live", "ledger_emission": "provider-free-only", "provider_backed_parity": "not-verified"}}
+    "on": {"installed": true, "status": "installed-not-ready", "technical_pilot_status": "installed-ready", "evidence": {"public_only": true, "agentskit_os_used": false, "event_bridge": "live", "ledger_redaction": "live", "ledger_emission": "technical-pilot-ready", "provider_backed_parity": "condition-scoped"}}
   },
   "evidence_refs": [
     "machine-inventory-v1.1.json",

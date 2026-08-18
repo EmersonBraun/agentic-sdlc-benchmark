@@ -33,7 +33,7 @@ class PilotGateTests(unittest.TestCase):
     def test_technical_gate_can_start_with_one_explicitly_ready_condition(self) -> None:
         preflight = {
             "protocol_version": "v1.1",
-            "technical_pilot": {"allowed_conditions": ["compozy__reference__off"]},
+            "technical_pilot": {"allowed_conditions": ["compozy__reference__off", "compozy__reference__on"]},
             "ade": {
                 "orca": {"status": "installed-not-ready"},
                 "agent-orchestrator": {"status": "installed-not-ready"},
@@ -46,15 +46,15 @@ class PilotGateTests(unittest.TestCase):
             },
             "agentskit": {
                 "off": {"status": "contract-ready"},
-                "on": {"status": "installed-not-ready"},
+                "on": {"status": "installed-not-ready", "technical_pilot_status": "installed-ready"},
             },
         }
         report = evaluate_pilot_gate(preflight, gate_mode="technical-pilot")
         self.assertTrue(report.can_start)
         self.assertEqual(report.gate_mode, "technical-pilot")
-        self.assertEqual(report.ready_conditions, 1)
+        self.assertEqual(report.ready_conditions, 2)
         ready = [condition.condition_id for condition in report.conditions if condition.ready]
-        self.assertEqual(ready, ["compozy__reference__off"])
+        self.assertEqual(ready, ["compozy__reference__off", "compozy__reference__on"])
 
     def test_published_condition_matrix_matches_current_gate(self) -> None:
         root = Path(__file__).resolve().parents[2]

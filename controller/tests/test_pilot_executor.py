@@ -106,9 +106,18 @@ class ConditionedPilotExecutorTests(unittest.TestCase):
         )
 
         self.assertEqual(prepared.condition.condition_id, "compozy__reference__off")
-        self.assertEqual(prepared.gate.ready_conditions, 1)
+        self.assertEqual(prepared.gate.ready_conditions, 2)
         self.assertEqual(prepared.plan.gate_mode, "technical-pilot")
         self.assertEqual(prepared.plan.ade.implementation_status, "installed-ready")
+
+        on = executor.prepare_condition(
+            run_id="run_technical-compozy-reference-on",
+            ade="compozy",
+            harness="reference",
+            agentskit="on",
+        )
+        self.assertEqual(on.condition.condition_id, "compozy__reference__on")
+        self.assertEqual(on.plan.agentskit.implementation_status, "installed-ready")
 
         with self.assertRaisesRegex(PilotNotReadyError, "not preregistered|blocked"):
             executor.prepare_condition(
