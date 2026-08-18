@@ -1,0 +1,40 @@
+{
+  "schema_version": "orca-lifecycle-observation-v1.1",
+  "observed_at": "2026-08-18T17:34:14Z",
+  "runtime_version": "1.4.184",
+  "runtime_ready": true,
+  "graph_ready": true,
+  "model": "gpt-5.4",
+  "reasoning_effort": "medium",
+  "terminal_wait": {
+    "condition": "tui-idle",
+    "satisfied": true,
+    "status": "running"
+  },
+  "dispatch": {
+    "id_sha256": "e8ca3c00e01a6ef4f2a8ceaac41ea4340292ef6b68b38d03043ed9938d199f56",
+    "capability_hash": "e3a82f7530fb2e4687e1c8441b1fcbd79e587a4a30ccce54a7c564a08ee96414",
+    "status": "completed",
+    "failure_count": 0,
+    "capability_revoked": true
+  },
+  "delivery": {
+    "type": "worker_done",
+    "outcome": "succeeded",
+    "task_id_sha256": "daa5eda4dd9733b20d0cd2f2dc79f623392dcd97264be58b8bddd87d70e573e9",
+    "dispatch_id_sha256": "e8ca3c00e01a6ef4f2a8ceaac41ea4340292ef6b68b38d03043ed9938d199f56",
+    "acknowledged": true
+  },
+  "cleanup": {
+    "worker_connected": false,
+    "coordinator_connected": false,
+    "live_probe_terminals": 0,
+    "workspace_tree_unchanged": true
+  },
+  "redaction": {
+    "raw_prompt_persisted": false,
+    "raw_model_output_persisted": false,
+    "dispatch_capability_persisted": false,
+    "identifiers_hashed": true
+  }
+}

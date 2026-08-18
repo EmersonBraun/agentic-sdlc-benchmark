@@ -44,9 +44,12 @@
     "ledger": "orca-v1.1-lifecycle-probe-ledger-5.jsonl",
     "ledger_sha256": "8ed7111030b4b6a15c9ee27ac9a12477bd3a15820169ddc1a517ae9f5b1407e9",
     "ledger_event_count": 8,
-    "orca_adapter_source_sha256": "907ab6b8b3b2dd3407a3dfb9eb2c49463591f83276dd3e2449fef0b42475b6c4",
+    "orca_adapter_source_sha256": "6be60b7c18228d012ce319f80db6e15b23669ab641e4f0470428184463ee4db6",
     "ade_registry_source_sha256": "c1280a1e2a174a966ec59aac4fbbe103c189fdd30ada31a403ac220b4af89000",
     "descriptor_source_sha256": "ab67a7b7b4fc5cba9b6ef8440a96232026eca190425fd340e74d16d82d266a67",
+    "probe_source_sha256": "c7c2424b6cfdafeb989b5358ba0a12f7e0a89f90688b430e819a073ddd204ea4",
+    "observation": "orca-v1.1-lifecycle-observation-5.json",
+    "observation_sha256": "d2244dec190041e87f94749c0dcd85efefee638ae0d18578a46f0385c24b86f6",
     "raw_model_output_published": false,
     "public_evidence_is_redacted": true
   },

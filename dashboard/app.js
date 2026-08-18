@@ -82,7 +82,7 @@ function renderConditions(report, filter = "all") {
   }).join("");
 }
 
-function renderReadiness(preflight, report) {
+function renderReadiness(preflight, report, execution) {
   const total = report.conditions?.length || 18;
   const ready = report.ready_conditions ?? 0;
   const blocked = report.blocked_conditions ?? total - ready;
@@ -90,9 +90,10 @@ function renderReadiness(preflight, report) {
   $("#ready-count").textContent = ready;
   $("#condition-count").textContent = total;
   $("#blocked-count").textContent = blocked;
-  $("#decision-title").textContent = report.can_start ? "Collection can start." : "Collection is fail-closed.";
-  $("#decision-copy").textContent = report.can_start ? "Every factor is ready and the run manifest can be prepared." : "Preflight evidence is visible here. No benchmark run is counted until every factor passes the readiness gate.";
-  $("#decision-status").textContent = report.can_start ? "Pilot ready" : "Pilot blocked";
+  const collectionReady = execution.can_start_official_collection === true;
+  $("#decision-title").textContent = collectionReady ? "Collection can start." : "Collection is fail-closed.";
+  $("#decision-copy").textContent = collectionReady ? "Every component and the global semantic-parity gate are verified." : report.can_start ? "All component combinations are ready, but the global semantic-parity gate still blocks official collection." : "Preflight evidence is visible here. No benchmark run is counted until every factor passes the readiness gate.";
+  $("#decision-status").textContent = collectionReady ? "Pilot ready" : "Pilot blocked";
   $("#dataset-label").textContent = `preflight-${report.protocol_version || "v1.1"}`;
   renderComponents(preflight);
   renderConditions(report);
@@ -154,7 +155,7 @@ const [preflight, report, results, execution] = await Promise.all([
   loadJson(SOURCES.execution, "execution"),
 ]);
 
-renderReadiness(preflight, report);
+renderReadiness(preflight, report, execution);
 renderResults(results);
 renderExecutionReadiness(execution);
 $("#ade-filter").addEventListener("change", (event) => renderConditions(report, event.target.value));
