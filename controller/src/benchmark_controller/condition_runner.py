@@ -371,7 +371,15 @@ class ComposedConditionRunner:
         return ExecutionOutcome("MERGED", tuple(artifacts))
 
     def _verify(self, context: StepContext, proof: Mapping[str, Any], *, phase: str) -> bool:
+        ledger_lines_before = self._ledger_line_count(context.bundle)
         decision = bool(self.verifier.verify(context, proof))
+        accounting_valid = self._has_backend_timing_evidence(
+            context.bundle,
+            ledger_lines_before,
+            step=ConditionStep(phase, "review" if phase == "pre-merge" else "merge", "evaluator"),
+            accounting_tool=context.accounting_tool,
+        )
+        decision = decision and accounting_valid
         context.bundle.ledger.record(
             stage_id="review" if phase == "pre-merge" else "merge",
             actor="evaluator",
@@ -440,7 +448,6 @@ class ComposedConditionRunner:
                 payload={"step": step.name, "attempt": attempt, "condition_id": assignment.condition_id},
                 tool=f"condition-runner:{assignment.ade}:{assignment.harness}:{assignment.agentskit}",
             )
-            explicit_exception = False
             try:
                 started = time.monotonic_ns()
                 ledger_lines_before = self._ledger_line_count(bundle)
@@ -461,12 +468,10 @@ class ComposedConditionRunner:
                     raise TypeError("condition backend must return StepResult")
             except RetryableConditionError as exc:
                 result = StepResult.retry(type(exc).__name__)
-                explicit_exception = True
             except Exception as exc:
                 result = StepResult("invalid-measurement", reason=type(exc).__name__)
-                explicit_exception = True
             duration_ms = (time.monotonic_ns() - started) / 1_000_000
-            if not explicit_exception and not self._has_backend_timing_evidence(
+            if not self._has_backend_timing_evidence(
                 bundle, ledger_lines_before, step=step, accounting_tool=(
                     f"condition-accounting:{assignment.run_id}:{step.name}:{attempt}"
                 )
@@ -740,8 +745,11 @@ class ComposedConditionRunner:
             ):
                 observed.add(str(event["event_type"]))
                 if event["event_type"] == "backend.attempt.effective-work":
-                    accounting_complete = isinstance(event.get("tokens"), Mapping) and isinstance(
-                        event.get("cost_usd"), (int, float)
+                    tokens = event.get("tokens")
+                    accounting_complete = (
+                        isinstance(tokens, Mapping)
+                        and set(tokens) == {"input", "output", "cached", "reasoning"}
+                        and isinstance(event.get("cost_usd"), (int, float))
                     )
         return observed == {
             "backend.attempt.effective-work",

@@ -98,6 +98,23 @@ class _Verifier:
     enforces_deadline = True
 
     def verify(self, context, proof):
+        stage = "review" if "pre-merge" in context.idempotency_key else "merge"
+        for event_type, category in (
+            ("backend.attempt.effective-work", "effective_work"),
+            ("backend.attempt.external-wait", "external_wait"),
+        ):
+            context.bundle.ledger.record(
+                stage_id=stage,
+                actor="evaluator",
+                event_type=event_type,
+                time_category=category,
+                duration_ms=0,
+                status="completed",
+                payload={},
+                tool=context.accounting_tool,
+                tokens={"input": 0, "output": 0, "cached": 0, "reasoning": 0} if category == "effective_work" else None,
+                cost_usd=0 if category == "effective_work" else None,
+            )
         return True
 
 
@@ -173,6 +190,7 @@ class ComposedConditionRunnerTests(unittest.TestCase):
             enforces_deadline = True
 
             def verify(self, context, proof):
+                _Verifier().verify(context, proof)
                 return False
 
         with tempfile.TemporaryDirectory() as directory:
