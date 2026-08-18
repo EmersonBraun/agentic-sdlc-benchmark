@@ -53,21 +53,25 @@ def evaluate_pilot_gate(
     """
 
     protocol_version = str(preflight.get("protocol_version", ""))
-    if protocol_version not in {"v1.0", "v1.1"}:
+    if protocol_version not in {"v1.0", "v1.1", "v1.2"}:
         raise ValueError("Pilot preflight must target a supported protocol version")
     if gate_mode not in {"technical-pilot", "official-collection"}:
         raise ValueError(f"Unsupported gate mode: {gate_mode!r}")
     status_key = "technical_pilot_status" if gate_mode == "technical-pilot" else "status"
     technical = preflight.get("technical_pilot", {})
     allowed_conditions = set(technical.get("allowed_conditions", [])) if isinstance(technical, dict) else set()
-    factor_documents = {
+    factor_documents: dict[str, Any] = {
         "ade": preflight.get("ade", {}),
-        "harness": preflight.get("harness", {}),
         "agentskit": preflight.get("agentskit", {}),
     }
+    if protocol_version != "v1.2":
+        factor_documents["harness"] = preflight.get("harness", {})
     readiness: list[ConditionReadiness] = []
-    for ade, harness, agentskit in product(EXPECTED_ADE, EXPECTED_HARNESSES, EXPECTED_AGENTSKIT):
-        selections = {"ade": ade, "harness": harness, "agentskit": agentskit}
+    harnesses: tuple[str | None, ...] = tuple(EXPECTED_HARNESSES) if protocol_version != "v1.2" else (None,)
+    for ade, harness, agentskit in product(EXPECTED_ADE, harnesses, EXPECTED_AGENTSKIT):
+        selections = {"ade": ade, "agentskit": agentskit}
+        if harness is not None:
+            selections["harness"] = harness
         statuses = {
             factor: factor_documents[factor].get(value, {}).get(
                 status_key,
@@ -80,7 +84,7 @@ def evaluate_pilot_gate(
             for factor, value in selections.items()
             if statuses[factor] not in READY_STATUSES
         ]
-        condition_id = f"{ade}__{harness}__{agentskit}"
+        condition_id = f"{ade}__{harness}__{agentskit}" if harness else f"{ade}__{agentskit}"
         if gate_mode == "technical-pilot" and condition_id not in allowed_conditions:
             missing_items.append("technical-pilot:not-preregistered")
         missing = tuple(missing_items)

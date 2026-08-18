@@ -1,4 +1,4 @@
-"""Deterministic pilot scheduling for the frozen 18-condition matrix."""
+"""Deterministic pilot scheduling for versioned condition matrices."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ class MatrixAssignment:
     product_id: str
     condition_id: str
     ade: str
-    harness: str
+    harness: str | None
     agentskit: str
     replicate: int
     randomization_seed: int
@@ -35,6 +35,7 @@ def build_pilot_schedule(
     product_id: str,
     seed: int,
     replicate_count: int = 1,
+    protocol_version: str = "v1.1",
 ) -> tuple[MatrixAssignment, ...]:
     """Return a seeded schedule without invoking an ADE, harness, or model."""
 
@@ -47,21 +48,28 @@ def build_pilot_schedule(
     if not isinstance(replicate_count, int) or isinstance(replicate_count, bool) or replicate_count < 1:
         raise ValueError("replicate_count must be a positive integer")
 
+    if protocol_version not in {"v1.0", "v1.1", "v1.2"}:
+        raise ValueError(f"Unsupported protocol version: {protocol_version!r}")
+    harnesses: list[str | None] = sorted(EXPECTED_HARNESSES) if protocol_version != "v1.2" else [None]
     conditions = [
         (ade, harness, agentskit)
         for ade in sorted(EXPECTED_ADE)
-        for harness in sorted(EXPECTED_HARNESSES)
+        for harness in harnesses
         for agentskit in sorted(EXPECTED_AGENTSKIT)
     ]
     random.Random(seed).shuffle(conditions)
     assignments: list[MatrixAssignment] = []
     for order, (ade, harness, agentskit) in enumerate(conditions, 1):
-        condition_id = f"{ade}__{harness}__{agentskit}"
+        condition_id = f"{ade}__{harness}__{agentskit}" if harness else f"{ade}__{agentskit}"
+        run_factors = f"{ade}_{harness}_{agentskit}" if harness else f"{ade}_{agentskit}"
         for replicate in range(1, replicate_count + 1):
             assignments.append(
                 MatrixAssignment(
                     order=order,
-                    run_id=f"run_v11_pilot_{ade}_{harness}_{agentskit}_r{replicate:02d}",
+                    run_id=(
+                        f"run_{protocol_version.replace('.', '')}_{task_id}_{product_id}_"
+                        f"s{seed}_{run_factors}_r{replicate:02d}"
+                    ),
                     task_id=task_id,
                     product_id=product_id,
                     condition_id=condition_id,

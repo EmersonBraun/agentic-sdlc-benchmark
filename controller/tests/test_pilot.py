@@ -65,3 +65,21 @@ class PilotGateTests(unittest.TestCase):
         self.assertEqual(snapshot["ready_conditions"], report.ready_conditions)
         self.assertEqual(snapshot["blocked_conditions"], report.blocked_conditions)
         self.assertEqual(len(snapshot["conditions"]), 18)
+
+    def test_v12_gate_has_six_conditions_and_no_harness_status(self) -> None:
+        preflight = {
+            "protocol_version": "v1.2",
+            "technical_pilot": {
+                "allowed_conditions": [
+                    f"{ade}__{agentskit}"
+                    for ade in ("orca", "agent-orchestrator", "compozy")
+                    for agentskit in ("off", "on")
+                ]
+            },
+            "ade": {key: {"technical_pilot_status": "installed-ready"} for key in ("orca", "agent-orchestrator", "compozy")},
+            "agentskit": {key: {"technical_pilot_status": "contract-ready"} for key in ("off", "on")},
+        }
+        report = evaluate_pilot_gate(preflight, gate_mode="technical-pilot")
+        self.assertTrue(report.can_start)
+        self.assertEqual(report.ready_conditions, 6)
+        self.assertTrue(all(set(item.factor_statuses) == {"ade", "agentskit"} for item in report.conditions))

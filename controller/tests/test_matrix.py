@@ -32,3 +32,17 @@ class MatrixScheduleTests(unittest.TestCase):
     def test_non_pilot_task_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "pilot task"):
             build_pilot_schedule(task_id="main_task", product_id="greenfield", seed=1)
+
+    def test_v12_schedule_has_six_conditions_without_harness_factor(self) -> None:
+        schedule = build_pilot_schedule(
+            task_id="pilot_greenfield_service_readiness",
+            product_id="greenfield",
+            seed=20260818,
+            protocol_version="v1.2",
+        )
+        self.assertEqual(len(schedule), 6)
+        self.assertTrue(all(item.harness is None for item in schedule))
+        self.assertEqual(
+            {item.condition_id for item in schedule},
+            {f"{ade}__{agentskit}" for ade in {"orca", "agent-orchestrator", "compozy"} for agentskit in {"off", "on"}},
+        )

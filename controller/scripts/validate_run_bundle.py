@@ -50,7 +50,8 @@ def validate_bundle(directory: Path, tasks_root: Path, protocol: str) -> list[st
     }
     for key in sorted(required - set(manifest)):
         _error(errors, manifest_path, f"missing {key}")
-    if manifest.get("schema_version") != "1.1" or manifest.get("protocol_version") != protocol:
+    expected_schema = "1.2" if protocol == "v1.2" else "1.1"
+    if manifest.get("schema_version") != expected_schema or manifest.get("protocol_version") != protocol:
         _error(errors, manifest_path, "protocol/schema mismatch")
     run_id = manifest.get("run_id")
     task_id = manifest.get("task_id")
