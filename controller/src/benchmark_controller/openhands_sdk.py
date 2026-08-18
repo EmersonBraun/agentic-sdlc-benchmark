@@ -29,6 +29,7 @@ class OpenHandsSDKAdapter:
         self.descriptor: ComponentDescriptor = HARNESS_DESCRIPTORS["openhands-sdk"]
         self.runtime = ControlledAdapter(workspace, ledger, permission_mode=permission_mode)
         self._root = Path(__file__).resolve().parents[3]
+        self.runtime_image_id: str | None = None
 
     def assert_ready(self) -> None:
         if self.descriptor.implementation_status not in {"contract-ready", "installed-ready"}:
@@ -71,6 +72,7 @@ class OpenHandsSDKAdapter:
         )
         if built.returncode != 0 or not image_id.startswith("sha256:"):
             raise RuntimeError("OpenHands runtime materialization failed")
+        self.runtime_image_id = image_id
         return image_id
 
     def run_command(
@@ -110,8 +112,8 @@ class OpenHandsSDKAdapter:
             context = Path(directory)
             shutil.copytree(self.runtime.workspace, context / "workspace", ignore=shutil.ignore_patterns(*CONTEXT_IGNORED))
             (context / "workspace" / "node_modules").symlink_to("/opt/product-node_modules", target_is_directory=True)
-            image_probe = subprocess.run(("docker", "image", "inspect", RUNTIME_IMAGE), capture_output=True, text=True, check=False)
-            if image_probe.returncode != 0:
+            image_probe = subprocess.run(("docker", "image", "inspect", RUNTIME_IMAGE, "--format", "{{.Id}}"), capture_output=True, text=True, check=False)
+            if self.runtime_image_id is None or image_probe.returncode != 0 or image_probe.stdout.strip() != self.runtime_image_id:
                 raise RuntimeError("OpenHands runtime is not materialized; call prepare_runtime() with network permission")
             run = ["docker", "create", "--name", container]
             if access != "network":

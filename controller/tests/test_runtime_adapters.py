@@ -44,6 +44,7 @@ class RuntimeAdapterRegistryTests(unittest.TestCase):
             root = Path(directory)
             ledger = Ledger(root / "ledger.jsonl", run_id="run_openhands_mock", task_id="pilot_smoke")
             harness = build_harness_adapter("openhands-sdk", root / "workspace", ledger, permission_mode="approve-all")
+            harness.runtime_image_id = "sha256:test"
 
             def fake_run(command, **kwargs):
                 argv = tuple(command)
