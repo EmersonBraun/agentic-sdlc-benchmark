@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "protocol_version": "v1.2",
+  "model_policy": "model-policy-v1.2.json",
+  "factors": {
+    "ade": ["orca", "agent-orchestrator", "compozy"],
+    "agentskit": ["off", "on"]
+  },
+  "controlled_constants": {
+    "planner_requirements_lead": "codex-cli",
+    "executor_fixer": "grok-cli",
+    "independent_harness_factor": false
+  },
+  "conditions": [
+    {"condition_id":"orca__off","ade":"orca","agentskit":"off"},
+    {"condition_id":"orca__on","ade":"orca","agentskit":"on"},
+    {"condition_id":"agent-orchestrator__off","ade":"agent-orchestrator","agentskit":"off"},
+    {"condition_id":"agent-orchestrator__on","ade":"agent-orchestrator","agentskit":"on"},
+    {"condition_id":"compozy__off","ade":"compozy","agentskit":"off"},
+    {"condition_id":"compozy__on","ade":"compozy","agentskit":"on"}
+  ]
+}

@@ -60,3 +60,12 @@ tests, and ledger rules unchanged. The revision is approved because the
 provider rejected the v1.0 planner `gpt-5.3-codex` during a controlled ORCA
 probe. v1.0 and v1.1 results must never be pooled as if model topology were
 unchanged.
+
+## D-015 — Protocol v1.2 factor reduction
+
+Create a separate v1.2 cohort with three ADEs and AgentsKit ON/OFF, yielding
+six primary conditions. Remove third-party harnesses as an independent factor;
+Codex CLI planning/orchestration and Grok CLI execution are fixed controlled
+roles, and their native agent loops may be used. Preserve v1.0/v1.1 as
+historical protocols and never pool their observations with v1.2 as though the
+factor structure were unchanged.
