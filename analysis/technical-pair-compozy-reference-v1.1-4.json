@@ -1,0 +1,41 @@
+{
+  "schema_version": "technical-pair-v1.1",
+  "protocol_version": "v1.1",
+  "pair_id": "compozy-reference-agentskit-on-off-technical-4",
+  "status": "technical-pair-complete",
+  "analysis_eligible": false,
+  "controlled_factors": {
+    "ade": "compozy",
+    "harness": "reference",
+    "provider": "codex",
+    "model": "gpt-5.4",
+    "task_id": "pilot_greenfield_service_readiness",
+    "randomization_seed": 20260817,
+    "base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc"
+  },
+  "runs": {
+    "off": {
+      "run_id": "run_technical-compozy-reference-off-r5",
+      "terminal_state": "TECHNICAL_PASS",
+      "cleanup_verified": true,
+      "manifest_sha256": "14f6b5c112e7a5c4ff65a9d4a2be7cee4f11861277d2503aa7a8ef53a253fed5",
+      "attestation_sha256": "3a9fc836828d9995b5deebe2505501386bdb2f630648cce54a629896b0eba627"
+    },
+    "on": {
+      "run_id": "run_technical-compozy-reference-on-r6",
+      "terminal_state": "TECHNICAL_PASS",
+      "cleanup_verified": true,
+      "public_agentskit_only": true,
+      "agentskit_os_used": false,
+      "component_action_records": 6,
+      "native_external_components_executed": true,
+      "native_components": ["doc-bridge", "playbook", "code-review"],
+      "native_provenance_verified": true,
+      "runtimes_materialized_from_lockfiles": true,
+      "effective_work_deduplicated": true,
+      "manifest_sha256": "fec55bf63117e490fcc2828ec7c51dd059a375fd9fdb7f2303dac280322d53a0",
+      "attestation_sha256": "33813fbf67840d4546a1f0187a6ecb13a97a01b5d53c5a07727b31e8a7d124ca"
+    }
+  },
+  "interpretation": "This technical pair validates execution, exact public repository provenance, clean pinned revisions, lockfile materialization of ignored artifacts, isolation, cleanup, native AgentsKit integration, ON/OFF separation, and non-duplicated effective-work accounting. It is excluded from official analysis and supports no quality, speed, cost, or causal-effect claim."
+}

@@ -43,15 +43,17 @@
       "../runs/run_technical-compozy-reference-on-r3/manifest.json",
       "../runs/run_technical-compozy-reference-on-r4/manifest.json",
       "../runs/run_technical-compozy-reference-on-r5/manifest.json",
+      "../runs/run_technical-compozy-reference-on-r6/manifest.json",
       "../analysis/technical-pair-compozy-reference-v1.1.json",
       "../analysis/technical-pair-compozy-reference-v1.1-2.json",
-      "../analysis/technical-pair-compozy-reference-v1.1-3.json"
+      "../analysis/technical-pair-compozy-reference-v1.1-3.json",
+      "../analysis/technical-pair-compozy-reference-v1.1-4.json"
     ],
     "execution": {
-      "attempts": 10,
-      "technical_passes": 7,
+      "attempts": 11,
+      "technical_passes": 8,
       "technical_failures": 3,
-      "latest_successful_run": "run_technical-compozy-reference-on-r5",
+      "latest_successful_run": "run_technical-compozy-reference-on-r6",
       "latest_cleanup_verified": true,
       "official_observations_created": 0,
       "first_on_off_pair_complete": true
@@ -167,6 +169,7 @@
     "agentskit-v1.1-component-readiness-attestation.json",
     "agentskit-v1.1-contract-recheck-attestation.json",
     "../analysis/technical-pair-compozy-reference-v1.1-2.json",
-    "../analysis/technical-pair-compozy-reference-v1.1-3.json"
+    "../analysis/technical-pair-compozy-reference-v1.1-3.json",
+    "../analysis/technical-pair-compozy-reference-v1.1-4.json"
   ]
 }

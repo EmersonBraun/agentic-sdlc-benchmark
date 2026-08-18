@@ -97,6 +97,8 @@ class AgentsKitComponentReadinessTests(unittest.TestCase):
         for component in pilot_attestations["on"]["agentskit"]["components"].values():
             self.assertTrue(component["provenance_verified"])
             self.assertTrue(component["working_tree_clean"])
+            self.assertTrue(component["materialized_from_lockfile"])
+            self.assertEqual(len(component["executable_sha256"]), 64)
             self.assertTrue(component["repository"].startswith("https://github.com/AgentsKit-io/"))
         self.assertNotIn("agentskit_os", " ".join(manifests["on"]["component_versions"]))
         self.assertFalse(attestation["source"]["agentskit_os_used"])

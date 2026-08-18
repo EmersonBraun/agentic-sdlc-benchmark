@@ -40,9 +40,13 @@
     {
       "path": "runs/run_technical-compozy-reference-on-r5/manifest.json",
       "reason": "technical_pilot"
+    },
+    {
+      "path": "runs/run_technical-compozy-reference-on-r6/manifest.json",
+      "reason": "technical_pilot"
     }
   ],
-  "generated_at": "2026-08-18T12:48:26.903378-03:00",
+  "generated_at": "2026-08-18T12:56:38.022335-03:00",
   "invalid_runs": [],
   "metrics": {
     "effective_work_hours": {
@@ -82,7 +86,7 @@
   "status": "no-results",
   "summary": {
     "evaluated_runs": 0,
-    "excluded_runs": 10,
+    "excluded_runs": 11,
     "invalid_runs": 0,
     "quality_pass_count": 0,
     "runs": 0

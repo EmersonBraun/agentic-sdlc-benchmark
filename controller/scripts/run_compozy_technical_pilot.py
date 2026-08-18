@@ -129,6 +129,44 @@ def _verify_public_checkout(name: str, source: Path) -> dict[str, Any]:
     }
 
 
+def _materialize_public_runtime(name: str, source: Path, executable: Path) -> dict[str, Any]:
+    commands = {
+        "doc_bridge": (
+            ("pnpm", "install", "--frozen-lockfile", "--ignore-scripts"),
+            ("pnpm", "build"),
+        ),
+        "playbook": (
+            ("pnpm", "install", "--frozen-lockfile", "--ignore-scripts"),
+            ("pnpm", "test:playbook-package"),
+        ),
+        "code_review": (
+            ("npm", "ci", "--ignore-scripts"),
+            ("npm", "run", "build"),
+        ),
+    }[name]
+    command_evidence = []
+    for command in commands:
+        code, output, duration = _run(*command, timeout=600, cwd=source)
+        command_evidence.append({
+            "argv_sha256": _sha256(json.dumps(command, separators=(",", ":"))),
+            "output_sha256": _sha256(output),
+            "duration_ms": duration,
+            "returncode": code,
+        })
+        if code != 0:
+            raise RuntimeError(f"native_{name}_materialization_failed")
+    if not executable.is_file():
+        raise RuntimeError(f"native_{name}_executable_missing_after_materialization")
+    code, tracked_status, _ = _run("git", "status", "--porcelain", "--untracked-files=no", cwd=source)
+    if code != 0 or tracked_status.strip():
+        raise RuntimeError(f"native_{name}_materialization_modified_tracked_source")
+    return {
+        "materialized_from_lockfile": True,
+        "executable_sha256": _sha256(executable.read_bytes()),
+        "materialization_commands": command_evidence,
+    }
+
+
 def _run_native_agentskit(
     native_root: Path,
     fixture: Path,
@@ -144,14 +182,17 @@ def _run_native_agentskit(
         playbook / "packages" / "playbook" / "bin" / "agents-playbook.mjs",
         code_review / "dist" / "src" / "cli.js",
     )
-    if not all(path.is_file() for path in required):
-        raise RuntimeError("native_agentskit_runtime_missing")
-
     components: dict[str, Any] = {}
     for name, source in (("doc_bridge", doc_bridge), ("playbook", playbook), ("code_review", code_review)):
         provenance = _verify_public_checkout(name, source)
         manifest = json.loads((source / "package.json").read_text(encoding="utf-8"))
-        components[name] = {**provenance, "version": manifest["version"]}
+        executable = {
+            "doc_bridge": required[0],
+            "playbook": required[1],
+            "code_review": required[2],
+        }[name]
+        materialization = _materialize_public_runtime(name, source, executable)
+        components[name] = {**provenance, **materialization, "version": manifest["version"]}
 
     evidence: dict[str, Any] = {
         "native_external_components_executed": True,

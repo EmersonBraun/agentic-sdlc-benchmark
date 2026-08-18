@@ -7,10 +7,25 @@ from unittest.mock import patch
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from run_compozy_technical_pilot import _verify_public_checkout  # noqa: E402
+from run_compozy_technical_pilot import _materialize_public_runtime, _verify_public_checkout  # noqa: E402
 
 
 class AgentsKitProvenanceTests(unittest.TestCase):
+    @patch("run_compozy_technical_pilot._run")
+    def test_materializes_ignored_artifact_from_lockfile_before_execution(self, run) -> None:
+        run.side_effect = [(0, "installed", 2), (0, "built", 3), (0, "", 1)]
+        with self.subTest("code-review"):
+            import tempfile
+
+            with tempfile.TemporaryDirectory() as directory:
+                executable = Path(directory) / "dist" / "src" / "cli.js"
+                executable.parent.mkdir(parents=True)
+                executable.write_text("export const built = true;\n")
+                evidence = _materialize_public_runtime("code_review", Path(directory), executable)
+        self.assertTrue(evidence["materialized_from_lockfile"])
+        self.assertEqual(len(evidence["materialization_commands"]), 2)
+        self.assertEqual(len(evidence["executable_sha256"]), 64)
+
     @patch("run_compozy_technical_pilot._run")
     def test_accepts_only_exact_clean_public_checkout(self, run) -> None:
         run.side_effect = [
