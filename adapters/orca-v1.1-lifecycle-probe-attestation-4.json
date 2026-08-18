@@ -27,7 +27,9 @@
     "hook_scope": "Orca loopback lifecycle bridge",
     "hook_trust_tested": ["disabled", "enabled_after-session-start", "enabled-before-session-start"],
     "coordinator_fencing_observed": true,
-    "raw_model_output_persisted": false
+    "raw_model_output_published": false,
+    "runtime_transcript_retained_locally": true,
+    "public_evidence_is_redacted": true
   },
   "cleanup": {
     "worker_terminals_stopped": 3,
