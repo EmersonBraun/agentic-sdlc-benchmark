@@ -98,10 +98,10 @@ class OrcaAdapter:
             stage_id="planning", access="write",
         )
 
-    def dispatch_to_ready_terminal(
+    def _dispatch_to_ready_terminal(
         self, *, task_id: str, terminal_handle: str, coordinator_handle: str
     ) -> dict[str, Any]:
-        """Inject only after the caller has obtained terminal wait tui-idle=true."""
+        """Private primitive used only after adapter-verified TUI readiness."""
         self._assert_ready()
         if not all((task_id, terminal_handle, coordinator_handle)):
             raise ValueError("task_id, terminal_handle, and coordinator_handle must be non-empty")
@@ -125,8 +125,9 @@ class OrcaAdapter:
         self._assert_ready()
         if not all((task_id, coordinator_handle, agent_command, title)) or timeout_ms <= 0:
             raise ValueError("ready dispatch requires non-empty identities/command and positive timeout")
+        selector = self._workspace_selector()
         created = self._json_command(
-            ("terminal", "create", "--worktree", "active", "--title", title,
+            ("terminal", "create", "--worktree", selector, "--title", title,
              "--command", agent_command, "--json"),
             stage_id="implementation", access="write",
         )
@@ -143,14 +144,11 @@ class OrcaAdapter:
             wait = waited.get("result", {}).get("wait", {})
             if not isinstance(wait, dict) or wait.get("satisfied") is not True or wait.get("status") != "running":
                 raise RuntimeError("ORCA worker terminal did not reach TUI readiness")
-            dispatched = self.dispatch_to_ready_terminal(
+            dispatched = self._dispatch_to_ready_terminal(
                 task_id=task_id, terminal_handle=handle, coordinator_handle=coordinator_handle,
             )
         except Exception:
-            self._json_command(
-                ("terminal", "close", "--terminal", handle, "--json"),
-                stage_id="implementation", access="write", allow_failure=True,
-            )
+            self.close_terminal_verified(handle=handle, stage_id="implementation")
             raise
         return {"terminal_handle": handle, "dispatch": dispatched}
 
@@ -203,10 +201,30 @@ class OrcaAdapter:
             )
             return {"dispatch": dispatch, "delivery": delivery, "acknowledged": acknowledged}
         finally:
-            self._json_command(
-                ("terminal", "close", "--terminal", terminal_handle, "--json"),
-                stage_id="documentation", access="write", allow_failure=True,
-            )
+            self.close_terminal_verified(handle=terminal_handle, stage_id="documentation")
+
+    def create_coordinator_terminal(self, *, title: str = "benchmark-orca-coordinator") -> str:
+        selector = self._workspace_selector()
+        created = self._json_command(
+            ("terminal", "create", "--worktree", selector, "--title", title,
+             "--command", "zsh", "--json"), stage_id="intake", access="write",
+        )
+        handle = created.get("result", {}).get("terminal", {}).get("handle")
+        if not isinstance(handle, str) or not handle:
+            raise RuntimeError("ORCA coordinator terminal creation returned no handle")
+        return handle
+
+    def close_terminal_verified(self, *, handle: str, stage_id: str) -> None:
+        self._json_command(
+            ("terminal", "close", "--terminal", handle, "--json"),
+            stage_id=stage_id, access="write",
+        )
+        shown = self._json_command(
+            ("terminal", "show", "--terminal", handle, "--json"),
+            stage_id=stage_id, allow_failure=True,
+        )
+        if shown.get("ok") is True and shown.get("result", {}).get("terminal", {}).get("connected") is not False:
+            raise RuntimeError("ORCA terminal cleanup could not be verified")
 
     def inspect_dispatch(self, *, task_id: str) -> dict[str, Any]:
         self._assert_ready()
@@ -279,6 +297,15 @@ class OrcaAdapter:
             raise PermissionError("run id does not match the bound ORCA Run")
         if coordinator_handle is not None and coordinator_handle != self.coordinator_handle:
             raise PermissionError("coordinator handle does not match the bound ORCA coordinator")
+
+    def _workspace_selector(self) -> str:
+        current = self._json_command(("worktree", "current", "--json"), stage_id="intake")
+        worktree = current.get("result", {}).get("worktree", {})
+        identifier = worktree.get("id") if isinstance(worktree, dict) else None
+        path = worktree.get("path") if isinstance(worktree, dict) else None
+        if not isinstance(identifier, str) or Path(str(path)).resolve() != self.runtime.workspace:
+            raise RuntimeError("ORCA current worktree does not match the adapter workspace")
+        return f"id:{identifier}"
 
     def _json_command(
         self,

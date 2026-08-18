@@ -1,5 +1,6 @@
 {
   "schema_version": "orca-lifecycle-observation-v1.1",
+  "status": "passed",
   "observed_at": "2026-08-18T17:34:14Z",
   "runtime_version": "1.4.184",
   "runtime_ready": true,

@@ -79,6 +79,7 @@ class OrcaAdapterTests(unittest.TestCase):
             adapter.coordinator_handle = "term_coordinator"
             commands = []
             outputs = iter([
+                {"ok": True, "result": {"worktree": {"id": "repo::workspace", "path": str((root / "workspace").resolve())}}},
                 {"ok": True, "result": {"terminal": {"handle": "term_worker"}}},
                 {"ok": True, "result": {"wait": {"satisfied": True, "status": "running"}}},
                 {"ok": True, "result": {"dispatch": {"id": "ctx_ready"}}},
@@ -88,9 +89,10 @@ class OrcaAdapterTests(unittest.TestCase):
                 task_id="task_ready", coordinator_handle="term_coordinator", agent_command="codex",
             )
             self.assertEqual(result["terminal_handle"], "term_worker")
-            self.assertEqual([command[:2] for command in commands], [("terminal", "create"), ("terminal", "wait"), ("orchestration", "dispatch")])
-            self.assertIn("tui-idle", commands[1])
-            self.assertIn("--inject", commands[2])
+            self.assertEqual([command[:2] for command in commands], [("worktree", "current"), ("terminal", "create"), ("terminal", "wait"), ("orchestration", "dispatch")])
+            self.assertIn("id:repo::workspace", commands[1])
+            self.assertIn("tui-idle", commands[2])
+            self.assertIn("--inject", commands[3])
 
     def test_json_command_rejects_semantic_cli_failure(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
