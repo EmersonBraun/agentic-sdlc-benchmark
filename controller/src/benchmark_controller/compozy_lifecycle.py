@@ -16,7 +16,16 @@ _LIFECYCLE_EVENTS: dict[str, tuple[str, str]] = {
 }
 
 _NON_LIFECYCLE_EVENTS = frozenset(
-    {"agent_message", "system", "thought", "tool_call", "tool_result", "usage", "user_message"}
+    {
+        "agent_message",
+        "available_commands_update",
+        "system",
+        "thought",
+        "tool_call",
+        "tool_result",
+        "usage",
+        "user_message",
+    }
 )
 
 
