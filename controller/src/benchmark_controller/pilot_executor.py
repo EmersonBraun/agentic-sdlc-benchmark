@@ -69,6 +69,8 @@ class ConditionedPilotExecutor:
         if self._gate_mode == "technical-pilot":
             technical = self._preflight.get("technical_pilot", {})
             allowed = technical.get("allowed_conditions", []) if isinstance(technical, Mapping) else []
+            if not isinstance(technical, Mapping) or technical.get("analysis_eligible") is not False:
+                raise PilotNotReadyError("Technical pilot must be explicitly excluded from official analysis")
             if condition_id not in allowed:
                 raise PilotNotReadyError(f"Technical pilot condition is not preregistered: {condition_id}")
         parity = evaluate_semantic_parity(self._preflight, section=parity_section)

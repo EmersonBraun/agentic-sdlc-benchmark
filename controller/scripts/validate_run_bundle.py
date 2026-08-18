@@ -88,6 +88,8 @@ def validate_bundle(directory: Path, tasks_root: Path, protocol: str) -> list[st
             _error(errors, manifest_path, "invalid technical-pilot terminal_state")
     elif terminal_state in {"TECHNICAL_PASS", "TECHNICAL_FAIL"}:
         _error(errors, manifest_path, "technical terminal state on official collection")
+    elif gate_mode == "official-collection" and analysis_eligible is not True:
+        _error(errors, manifest_path, "official collection must be analysis-eligible")
 
     try:
         lines = ledger_path.read_text(encoding="utf-8").splitlines()

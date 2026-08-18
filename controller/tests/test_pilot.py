@@ -33,6 +33,7 @@ class PilotGateTests(unittest.TestCase):
     def test_technical_gate_can_start_with_one_explicitly_ready_condition(self) -> None:
         preflight = {
             "protocol_version": "v1.1",
+            "technical_pilot": {"allowed_conditions": ["compozy__reference__off"]},
             "ade": {
                 "orca": {"status": "installed-not-ready"},
                 "agent-orchestrator": {"status": "installed-not-ready"},

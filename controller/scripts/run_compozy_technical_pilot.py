@@ -147,13 +147,14 @@ def main() -> int:
         "provider": "codex",
         "model": "gpt-5.4",
         "prompt_sha256": _sha256(prompt),
-        "content_persisted": False,
+        "content_persisted": None,
         "analysis_eligible": False,
         "commands": {},
         "cleanup": {},
     }
     session_id: str | None = None
     workspace_id: str | None = None
+    technical_acceptance = False
     technical_pass = False
     failure: dict[str, Any] | None = None
     with tempfile.TemporaryDirectory(prefix="agentic-sdlc-compozy-technical-") as directory:
@@ -230,8 +231,8 @@ def main() -> int:
             fixture_unchanged = _tree_sha256(fixture) == before_sha256
             attestation["sentinel_observed"] = sentinel_observed
             attestation["fixture_unchanged"] = fixture_unchanged
-            technical_pass = code == 0 and bool(events) and bool(normalized) and sentinel_observed and fixture_unchanged
-            if not technical_pass:
+            technical_acceptance = code == 0 and bool(events) and bool(normalized) and sentinel_observed and fixture_unchanged
+            if not technical_acceptance:
                 raise RuntimeError("technical_acceptance_failed")
         except (RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
             failure = {"error_type": type(exc).__name__, "reason": str(exc)}
@@ -245,7 +246,30 @@ def main() -> int:
             elif session_id:
                 code, output, _ = _run("compozy", "session", "remove", session_id, "--json")
                 attestation["cleanup"]["session_remove"] = {"returncode": code, "output_sha256": _sha256(output)}
+            _, sessions_output, _ = _run("compozy", "session", "list", "--json")
+            sessions_payload = _json(sessions_output)
+            sessions = sessions_payload.get("sessions", []) if isinstance(sessions_payload, dict) else []
+            session_residual = any(
+                isinstance(item, dict) and item.get("id") == session_id
+                for item in sessions
+            )
+            _, workspaces_output, _ = _run("compozy", "workspace", "list", "--json")
+            workspaces_payload = _json(workspaces_output)
+            workspaces = workspaces_payload if isinstance(workspaces_payload, list) else []
+            workspace_residual = any(
+                isinstance(item, dict) and item.get("id") == workspace_id
+                for item in workspaces
+            )
+            cleanup_verified = bool(session_id) and not session_residual and not workspace_residual
+            attestation["cleanup"]["session_residual"] = session_residual
+            attestation["cleanup"]["workspace_residual"] = workspace_residual
+            attestation["cleanup"]["verified"] = cleanup_verified
+            attestation["content_persisted"] = not cleanup_verified
             attestation["cleanup"]["fixture_destroyed"] = True
+
+    technical_pass = technical_acceptance and bool(attestation["cleanup"].get("verified"))
+    if technical_acceptance and not technical_pass and failure is None:
+        failure = {"error_type": "RuntimeError", "reason": "cleanup_verification_failed"}
 
     attestation["status"] = "technical-pass" if technical_pass else "technical-fail"
     if failure:

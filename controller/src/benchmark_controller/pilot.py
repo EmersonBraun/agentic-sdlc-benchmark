@@ -58,6 +58,8 @@ def evaluate_pilot_gate(
     if gate_mode not in {"technical-pilot", "official-collection"}:
         raise ValueError(f"Unsupported gate mode: {gate_mode!r}")
     status_key = "technical_pilot_status" if gate_mode == "technical-pilot" else "status"
+    technical = preflight.get("technical_pilot", {})
+    allowed_conditions = set(technical.get("allowed_conditions", [])) if isinstance(technical, dict) else set()
     factor_documents = {
         "ade": preflight.get("ade", {}),
         "harness": preflight.get("harness", {}),
@@ -73,14 +75,18 @@ def evaluate_pilot_gate(
             )
             for factor, value in selections.items()
         }
-        missing = tuple(
+        missing_items = [
             f"{factor}:{value}:{statuses[factor]}"
             for factor, value in selections.items()
             if statuses[factor] not in READY_STATUSES
-        )
+        ]
+        condition_id = f"{ade}__{harness}__{agentskit}"
+        if gate_mode == "technical-pilot" and condition_id not in allowed_conditions:
+            missing_items.append("technical-pilot:not-preregistered")
+        missing = tuple(missing_items)
         readiness.append(
             ConditionReadiness(
-                condition_id=f"{ade}__{harness}__{agentskit}",
+                condition_id=condition_id,
                 ready=not missing,
                 missing_components=missing,
                 factor_statuses=statuses,
