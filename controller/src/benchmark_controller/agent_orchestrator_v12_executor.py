@@ -101,17 +101,18 @@ class AgentOrchestratorV12RoleExecutor:
             effective_started = time.monotonic_ns()
             capture, wait_ms = self._wait(session, sentinel, request)
             effective_ms += max(0, self._elapsed(effective_started) - wait_ms)
+            effective_started = None
             orchestration_ms += wait_ms
             self._verify_capture(request, session, capture, sentinel)
             metadata = self._metadata(request, capture, sentinel, session)
             if self._remaining(request) <= 0:
                 raise subprocess.TimeoutExpired("ao", 0)
-            sync_ms, synchronized_head = self._synchronize_product_workspace(session, request)
-            orchestration_ms += sync_ms
-            orchestration_ms += self._validate_merge_binding(request, metadata)
             try:
+                sync_ms, synchronized_head = self._synchronize_product_workspace(session, request)
+                orchestration_ms += sync_ms
+                orchestration_ms += self._validate_merge_binding(request, metadata)
                 orchestration_ms += self._stop_session(request, request.step)
-            except RuntimeError:
+            except (RuntimeError, subprocess.TimeoutExpired):
                 self._rollback_product_workspace(request, synchronized_head)
                 synchronized_head = None
                 raise
@@ -127,6 +128,8 @@ class AgentOrchestratorV12RoleExecutor:
                 metadata=metadata, completion_proof=metadata.get("completion_proof"),
             )
         except subprocess.TimeoutExpired:
+            if effective_started is not None:
+                effective_ms += self._elapsed(effective_started)
             result = self._outcome(
                 request, "timeout", "controller-deadline-exceeded",
                 effective_work_ms=effective_ms,
@@ -287,7 +290,7 @@ class AgentOrchestratorV12RoleExecutor:
                 ), timeout_seconds=60)
             raise
         self._sessions[key] = session
-        effective_ms = min(result.duration_ms, session.observed_turn_ms or result.duration_ms)
+        effective_ms = session.observed_turn_ms or result.duration_ms
         preparation_ms += inspection_ms + max(0, result.duration_ms - effective_ms)
         return session, preparation_ms, effective_ms
 
@@ -297,17 +300,17 @@ class AgentOrchestratorV12RoleExecutor:
         killed = self.transport.run((
             str(self.ao_path), "session", "kill", session.session_id,
             "--project", self.project,
-        ), timeout_seconds=30)
+        ), timeout_seconds=self._timeout(request, cap=30))
         cleaned = self.transport.run((
             str(self.ao_path), "session", "cleanup", "--project", self.project, "--yes",
-        ), timeout_seconds=60)
+        ), timeout_seconds=self._timeout(request, cap=60))
         self._sessions.pop(key, None)
         return killed.duration_ms + cleaned.duration_ms
 
     def _synchronize_product_workspace(
         self, session: _Session, request: NativeStepRequest,
     ) -> tuple[float, str | None]:
-        """Cherry-pick role-owned commits into the controller's measured worktree."""
+        """Fast-forward role-owned commits into the controller's measured worktree."""
 
         mutating_steps = {
             "implementation", "local-testing", "pull-request", "ci-qa", "documentation", "merge",
@@ -339,23 +342,16 @@ class AgentOrchestratorV12RoleExecutor:
         ), timeout_seconds=self._timeout(request, cap=10))
         duration += ancestor.duration_ms
         try:
-            picked = self.transport.run((
-                "git", "-C", str(request.worktree), "cherry-pick",
-                f"{target.stdout.strip()}..{source.stdout.strip()}",
+            advanced = self.transport.run((
+                "git", "-C", str(request.worktree), "merge", "--ff-only", source.stdout.strip(),
             ), timeout_seconds=self._timeout(request, cap=60))
-        except RuntimeError:
-            try:
-                self.transport.run(
-                    ("git", "-C", str(request.worktree), "cherry-pick", "--abort"),
-                    timeout_seconds=30,
-                )
-            finally:
-                self.transport.run(
-                    ("git", "-C", str(request.worktree), "reset", "--hard", target.stdout.strip()),
-                    timeout_seconds=30,
-                )
+        except (RuntimeError, subprocess.TimeoutExpired):
+            self.transport.run(
+                ("git", "-C", str(request.worktree), "reset", "--hard", target.stdout.strip()),
+                timeout_seconds=30,
+            )
             raise
-        return duration + picked.duration_ms, target.stdout.strip()
+        return duration + advanced.duration_ms, target.stdout.strip()
 
     def _rollback_product_workspace(self, request: NativeStepRequest, head: str | None) -> None:
         if head is None:

@@ -173,8 +173,8 @@ class AgentOrchestratorV12ExecutorTests(unittest.TestCase):
                 "code-10x", ao_path=Path("/ao"), transport=transport,
             ).execute(request)
             self.assertEqual(result.status, "completed")
-            cherry_pick = next(call for call in transport.calls if "cherry-pick" in call)
-            self.assertIn("a" * 40 + ".." + "b" * 40, cherry_pick)
+            fast_forward = next(call for call in transport.calls if "--ff-only" in call)
+            self.assertIn("b" * 40, fast_forward)
 
     def test_close_propagates_to_independent_evaluator(self):
         class Evaluator:

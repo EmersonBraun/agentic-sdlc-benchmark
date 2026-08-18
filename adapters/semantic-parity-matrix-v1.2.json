@@ -97,7 +97,7 @@
   "schema_version": "semantic-parity-matrix-v1.2",
   "scope": "live connectivity smoke only; not condition integration or effect evidence",
   "source_hashes": {
-    "controller/src/benchmark_controller/agent_orchestrator_v12_executor.py": "c0eaa09855da9fd9e9c1313f4e2ce16f5bb27ac98a28f0e8bae2c260d2759f24",
+    "controller/src/benchmark_controller/agent_orchestrator_v12_executor.py": "9738722587deb7245cbb391e1c55910e539270708b88c00376ab3d218a5529f3",
     "controller/src/benchmark_controller/compozy_v12_executor.py": "fd144ced29e43dbb39f7a143282fd854e1e09412235cde7a61d44b0fece69b1b",
     "controller/src/benchmark_controller/v12_ade_backends.py": "2acd1e11ab20594f9eeae27a6edbe5e80c28d706c0964b56a6eab9c70e1087d0",
     "controller/src/benchmark_controller/v12_execution.py": "1ec39665cd6e77a1b5376ede3bfbca48b4cb65baa5259e5de665dd1a7154752b",
