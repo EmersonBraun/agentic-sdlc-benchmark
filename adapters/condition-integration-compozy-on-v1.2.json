@@ -1,0 +1,214 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "commands": {
+      "code_review": {
+        "duration_ms": 163461.687875,
+        "output_sha256": "419857e544407fd0099618827e5661c0b26abc034f5e3517f4138448e578766e",
+        "returncode": 0
+      },
+      "doc_bridge": {
+        "duration_ms": 85.648375,
+        "output_sha256": "085db1dac126ede0b9073acc20d14eb999b2242d1e6c91c2fd40a2cf8b2928d7",
+        "returncode": 0
+      },
+      "playbook": {
+        "duration_ms": 94.870083,
+        "output_sha256": "c5822f9013d5a14aceb183dd0e9960996f00649efd9b33194dab23e7a3eb8cf2",
+        "returncode": 0
+      }
+    },
+    "component_action_records": 6,
+    "components": {
+      "code_review": {
+        "commit": "467cfa570a6b5f1076098b3c76be4e812562f23e",
+        "executable_sha256": "57befe7aec1eb2e6a8d06ba40dc6c0a884de635a0db980ceadbfe4e3927c29bc",
+        "materialization_commands": [
+          {
+            "argv_sha256": "25b2e2447434e1486d25ce617d01a3d1de2c008b7405891a5f21c210621acc5f",
+            "duration_ms": 1395.733333,
+            "output_sha256": "e629bc7e138553b920afa38870c432f0cdddb9449a3e5c431ee5d6e5c4de8d0c",
+            "returncode": 0
+          },
+          {
+            "argv_sha256": "9adf315bbd4238afbdfe1554bc58cc5a41b1dcd01b14668a68ba9cde3b462993",
+            "duration_ms": 1213.358416,
+            "output_sha256": "1e209434515f93a9fcf1cb5b60d662175f02770fd18e666efbce8cd605a15d7c",
+            "returncode": 0
+          }
+        ],
+        "materialized_from_lockfile": true,
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/code-review-cli",
+        "version": "0.1.0",
+        "working_tree_clean": true
+      },
+      "doc_bridge": {
+        "commit": "9a03016932b9e3024604712183152025c0577fe4",
+        "executable_sha256": "177b03c3550e50990724ef3830ba03e0f24c74edea47ba7d327260350be1714b",
+        "materialization_commands": [
+          {
+            "argv_sha256": "753697b8e53f6224528bac452692deb749cf015ca5566ea1cdc6933d30343dc0",
+            "duration_ms": 6076.183875,
+            "output_sha256": "319a2683d1a4859dfa94370b959c0e0ecaee8dbf45674437fdeedfed2a72d34f",
+            "returncode": 0
+          },
+          {
+            "argv_sha256": "18bfd5adfe957ed94fa3757f54fb0a7e2600255fcc86941ca28c6aac9ae8da6f",
+            "duration_ms": 4587.187166,
+            "output_sha256": "ec5585cae8267f20cd06dcd90cf99e61cdfc2a77255aa9146d168f4de92d925f",
+            "returncode": 0
+          }
+        ],
+        "materialized_from_lockfile": true,
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/doc-bridge",
+        "version": "1.4.3",
+        "working_tree_clean": true
+      },
+      "playbook": {
+        "commit": "0818d860655c2d367f4d8b8c281c9b73ec5adad2",
+        "executable_sha256": "991f7a12d08062d4f86f8b4ac752fd9f9d6e42dfb6b99a6538beb8d4a2f92669",
+        "materialization_commands": [
+          {
+            "argv_sha256": "753697b8e53f6224528bac452692deb749cf015ca5566ea1cdc6933d30343dc0",
+            "duration_ms": 3661.621792,
+            "output_sha256": "0115a34ca7e01e8f13f7594ac6718cd972893b2c32b33fe951e109bb3c30024e",
+            "returncode": 0
+          },
+          {
+            "argv_sha256": "98d8a5cd8059be2f838c49a2eddc4a7842bed788a908e9ead3c35d4f440287b5",
+            "duration_ms": 2000.066875,
+            "output_sha256": "6d81a19894fc2bc570a3160fc492c18cc6507f97e2710923df46d2fa7096a948",
+            "returncode": 0
+          }
+        ],
+        "materialized_from_lockfile": true,
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/agents-playbook",
+        "version": "0.1.0",
+        "working_tree_clean": true
+      }
+    },
+    "context_sha256": "6f963edd43b613248f75d2c096eab8308d19df87d5c86c8a730db2a9073f148e",
+    "enabled": true,
+    "event_count": 6,
+    "native_external_components_executed": true,
+    "public_only": true
+  },
+  "analysis_eligible": false,
+  "base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
+  "cleanup": {
+    "fixture_unchanged": true,
+    "grok_process_residual_count": 0,
+    "session_residual": false,
+    "session_stop_returncode": 0,
+    "verified": true
+  },
+  "commands": {
+    "executor_prompt": {
+      "argv_sha256": "e290578fc072facfc6c13f4f1e26e42981b0d379d7112fa749efc7cecb15231b",
+      "duration_ms": 59213.44,
+      "output_sha256": "1cf930fa39dd97c8699916c189cbba00d7e99ebe20dc6d6965671287a5dd82d4",
+      "returncode": 0
+    },
+    "planner_prompt": {
+      "argv_sha256": "f1a250a9f1f860cae401b4a9565ca58c6cbfaf9df434a4f206e1c3d6869d1f08",
+      "duration_ms": 18466.238,
+      "output_sha256": "f0a38d729da82cac174cc3d6b0f9bfc3f77de30ce576beb047e72fa3c1a2ed62",
+      "returncode": 0
+    },
+    "session_list": {
+      "argv_sha256": "50db8230c69cb468b7a35fe152e6ddf1780f4c87daf468c1dd16a240a2d018ec",
+      "duration_ms": 114.017,
+      "output_sha256": "bcc729f345b4000df4d1aa59b8f266acf69254db8fb4787da1815761a8bfad96",
+      "returncode": 0
+    },
+    "session_new": {
+      "argv_sha256": "6fbcd79c6aab6e0bf42ab6fec93467460cf0aa1b6358d1811bb311435c3c8527",
+      "duration_ms": 246.121,
+      "output_sha256": "9353b851eece199167dc6c86f0645e18d9c01a14eb9453b241cee675f1663d78",
+      "returncode": 0
+    }
+  },
+  "condition_id": "compozy__on",
+  "factors": {
+    "ade": "compozy",
+    "agentskit": "on"
+  },
+  "invariants": {
+    "agentskit_attribution": "passed",
+    "lifecycle_cleanup": "passed",
+    "no_fallback": "passed",
+    "permission_policy": "passed",
+    "role_topology": "passed",
+    "same_base_commit": "passed",
+    "same_task": "passed",
+    "workspace_boundary": "passed"
+  },
+  "ledger_sha256": "54a08b8b30ba5293d6bd269b21f1248f78ddcac11c11dccdcd23c3bd45a512f6",
+  "live_execution": true,
+  "observed_at": "2026-08-18T20:40:18.697781+00:00",
+  "protocol_version": "v1.2",
+  "redaction": {
+    "raw_outputs_persisted_publicly": false,
+    "raw_prompts_persisted_publicly": false
+  },
+  "schema_version": "condition-integration-attestation-v1.2",
+  "source_hashes": {
+    "probe": "e37bda514a0ea3a0ca88c1d739d0aa9ab71ba9523f932b3fad7b92b21216c932"
+  },
+  "status": "passed",
+  "task_id": "pilot_greenfield_service_readiness",
+  "topology": {
+    "executor": {
+      "configured_model": "grok-4.5",
+      "execution": {
+        "done_observed": true,
+        "event_count": 644,
+        "event_types": {
+          "agent_message": 286,
+          "available_commands_update": 9,
+          "done": 1,
+          "system": 1,
+          "thought": 293,
+          "tool_call": 36,
+          "tool_result": 18
+        },
+        "models": [],
+        "providers": [
+          "grok-cli"
+        ],
+        "reasoning_efforts": [],
+        "sentinel_observed": true
+      },
+      "provider": "grok-cli"
+    },
+    "planner": {
+      "execution": {
+        "done_observed": true,
+        "event_count": 545,
+        "event_types": {
+          "agent_message": 538,
+          "done": 1,
+          "system": 3,
+          "thought": 2,
+          "usage": 1
+        },
+        "models": [
+          "gpt-5.4"
+        ],
+        "providers": [
+          "codex"
+        ],
+        "reasoning_efforts": [
+          "low"
+        ],
+        "sentinel_observed": true
+      },
+      "model": "gpt-5.4",
+      "provider": "codex"
+    },
+    "same_session": true
+  }
+}
