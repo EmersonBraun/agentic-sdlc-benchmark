@@ -69,6 +69,19 @@ input/output/cached/reasoning token and cost breakdown. Technical-pilot records
 therefore mark this field unavailable; official collection fails closed until
 the concrete executor can observe complete token/cost accounting.
 
+The Agent Orchestrator implementation creates one native, isolated session per
+stage: Codex orchestrator sessions for analytical work and Grok worker sessions
+for implementation work. Each AO-managed branch is pinned to the preceding
+controller-frozen product commit before spawn. Mutating stages must commit and
+leave a clean worktree; the controller then fast-forwards to those exact commits in
+the measured product worktree so later stages evaluate the produced artifact.
+Stable stage sentinels and a semantic completion cache prevent duplicate
+completed work across bounded retries. Session creation, inspection, and
+cleanup are orchestration overhead. Effective work uses AO's observed
+creation-to-last-activity turn interval; remaining spawn wall time is setup
+overhead.
+Raw output is not published, and every stage receives terminal cleanup.
+
 Checkpoints are not permission to resume a measurement after process failure.
 They support bounded retries during one process and idempotent cleanup after a
 terminal state. Interrupted measurements remain invalid and are replaced by a
