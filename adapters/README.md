@@ -34,7 +34,7 @@ The integrated provider-free fixture is [`agentskit-integrated-fixture-attestati
 
 ORCA workspace and graph evidence is [`orca-workspace-attestation-v1.0.json`](orca-workspace-attestation-v1.0.json), with the controlled Run probe in [`orca-session-attestation-v1.0.json`](orca-session-attestation-v1.0.json). The graph is ready, but worker/workflow lifecycle parity is still blocked. Compozy's model connectivity evidence is [`compozy-model-connectivity-attestation-v1.0.json`](compozy-model-connectivity-attestation-v1.0.json); the alternate model is excluded, and the exact protocol model remains blocked by the installed ACP provider despite an official configuration attempt.
 
-The first v1.1 lifecycle recheck is [`orca-v1.1-lifecycle-probe-attestation.json`](orca-v1.1-lifecycle-probe-attestation.json). ORCA accepted `gpt-5.4`, but the worker stalled during MCP bootstrap before task execution; the worker and coordinator terminals were stopped and released, and the pilot remains blocked.
+The ORCA v1.1 probe sequence starts at [`orca-v1.1-lifecycle-probe-attestation.json`](orca-v1.1-lifecycle-probe-attestation.json). The latest evidence, [`orca-v1.1-lifecycle-probe-attestation-4.json`](orca-v1.1-lifecycle-probe-attestation-4.json), records three supervised `gpt-5.4` executions with cleanup and release. Every authoritative `worker_done` was rejected with `dispatch_capability_invalid`, so lifecycle settlement and the pilot remain blocked.
 
 The v1.1 Agent Orchestrator session recheck is [`agent-orchestrator-v1.1-session-probe-attestation.json`](agent-orchestrator-v1.1-session-probe-attestation.json). Spawn, polling, termination, cleanup, and the redacted ledger bridge pass, but model-backed execution and native event-stream parity remain unverified.
 
@@ -48,7 +48,7 @@ The cross-runtime model investigation is [`model-compatibility-v1.0.json`](model
 
 OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). The pinned Python 3.12 environment still fails normal dependency resolution, so no session is started.
 
-mini-SWE-agent bounded runtime evidence is [`mini-swe-attestation-v1.0.json`](mini-swe-attestation-v1.0.json). Its isolated image, read-only workspace boundary, ledger bridge, and fail-closed model probe pass; model-backed task parity remains blocked.
+mini-SWE-agent's historical bounded runtime evidence is [`mini-swe-attestation-v1.0.json`](mini-swe-attestation-v1.0.json). The v1.1 native CLI bridge evidence is [`mini-swe-cli-bridge-attestation-v1.1.json`](mini-swe-cli-bridge-attestation-v1.1.json): `grok-4.5` executes through Grok CLI/OAuth with model-owned tools disabled, while mini-SWE controls isolated greenfield and Umami environments, append-only ledger events, submission, and cleanup. No API key is used.
 
 The current catalog is declarative. It freezes names, adapter versions, entrypoints, and the no-fallback rule; it does not claim that the external tools are installed. Live integrations must pass the installation and semantic-parity gates before a pilot run can use them.
 

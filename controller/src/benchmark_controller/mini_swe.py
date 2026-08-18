@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,8 @@ from .ledger import Ledger
 
 DEFAULT_DOCKER_CLI = "docker"
 DEFAULT_IMAGE = "agentic-sdlc-mini-swe-agent:2.4.6"
+DEFAULT_EXECUTOR_IMAGE = "agentic-sdlc-greenfield:preflight-v1.0"
+DEFAULT_EXECUTOR_IMAGE_ID = "sha256:437f9f730d5aeae089461f4949504277637ca1b72b769449d7ebc62402497a1a"
 READY_STATUSES = {"contract-ready", "installed-ready"}
 
 
@@ -52,11 +55,19 @@ class MiniSweAgentAdapter:
         permission_mode: str = "approve-reads",
         docker_path: str = DEFAULT_DOCKER_CLI,
         image: str = DEFAULT_IMAGE,
+        executor_image: str = DEFAULT_EXECUTOR_IMAGE,
+        executor_image_id: str = DEFAULT_EXECUTOR_IMAGE_ID,
+        interpreter: str = "bash",
+        test_command: str = "./node_modules/.bin/vitest run",
     ) -> None:
         self.descriptor: ComponentDescriptor = HARNESS_DESCRIPTORS["mini-swe-agent"]
         self.runtime = ControlledAdapter(workspace, ledger, permission_mode=permission_mode)  # type: ignore[arg-type]
         self.docker_path = docker_path
         self.image = image
+        self.executor_image = executor_image
+        self.executor_image_id = executor_image_id
+        self.interpreter = interpreter
+        self.test_command = test_command
 
     def read_only_preflight(self) -> MiniSwePreflight:
         """Inspect the image and CLI with no network and no mounted workspace."""
@@ -119,12 +130,68 @@ class MiniSweAgentAdapter:
         )
 
     def run_task(self, *, issue_text: str) -> dict[str, Any]:
-        self._assert_ready()
+        self.assert_ready()
         if not issue_text:
             raise ValueError("issue_text must be non-empty")
-        raise NotImplementedError("Live mini-SWE-agent task execution is intentionally not enabled in this stage")
+        if self.runtime.permissions.mode != "approve-all":
+            raise PermissionError("Live mini-SWE-agent execution requires approve-all permission accounting")
+        script = Path(__file__).resolve().parents[2] / "scripts" / "probe_mini_swe_cli_bridge.py"
+        task_path: Path | None = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                prefix="agentic-sdlc-mini-swe-task-",
+                suffix=".md",
+                delete=False,
+            ) as stream:
+                stream.write(issue_text)
+                task_path = Path(stream.name)
+            result = self.runtime.run(
+                (
+                    "pipx",
+                    "run",
+                    "--spec",
+                    "mini-swe-agent==2.4.6",
+                    "python",
+                    str(script),
+                    "--workspace",
+                    str(self.runtime.workspace),
+                    "--task-file",
+                    str(task_path),
+                    "--ledger",
+                    str(self.runtime.ledger.path.resolve()),
+                    "--run-id",
+                    self.runtime.ledger.run_id,
+                    "--task-id",
+                    self.runtime.ledger.task_id,
+                    "--image",
+                    self.executor_image,
+                    "--image-id",
+                    self.executor_image_id,
+                    "--interpreter",
+                    self.interpreter,
+                    "--test-command",
+                    self.test_command,
+                ),
+                stage_id="implementation",
+                actor="executor",
+                access="network",
+                # The child bridge records model and command work individually.
+                # This parent span is harness overhead; counting it as effective
+                # work would double-count the complete child runtime.
+                time_category="harness_overhead",
+                timeout_seconds=3600,
+            )
+        finally:
+            if task_path is not None and task_path.exists():
+                task_path.unlink()
+        summary = _last_json_object(result.stdout)
+        if result.returncode != 0 or summary.get("status") != "passed":
+            raise RuntimeError("mini-SWE-agent CLI task execution did not reach a valid terminal submission")
+        return summary
 
-    def _assert_ready(self) -> None:
+    def assert_ready(self) -> None:
         if self.descriptor.implementation_status not in READY_STATUSES:
             raise MiniSweNotReadyError(
                 f"mini-SWE-agent is {self.descriptor.implementation_status}; no task session started"
@@ -185,3 +252,20 @@ class MiniSweAgentAdapter:
                 self.image,
             )
         return command
+
+
+def _last_json_object(output: str) -> dict[str, Any]:
+    decoder = json.JSONDecoder()
+    candidates: list[dict[str, Any]] = []
+    for index, character in enumerate(output):
+        if character != "{":
+            continue
+        try:
+            value, _ = decoder.raw_decode(output[index:])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(value, dict):
+            candidates.append(value)
+    if not candidates:
+        raise ValueError("mini-SWE-agent runner returned no JSON summary")
+    return candidates[-1]

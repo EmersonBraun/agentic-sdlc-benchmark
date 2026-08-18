@@ -1,17 +1,63 @@
 {
-  "blocker_summary": {"operator": 1, "protocol": 2, "upstream": 3},
+  "blocker_summary": {
+    "operator": 0,
+    "protocol": 2,
+    "upstream": 3
+  },
   "blockers": [
-    {"blocker_id": "orca-dispatch-capability", "component": "ade:orca", "evidence_ref": "adapters/orca-v1.1-lifecycle-probe-attestation-4.json", "next_action": "Install an ORCA runtime that supplies a valid Dispatch capability, then require one accepted worker_done and complete release.", "owner": "upstream", "reason": "gpt-5.4 executes, but authoritative worker_done is rejected with dispatch_capability_invalid.", "recheck_command": "orca status --json"},
-    {"blocker_id": "ao-observability", "component": "ade:agent-orchestrator", "evidence_ref": "adapters/agent-orchestrator-v1.1-session-probe-attestation.json", "next_action": "Recheck a release that exposes independently observable model execution and lifecycle events.", "owner": "upstream", "reason": "The public CLI starts and cleans sessions but exposes neither model output nor a native event stream.", "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/probe_agent_orchestrator_lifecycle.py"},
-    {"blocker_id": "compozy-global-parity", "component": "ade:compozy", "evidence_ref": "analysis/technical-pair-compozy-reference-v1.1.json", "next_action": "Keep Compozy technical evidence frozen and promote it only after every other factor passes the same parity invariants.", "owner": "protocol", "reason": "The technical ON/OFF pair passes, but official cross-factor semantic parity is not complete.", "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection"},
-    {"blocker_id": "openhands-dependency-graph", "component": "harness:openhands-sdk", "evidence_ref": "adapters/openhands-resolver-attestation-v1.0.json", "next_action": "Re-run the normal resolver when a compatible OpenHands release is published; do not use dependency overrides.", "owner": "upstream", "reason": "The latest approved SDK dependency graph does not resolve on pinned Python without overrides.", "recheck_command": "docker run --rm python:3.12.10-slim python -m pip install --dry-run --no-cache-dir openhands-sdk==1.42.1 openhands-tools==1.42.1 openhands-workspace==1.42.1"},
-    {"blocker_id": "mini-swe-model-credential", "component": "harness:mini-swe-agent", "evidence_ref": "adapters/mini-swe-v1.1-preflight-attestation.json", "next_action": "Configure a non-production XAI_API_KEY in the execution environment without committing or publishing it.", "owner": "operator", "reason": "The isolated runtime passes, but no non-production provider credential is available for task execution.", "recheck_command": "test -n \"$XAI_API_KEY\""},
-    {"blocker_id": "agentskit-official-replication", "component": "agentskit:on", "evidence_ref": "adapters/agentskit-v1.1-preflight-attestation.json", "next_action": "Run AgentsKit ON only after each paired ADE/harness condition is officially ready; preserve matched OFF controls.", "owner": "protocol", "reason": "Native public components pass one excluded technical condition, not the preregistered official replication gate.", "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection"}
+    {
+      "blocker_id": "orca-dispatch-capability",
+      "component": "ade:orca",
+      "evidence_ref": "adapters/orca-v1.1-lifecycle-probe-attestation-4.json",
+      "next_action": "Install an ORCA runtime that supplies a valid Dispatch capability, then require one accepted worker_done and complete release.",
+      "owner": "upstream",
+      "reason": "gpt-5.4 executes, but authoritative worker_done is rejected with dispatch_capability_invalid.",
+      "recheck_command": "orca status --json"
+    },
+    {
+      "blocker_id": "ao-observability",
+      "component": "ade:agent-orchestrator",
+      "evidence_ref": "adapters/agent-orchestrator-v1.1-session-probe-attestation.json",
+      "next_action": "Recheck a release that exposes independently observable model execution and lifecycle events.",
+      "owner": "upstream",
+      "reason": "The public CLI starts and cleans sessions but exposes neither model output nor a native event stream.",
+      "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/probe_agent_orchestrator_lifecycle.py"
+    },
+    {
+      "blocker_id": "compozy-global-parity",
+      "component": "ade:compozy",
+      "evidence_ref": "analysis/technical-pair-compozy-reference-v1.1.json",
+      "next_action": "Keep Compozy technical evidence frozen and promote it only after every other factor passes the same parity invariants.",
+      "owner": "protocol",
+      "reason": "The technical ON/OFF pair passes, but official cross-factor semantic parity is not complete.",
+      "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection"
+    },
+    {
+      "blocker_id": "openhands-dependency-graph",
+      "component": "harness:openhands-sdk",
+      "evidence_ref": "adapters/openhands-resolver-attestation-v1.0.json",
+      "next_action": "Re-run the normal resolver when a compatible OpenHands release is published; do not use dependency overrides.",
+      "owner": "upstream",
+      "reason": "The latest approved SDK dependency graph does not resolve on pinned Python without overrides.",
+      "recheck_command": "docker run --rm python:3.12.10-slim python -m pip install --dry-run --no-cache-dir openhands-sdk==1.42.1 openhands-tools==1.42.1 openhands-workspace==1.42.1"
+    },
+    {
+      "blocker_id": "agentskit-official-replication",
+      "component": "agentskit:on",
+      "evidence_ref": "adapters/agentskit-v1.1-preflight-attestation.json",
+      "next_action": "Run AgentsKit ON only after each paired ADE/harness condition is officially ready; preserve matched OFF controls.",
+      "owner": "protocol",
+      "reason": "Native public components pass one excluded technical condition, not the preregistered official replication gate.",
+      "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection"
+    }
   ],
   "can_start_official_collection": false,
   "official_conditions_ready": 0,
   "official_conditions_total": 18,
   "protocol_version": "v1.1",
   "schema_version": "execution-readiness-v1.1",
-  "technical_conditions_ready": ["compozy__reference__off", "compozy__reference__on"]
+  "technical_conditions_ready": [
+    "compozy__reference__off",
+    "compozy__reference__on"
+  ]
 }

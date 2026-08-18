@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import time
+import fcntl
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterator
@@ -61,7 +62,29 @@ class Ledger:
         self.run_id = validate_id(run_id, "run")
         self.task_id = validate_id(task_id, "task")
         self._sequence = 0
+        self._observed_size = -1
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._sync_sequence()
+
+    def _sync_sequence(self) -> None:
+        if not self.path.exists():
+            self._observed_size = 0
+            return
+        size = self.path.stat().st_size
+        if size == self._observed_size:
+            return
+        maximum = self._sequence
+        for line in self.path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            event = json.loads(line)
+            if event.get("run_id") != self.run_id or event.get("task_id") != self.task_id:
+                raise ValueError("Existing ledger belongs to a different run or task")
+            event_id = str(event.get("event_id", ""))
+            if event_id.startswith("evt_") and event_id[4:].isdigit():
+                maximum = max(maximum, int(event_id[4:]))
+        self._sequence = maximum
+        self._observed_size = size
 
     def record(
         self,
@@ -98,12 +121,10 @@ class Ledger:
         if cost_usd is not None and cost_usd < 0:
             raise ValueError("cost_usd must be non-negative")
 
-        self._sequence += 1
-        event_id = f"evt_{self._sequence:06d}"
         event_payload = payload or {}
         event = {
             "schema_version": "1.0",
-            "event_id": event_id,
+            "event_id": "",
             "run_id": self.run_id,
             "task_id": self.task_id,
             "stage_id": stage_id,
@@ -124,8 +145,19 @@ class Ledger:
             event["tokens"] = dict(tokens)
         if cost_usd is not None:
             event["cost_usd"] = round(cost_usd, 8)
-        with self.path.open("a", encoding="utf-8") as stream:
+        # Sequence allocation and append are one inter-process critical section.
+        # Every benchmark writer uses this ledger implementation, so flock keeps
+        # event IDs unique without introducing a mutable side database.
+        with self.path.open("a+", encoding="utf-8") as stream:
+            fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
+            self._observed_size = -1
+            self._sync_sequence()
+            self._sequence += 1
+            event["event_id"] = f"evt_{self._sequence:06d}"
             stream.write(json.dumps(event, sort_keys=True) + "\n")
+            stream.flush()
+            fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+        self._observed_size = self.path.stat().st_size
         return event
 
     @contextmanager
