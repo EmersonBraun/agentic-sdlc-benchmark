@@ -32,8 +32,18 @@
     "evidence_refs": [
       "compozy-v1.1-session-probe-attestation.json",
       "semantic-parity-v1.0.json",
-      "agentskit-v1.1-preflight-attestation.json"
+      "agentskit-v1.1-preflight-attestation.json",
+      "../runs/run_technical-compozy-reference-off-r1/manifest.json",
+      "../runs/run_technical-compozy-reference-off-r2/manifest.json",
+      "../runs/run_technical-compozy-reference-off-r3/manifest.json"
     ],
+    "execution": {
+      "attempts": 3,
+      "technical_passes": 1,
+      "technical_failures": 2,
+      "latest_successful_run": "run_technical-compozy-reference-off-r3",
+      "official_observations_created": 0
+    },
     "evidence": {
       "same_task_and_acceptance_contract": "verified",
       "common_harness_capabilities": "verified",
@@ -43,7 +53,7 @@
       "append_only_ledger": "verified",
       "no_fallback_resolution": "verified"
     },
-    "decision": "Only the preregistered Compozy × Reference Harness × AgentsKit OFF condition may run as a pipeline-validation pilot. Its outputs are excluded from official analysis and do not relax the 18/18 collection gate."
+    "decision": "The preregistered Compozy × Reference Harness × AgentsKit OFF pipeline-validation pilot passed on its third immutable attempt. All three outputs remain excluded from official analysis and do not relax the 18/18 collection gate."
   },
   "ade": {
     "orca": {

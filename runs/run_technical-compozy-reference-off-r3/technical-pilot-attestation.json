@@ -1,0 +1,52 @@
+{
+  "analysis_eligible": false,
+  "cleanup": {
+    "fixture_destroyed": true,
+    "session_stop": {
+      "output_sha256": "190681906da44d96ffdbf5425c639dbfe9d8d9058c3eb9ca5ccf750d3cc7ef69",
+      "returncode": 0
+    },
+    "workspace_remove": {
+      "output_sha256": "a62953089ebc544c01ddcf3a168f475ac2fbd77b68771b4100e97b5b8509d1ae",
+      "returncode": 65
+    }
+  },
+  "commands": {
+    "session_events": {
+      "output_sha256": "097e321593ee314d248aa348826daf6ea8e804e4281bfc1364554fad034f0ccc",
+      "returncode": 0
+    },
+    "session_new": {
+      "output_sha256": "9c8b0addfb42e1f3238dbd3399f3940eddef9ff780386d77d1b3131c3c639db5",
+      "returncode": 0
+    },
+    "session_prompt": {
+      "output_sha256": "7f697b7bd34c586726c6caf177896e694ad054b04975bde149b1f28a374a2659",
+      "returncode": 0
+    }
+  },
+  "condition_id": "compozy__reference__off",
+  "content_persisted": false,
+  "event_count": 24,
+  "event_types": {
+    "agent_message": 14,
+    "done": 1,
+    "hook.dispatch.complete": 1,
+    "hook.dispatch.start": 1,
+    "system": 3,
+    "thought": 2,
+    "usage": 1,
+    "user_message": 1
+  },
+  "fixture_unchanged": true,
+  "model": "gpt-5.4",
+  "normalized_lifecycle_count": 3,
+  "prompt_sha256": "522ae37e41b50b8ad4e2829f0ba30d40e26f4cb05c7f333fb2f7d6de873d99d5",
+  "provider": "codex",
+  "run_id": "run_technical-compozy-reference-off-r3",
+  "schema_version": "compozy-technical-pilot-v1.0",
+  "sentinel_observed": true,
+  "session_id_sha256": "31202aa8cef9268a26e4f9b223ea56ad4d941d189dcaec84af67c3872fb6dd19",
+  "status": "technical-pass",
+  "workspace_id_sha256": "2e2f4e4f95df10c1e90189cea0456b23e4cc41e59ddaec386919be78695c5425"
+}

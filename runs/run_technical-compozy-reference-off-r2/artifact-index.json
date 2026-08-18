@@ -1,0 +1,10 @@
+{
+  "artifacts": [
+    {
+      "path": "technical-pilot-attestation.json",
+      "sha256": "30fefa85ce0508aec5f27f5e3d8bd820d60ddd8b3a09c527ddd7c64bb977166c",
+      "visibility": "public"
+    }
+  ],
+  "run_id": "run_technical-compozy-reference-off-r2"
+}

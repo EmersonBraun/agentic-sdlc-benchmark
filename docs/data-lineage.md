@@ -29,10 +29,11 @@ private audit store until the release policy permits publication.
 
 ## Current status
 
-The repository currently contains no official collected run bundles. Therefore
-there is no fabricated performance result. Technical-pilot evidence may be
-created for explicitly ready conditions without changing the official 18/18
-gate or entering the benchmark analysis.
+The repository contains three immutable technical-pilot bundles for the
+preregistered Compozy × Reference Harness × AgentsKit OFF condition. The first
+two failed and the third passed; all three set `analysis_eligible: false`.
+There are still no official collected observations or performance results, and
+the official 18/18 gate remains unchanged.
 
 Use `controller/scripts/prepare_run_bundle.py` to create a bound bundle and
 `controller/scripts/validate_run_bundle.py` to verify its public integrity.
