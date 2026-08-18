@@ -130,7 +130,7 @@ def main() -> int:
             task_text = (ROOT / "tasks/public/pilot_greenfield_service_readiness.md").read_text()
             plan_sentinel = "V12_AO_PLAN_" + hashlib.sha256(condition_id.encode()).hexdigest()[:16].upper()
             planner_id, roles["planner"] = _spawn_and_observe(
-                project=args.project, name=f"v12-{args.agentskit}-codex-planner", kind="orchestrator",
+                project=args.project, name=f"v12-{args.agentskit}-plan", kind="orchestrator",
                 prompt=(
                     "Read-only technical pilot. Do not edit files or run tools. Analyze A1, A2, and A3 under factor "
                     "context SHA-256 " + _sha(context) + ", then finish with exactly " + plan_sentinel + ".\n\n" + task_text
@@ -146,7 +146,7 @@ def main() -> int:
 
             exec_sentinel = "V12_AO_EXEC_" + hashlib.sha256((condition_id + plan_sentinel).encode()).hexdigest()[:16].upper()
             executor_id, roles["executor"] = _spawn_and_observe(
-                project=args.project, name=f"v12-{args.agentskit}-grok-executor", kind="worker",
+                project=args.project, name=f"v12-{args.agentskit}-exec", kind="worker",
                 prompt=(
                     "Read-only technical executor handoff. Do not edit files or run tools. The Codex planner completed. "
                     "Confirm A1, A2, and A3 are implementable under factor context SHA-256 " + _sha(context)
