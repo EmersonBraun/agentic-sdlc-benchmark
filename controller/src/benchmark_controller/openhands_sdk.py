@@ -17,8 +17,9 @@ from .ledger import Ledger
 
 IMAGE = "ghcr.io/astral-sh/uv:python3.12-bookworm-slim@sha256:e5b65587bce7de595f299855d7385fe7fca39b8a74baa261ba1b7147afa78e58"
 NODE_IMAGE = "node:22.13.0-bookworm-slim@sha256:f5a0871ab03b035c58bdb3007c3d177b001c2145c18e81817b71624dcf7d8bff"
-IGNORED = {".git", ".next", ".DS_Store", "node_modules"}
+RUNTIME_IMAGE = "agentic-sdlc-openhands-runtime:1.42.1-node22"
 CONTEXT_IGNORED = {".next", ".DS_Store", "node_modules"}
+EXPORT_IGNORED = {".next", ".DS_Store", "node_modules"}
 
 
 class OpenHandsSDKAdapter:
@@ -32,6 +33,37 @@ class OpenHandsSDKAdapter:
     def assert_ready(self) -> None:
         if self.descriptor.implementation_status not in {"contract-ready", "installed-ready"}:
             raise RuntimeError(f"OpenHands SDK is {self.descriptor.implementation_status}")
+
+    def prepare_runtime(self) -> str:
+        """Materialize the network-dependent image as an explicit audited operation."""
+        self.runtime.permissions.authorize("network")
+        self.runtime.prepare()
+        with tempfile.TemporaryDirectory(prefix="agentic-sdlc-openhands-runtime-") as directory:
+            context = Path(directory)
+            shutil.copytree(self.runtime.workspace, context / "workspace", ignore=shutil.ignore_patterns(*CONTEXT_IGNORED))
+            shutil.copy2(self._root / "controller/scripts/openhands_command_bridge.py", context / "bridge.py")
+            shutil.copy2(self._root / "adapters/openhands-sdk-v1.1.requirements.lock", context / "requirements.lock")
+            (context / "Dockerfile").write_text(_runtime_dockerfile(), encoding="utf-8")
+            started = time.monotonic_ns()
+            built = subprocess.run(
+                ("docker", "build", "--no-cache", "--tag", RUNTIME_IMAGE, str(context)),
+                capture_output=True, text=True, timeout=600, check=False,
+            )
+        inspected = subprocess.run(
+            ("docker", "image", "inspect", RUNTIME_IMAGE, "--format", "{{.Id}}"),
+            capture_output=True, text=True, check=False,
+        )
+        image_id = inspected.stdout.strip() if inspected.returncode == 0 else ""
+        self.runtime.ledger.record(
+            stage_id="intake", actor="infrastructure", event_type="harness.runtime.materialized",
+            time_category="harness_overhead", duration_ms=(time.monotonic_ns() - started) / 1_000_000,
+            status="completed" if built.returncode == 0 and image_id.startswith("sha256:") else "failed",
+            payload={"image_id_sha256": hashlib.sha256(image_id.encode()).hexdigest()},
+            tool="openhands-sdk-container-adapter-v1.1",
+        )
+        if built.returncode != 0 or not image_id.startswith("sha256:"):
+            raise RuntimeError("OpenHands runtime materialization failed")
+        return image_id
 
     def run_command(
         self,
@@ -48,57 +80,62 @@ class OpenHandsSDKAdapter:
         normalized = _validate_command(command)
         if env:
             raise ValueError("OpenHands container adapter does not accept host environment injection")
-        self.runtime.permissions.authorize(access)
+        try:
+            self.runtime.permissions.authorize(access)
+        except PermissionError:
+            self.runtime.ledger.record(
+                stage_id=stage_id, actor=actor, event_type="adapter.command.blocked",
+                time_category="orchestration_overhead", duration_ms=0, status="blocked",
+                payload={"access": access}, tool="openhands-sdk-container-adapter-v1.1",
+            )
+            raise
         self.runtime.prepare()
         container = f"benchmark-openhands-command-{time.time_ns()}"
-        tag = f"agentic-sdlc-openhands-command:{time.time_ns()}"
+        readonly_image = f"agentic-sdlc-openhands-readonly:{time.time_ns()}"
         container_removed = False
-        image_removed = False
+        runtime_available = False
         pending_error: Exception | None = None
         started = time.monotonic_ns()
         result = AdapterCommandResult(normalized, 125, "", "OpenHands command did not start")
         with tempfile.TemporaryDirectory(prefix="agentic-sdlc-openhands-command-") as directory:
             context = Path(directory)
             shutil.copytree(self.runtime.workspace, context / "workspace", ignore=shutil.ignore_patterns(*CONTEXT_IGNORED))
-            shutil.copy2(self._root / "controller/scripts/openhands_command_bridge.py", context / "bridge.py")
-            shutil.copy2(self._root / "adapters/openhands-sdk-v1.1.requirements.lock", context / "requirements.lock")
-            dockerfile = "\n".join((
-                f"FROM {NODE_IMAGE} AS node_runtime",
-                f"FROM {IMAGE}",
-                "COPY --from=node_runtime /usr/local /usr/local",
-                "COPY requirements.lock /requirements.lock",
-                "RUN uv pip install --system --require-hashes -r /requirements.lock",
-                "RUN npm install --global pnpm@10.33.0",
-                "COPY bridge.py /bridge.py",
-                "COPY workspace /workspace",
-                "RUN if [ -f /workspace/pnpm-lock.yaml ]; then cd /workspace && pnpm install --frozen-lockfile; fi",
-                "WORKDIR /workspace",
-                "",
-            ))
-            (context / "Dockerfile").write_text(dockerfile, encoding="utf-8")
-            build = ("docker", "build", "--quiet", "--tag", tag, str(context))
-            run = ["docker", "run", "--name", container]
+            image_probe = subprocess.run(("docker", "image", "inspect", RUNTIME_IMAGE), capture_output=True, text=True, check=False)
+            if image_probe.returncode != 0:
+                raise RuntimeError("OpenHands runtime is not materialized; call prepare_runtime() with network permission")
+            run = ["docker", "create", "--name", container]
             if access != "network":
                 run += ["--network", "none"]
-            run += ["--cap-drop=ALL", "--security-opt=no-new-privileges", "--pids-limit", "256"]
-            if access == "read":
-                run.append("--read-only")
-            run += ["--tmpfs", "/tmp:rw,noexec,nosuid,size=64m", tag, "python", "/bridge.py", json.dumps(normalized)]
+            run += ["--cap-drop=ALL", "--cap-add=DAC_OVERRIDE", "--security-opt=no-new-privileges", "--pids-limit", "256"]
+            run += ["--tmpfs", "/tmp:rw,noexec,nosuid,size=64m", RUNTIME_IMAGE, "python", "/bridge.py", json.dumps(normalized)]
             try:
-                built = subprocess.run(build, capture_output=True, text=True, timeout=600, check=False)
-                if built.returncode != 0:
-                    result = AdapterCommandResult(normalized, built.returncode, built.stdout, built.stderr)
-                else:
-                    completed = subprocess.run(run, capture_output=True, text=True, timeout=timeout_seconds, check=False)
-                    payload = _parse_result(completed.stdout)
-                    result = AdapterCommandResult(normalized, payload["returncode"], payload["stdout"], payload["stderr"])
-                    if access == "write":
-                        exported = context / "exported"
-                        exported.mkdir()
-                        copied = subprocess.run(("docker", "cp", f"{container}:/workspace/.", str(exported)), capture_output=True, text=True, check=False)
-                        if copied.returncode != 0:
-                            raise RuntimeError("failed to export OpenHands workspace")
-                        _replace_workspace(self.runtime.workspace, exported)
+                created = subprocess.run(run, capture_output=True, text=True, check=False)
+                if created.returncode != 0:
+                    raise RuntimeError("failed to create OpenHands runtime container")
+                imported = subprocess.run(("docker", "cp", f"{context / 'workspace'}/.", f"{container}:/workspace/"), capture_output=True, text=True, check=False)
+                if imported.returncode != 0:
+                    raise RuntimeError("failed to import OpenHands workspace")
+                if access == "read":
+                    committed = subprocess.run(("docker", "commit", container, readonly_image), capture_output=True, text=True, check=False)
+                    subprocess.run(("docker", "rm", "--force", container), capture_output=True, text=True, check=False)
+                    if committed.returncode != 0:
+                        raise RuntimeError("failed to freeze read-only OpenHands workspace")
+                    readonly_run = list(run)
+                    readonly_run.insert(readonly_run.index(RUNTIME_IMAGE), "--read-only")
+                    readonly_run[readonly_run.index(RUNTIME_IMAGE)] = readonly_image
+                    recreated = subprocess.run(readonly_run, capture_output=True, text=True, check=False)
+                    if recreated.returncode != 0:
+                        raise RuntimeError("failed to create read-only OpenHands runtime container")
+                completed = subprocess.run(("docker", "start", "--attach", container), capture_output=True, text=True, timeout=timeout_seconds, check=False)
+                payload = _parse_result(completed.stdout)
+                result = AdapterCommandResult(normalized, payload["returncode"], payload["stdout"], payload["stderr"])
+                if access == "write":
+                    exported = context / "exported"
+                    exported.mkdir()
+                    copied = subprocess.run(("docker", "cp", f"{container}:/workspace/.", str(exported)), capture_output=True, text=True, check=False)
+                    if copied.returncode != 0:
+                        raise RuntimeError("failed to export OpenHands workspace")
+                    _replace_workspace(self.runtime.workspace, exported)
             except subprocess.TimeoutExpired as exc:
                 result = AdapterCommandResult(normalized, 124, exc.stdout or "", exc.stderr or "", timed_out=True)
             except Exception as exc:
@@ -106,21 +143,21 @@ class OpenHandsSDKAdapter:
                 result = AdapterCommandResult(normalized, 125, "", type(exc).__name__)
             finally:
                 subprocess.run(("docker", "rm", "--force", container), capture_output=True, text=True, check=False)
-                subprocess.run(("docker", "image", "rm", "--force", tag), capture_output=True, text=True, check=False)
+                subprocess.run(("docker", "image", "rm", "--force", readonly_image), capture_output=True, text=True, check=False)
                 container_removed = _confirmed_absent(("docker", "container", "inspect", container))
-                image_removed = _confirmed_absent(("docker", "image", "inspect", tag))
+                runtime_available = subprocess.run(("docker", "image", "inspect", RUNTIME_IMAGE), capture_output=True, text=True, check=False).returncode == 0
         duration_ms = (time.monotonic_ns() - started) / 1_000_000
         self.runtime.ledger.record(
             stage_id=stage_id, actor=actor, event_type="adapter.command.executed",
             time_category=time_category, duration_ms=duration_ms,
-            status="completed" if result.returncode == 0 and container_removed and image_removed else "failed",
+            status="completed" if result.returncode == 0 and container_removed and runtime_available else "failed",
             payload={
                 "argv_sha256": hashlib.sha256(json.dumps(normalized, separators=(",", ":")).encode()).hexdigest(),
                 "access": access, "returncode": result.returncode, "timed_out": result.timed_out,
-                "container_removed": container_removed, "image_removed": image_removed,
+                "container_removed": container_removed, "runtime_available": runtime_available,
             }, tool="openhands-sdk-container-adapter-v1.1",
         )
-        if not container_removed or not image_removed:
+        if not container_removed or not runtime_available:
             raise RuntimeError("OpenHands container cleanup could not be verified")
         if pending_error is not None:
             raise pending_error
@@ -144,6 +181,21 @@ def _parse_result(output: str) -> dict[str, object]:
     return value
 
 
+def _runtime_dockerfile() -> str:
+    return "\n".join((
+        f"FROM {NODE_IMAGE} AS node_runtime", f"FROM {IMAGE}",
+        "COPY --from=node_runtime /usr/local /usr/local",
+        "RUN apt-get update && apt-get install --yes --no-install-recommends git=1:2.39.5-0+deb12u3 && rm -rf /var/lib/apt/lists/*",
+        "RUN git config --system --add safe.directory /workspace",
+        "COPY requirements.lock /requirements.lock",
+        "RUN uv pip install --system --require-hashes -r /requirements.lock",
+        "RUN npm install --global pnpm@11.21.0", "COPY bridge.py /bridge.py",
+        "COPY workspace /workspace",
+        "RUN if [ -f /workspace/pnpm-lock.yaml ]; then cd /workspace && pnpm install --frozen-lockfile; fi",
+        "WORKDIR /workspace", "",
+    ))
+
+
 def _confirmed_absent(command: tuple[str, ...]) -> bool:
     result = subprocess.run(command, capture_output=True, text=True, check=False)
     return result.returncode != 0 and "No such" in result.stderr
@@ -151,13 +203,13 @@ def _confirmed_absent(command: tuple[str, ...]) -> bool:
 
 def _replace_workspace(target: Path, source: Path) -> None:
     for child in target.iterdir():
-        if child.name not in IGNORED:
+        if child.name not in EXPORT_IGNORED:
             if child.is_dir() and not child.is_symlink():
                 shutil.rmtree(child)
             else:
                 child.unlink()
     for child in source.iterdir():
-        if child.name in IGNORED:
+        if child.name in EXPORT_IGNORED:
             continue
         destination = target / child.name
         if child.is_dir() and not child.is_symlink():

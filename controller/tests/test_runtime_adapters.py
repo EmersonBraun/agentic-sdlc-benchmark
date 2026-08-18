@@ -9,7 +9,7 @@ from benchmark_controller.ade_adapters import ADENotReadyError, build_ade_adapte
 from benchmark_controller.harness_adapters import build_harness_adapter
 from benchmark_controller.ledger import Ledger
 from benchmark_controller.mini_swe import MiniSweAgentAdapter
-from benchmark_controller.openhands_sdk import OpenHandsSDKAdapter
+from benchmark_controller.openhands_sdk import OpenHandsSDKAdapter, _replace_workspace
 
 
 class RuntimeAdapterRegistryTests(unittest.TestCase):
@@ -47,9 +47,11 @@ class RuntimeAdapterRegistryTests(unittest.TestCase):
 
             def fake_run(command, **kwargs):
                 argv = tuple(command)
-                if argv[:3] == ("docker", "container", "inspect") or argv[:3] == ("docker", "image", "inspect"):
+                if argv[:3] == ("docker", "container", "inspect"):
                     return CompletedProcess(argv, 1, "", "Error: No such object")
-                if argv[:2] == ("docker", "run"):
+                if argv[:3] == ("docker", "image", "inspect"):
+                    return CompletedProcess(argv, 0, "sha256:test", "")
+                if argv[:2] == ("docker", "start"):
                     payload = {"schema_version": "openhands-command-result-v1.1", "returncode": 0, "stdout": "ok\n", "stderr": ""}
                     return CompletedProcess(argv, 0, json.dumps(payload) + "\n", "")
                 return CompletedProcess(argv, 0, "", "")
@@ -59,6 +61,19 @@ class RuntimeAdapterRegistryTests(unittest.TestCase):
             self.assertEqual(result.stdout, "ok\n")
             event = json.loads(ledger.path.read_text().splitlines()[-1])
             self.assertEqual(event["status"], "completed")
+
+    def test_openhands_writeback_preserves_git_state(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target, source = root / "target", root / "source"
+            (target / ".git").mkdir(parents=True)
+            (target / ".git/HEAD").write_text("old")
+            (source / ".git").mkdir(parents=True)
+            (source / ".git/HEAD").write_text("new")
+            (source / "result.txt").write_text("done")
+            _replace_workspace(target, source)
+            self.assertEqual((target / ".git/HEAD").read_text(), "new")
+            self.assertEqual((target / "result.txt").read_text(), "done")
 
     def test_mini_swe_registry_resolves_live_cli_bridge(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

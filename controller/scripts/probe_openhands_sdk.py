@@ -73,7 +73,7 @@ def parse_native_result(output: str) -> dict[str, Any]:
         raise ValueError("native result reports raw content")
     if result["versions"] != EXPECTED_VERSIONS or result["workspace_type"] != "LocalWorkspace":
         raise ValueError("native identity does not match the frozen contract")
-    if result["read_exit_code"] != 0 or not isinstance(result["write_exit_code"], int) or isinstance(result["write_exit_code"], bool) or result["write_exit_code"] == 0:
+    if not isinstance(result["read_exit_code"], int) or isinstance(result["read_exit_code"], bool) or result["read_exit_code"] != 0 or not isinstance(result["write_exit_code"], int) or isinstance(result["write_exit_code"], bool) or result["write_exit_code"] == 0:
         raise ValueError("native exit codes do not prove read/write behavior")
     for field in ("read_stdout_sha256", "write_stderr_sha256", "workspace_tree_sha256"):
         if not isinstance(result[field], str) or SHA256_PATTERN.fullmatch(result[field]) is None:
@@ -84,7 +84,7 @@ def parse_native_result(output: str) -> dict[str, Any]:
 def execute_probe(
     *, context: Path, dockerfile: str, fixture: Path, native_probe: Path,
     lockfile: Path, name: str, tag: str,
-) -> tuple[subprocess.CompletedProcess[str], subprocess.CompletedProcess[str] | None, tuple[str, ...], tuple[str, ...], float, str | None, bool, bool]:
+) -> tuple[subprocess.CompletedProcess[str], subprocess.CompletedProcess[str] | None, tuple[str, ...], tuple[str, ...], float, str | None, bool, bool, str | None]:
     """Build/run the probe and always remove its uniquely named Docker artifacts."""
     build_command = (
         "docker", "build", "--no-cache", "--label", "agentic-sdlc-benchmark=openhands-readiness",
@@ -101,7 +101,9 @@ def execute_probe(
     (context / "Dockerfile").write_text(dockerfile, encoding="utf-8")
     started = time.monotonic_ns()
     runtime: subprocess.CompletedProcess[str] | None = None
+    build = subprocess.CompletedProcess(build_command, 125, "", "build did not start")
     image_id_sha256: str | None = None
+    operational_error: str | None = None
     try:
         build = subprocess.run(build_command, capture_output=True, text=True, check=False, timeout=600)
         if build.returncode == 0:
@@ -112,6 +114,14 @@ def execute_probe(
             if inspected.returncode == 0:
                 image_id_sha256 = sha256_bytes(inspected.stdout.strip().encode())
             runtime = subprocess.run(run_command, capture_output=True, text=True, check=False, timeout=120)
+    except subprocess.TimeoutExpired as exc:
+        operational_error = f"TimeoutExpired: {exc.timeout} seconds"
+        if tuple(exc.cmd) == build_command:
+            build = subprocess.CompletedProcess(build_command, 124, exc.stdout or "", exc.stderr or "")
+        else:
+            runtime = subprocess.CompletedProcess(run_command, 124, exc.stdout or "", exc.stderr or "")
+    except OSError as exc:
+        operational_error = f"{type(exc).__name__}: {exc}"
     finally:
         subprocess.run(("docker", "rm", "--force", name), capture_output=True, text=True, check=False)
         subprocess.run(("docker", "image", "rm", "--force", tag), capture_output=True, text=True, check=False)
@@ -124,7 +134,7 @@ def execute_probe(
     )
     container_removed = container_inspect.returncode != 0 and "No such" in container_inspect.stderr
     image_removed = image_inspect.returncode != 0 and "No such" in image_inspect.stderr
-    return build, runtime, build_command, run_command, duration_ms, image_id_sha256, container_removed, image_removed
+    return build, runtime, build_command, run_command, duration_ms, image_id_sha256, container_removed, image_removed, operational_error
 
 
 def main() -> int:
@@ -159,17 +169,18 @@ def main() -> int:
     ))
     ledger = Ledger(args.ledger, run_id="run_openhands-sdk-readiness", task_id="pilot_smoke")
     with tempfile.TemporaryDirectory(prefix="agentic-sdlc-openhands-build-") as directory:
-        build, runtime, build_command, run_command, duration_ms, image_id_sha256, container_removed, image_removed = execute_probe(
+        build, runtime, build_command, run_command, duration_ms, image_id_sha256, container_removed, image_removed, operational_error = execute_probe(
             context=Path(directory), dockerfile=dockerfile, fixture=fixture, native_probe=native_probe,
             lockfile=lockfile, name=name, tag=tag,
         )
     combined = build.stdout + build.stderr + (runtime.stdout + runtime.stderr if runtime else "")
     native: dict[str, Any] = {}
-    error: str | None = None
-    try:
-        native = parse_native_result(runtime.stdout + runtime.stderr if runtime else "")
-    except ValueError as exc:
-        error = str(exc)
+    error: str | None = operational_error
+    if error is None:
+        try:
+            native = parse_native_result(runtime.stdout + runtime.stderr if runtime else "")
+        except ValueError as exc:
+            error = str(exc)
     passed = all((
         build.returncode == 0,
         runtime is not None and runtime.returncode == 0,
@@ -185,7 +196,7 @@ def main() -> int:
         ("harness.dependency.resolve", "completed" if build.returncode == 0 else "failed"),
         ("harness.workspace.read", "completed" if native.get("read_marker_observed") else "failed"),
         ("harness.workspace.write", "blocked" if native.get("write_denied") else "failed"),
-        ("harness.cleanup", "completed" if container_removed else "failed"),
+        ("harness.cleanup", "completed" if container_removed and image_removed else "failed"),
     ):
         ledger.record(
             stage_id="local-testing", actor="infrastructure", event_type=event_type,

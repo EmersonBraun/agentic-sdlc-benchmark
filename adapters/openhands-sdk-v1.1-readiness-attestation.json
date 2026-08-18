@@ -1,15 +1,15 @@
 {
   "analysis_eligible": false,
-  "build_command_sha256": "f7a78b197a1de876b4a28d8a6698e6dc6beb352e760ebadbdda914cc188e0340",
-  "built_image_id_sha256": "f5b839df5b224e4d8710e6ec998feb1815a6a948fa39618d055d6b0e6ed88bb0",
-  "container_name_sha256": "f3b5f05ef7c4179aed61b074fb590eb48d86969ecfde5af2469464c4721b2852",
+  "build_command_sha256": "c1349ec6df8bb4962eed2c88ce0fc315dc84d91fce3bdcad5e06c4b4f418685e",
+  "built_image_id_sha256": "1aae79cbf85827a8a22e423319e9fe17e44b1ae6760563d5736712920fa13194",
+  "container_name_sha256": "cc5264bdefea285c6f34d252008dbb8f6349aaf2b6dc0086c1733c25094929f1",
   "container_removed": true,
   "fixture_tree_sha256": "7b264674c10546f32590196394b4cbf8bd824da3cdff1619432f1d39160a44df",
   "image": "ghcr.io/astral-sh/uv:python3.12-bookworm-slim@sha256:e5b65587bce7de595f299855d7385fe7fca39b8a74baa261ba1b7147afa78e58",
   "image_removed": true,
-  "image_tag_sha256": "6d35b3d69d1e9939bc48da23cf022f04593cf7eacfef211d8de6e4280a169e05",
+  "image_tag_sha256": "79656755dfd0369d87b663eadfaabb8cfcbd774ff7b0f4ba68fb107fd23d80d3",
   "ledger_event_count": 4,
-  "ledger_sha256": "8fd8f79455339cd45865cde3acec36edd4e7f7cd42c65e349f50c300e2e5b59a",
+  "ledger_sha256": "18f5732052d0c84fe48a79488cc97ef3aa9d141615252301953e8f7eb7f5cde3",
   "lock_sha256": "e2c057ea261f465fc60d9910befc0746e617d14b9eb46b39f0c0ccf0fd06dd15",
   "native": {
     "raw_content_in_result": false,
@@ -31,7 +31,7 @@
     "write_stderr_sha256": "9570428b59e64d2a322d115986711ff53ea6c2c6ed9347b75b4227d56142d27c"
   },
   "native_probe_source_sha256": "295ba1b608975d5b3e982c1aef5999c2ab7bd752d7cf2491db74f9595a35335e",
-  "observed_at": "2026-08-18T17:05:27.440670+00:00",
+  "observed_at": "2026-08-18T17:11:42.676730+00:00",
   "operator": "local-primary-operator",
   "operator_probe_command": [
     "/opt/homebrew/opt/python@3.14/bin/python3.14",
@@ -42,12 +42,12 @@
     "--ledger",
     "adapters/openhands-sdk-v1.1-probe-ledger.jsonl"
   ],
-  "probe_source_sha256": "4092857ef58894ef287bda3ee23610f90614f025441d6a347dc131b3929caf41",
+  "probe_source_sha256": "811fb342add610b8baa59d61e21bb36acb2e96e8eb603c0e990457856f2f5b40",
   "protocol_version": "v1.1",
   "raw_output_persisted": false,
   "redaction_scan_passed": true,
   "resolver": "uv",
-  "resolver_output_sha256": "f1d0bc0fb14ab55b2bbf1e3efb94d23c2f56a7eca6d8d0af50c15f5ec7c771ac",
+  "resolver_output_sha256": "412ab3766e3446b6ffbbb4db97b291e5828699d230071ca4b63c910bf623b6e6",
   "resolver_policy": {
     "dependency_overrides": false,
     "no_deps": false,
@@ -55,7 +55,7 @@
     "require_hashes": true
   },
   "resolver_returncode": 0,
-  "run_command_sha256": "aaeaca0c811fef9406c195cd29a5329fd16672980ae3cd5920383283a5576e5e",
+  "run_command_sha256": "b9ae62830d5a0cac49fa42fbd70b9dbbb68bcbbb9fdb6edf7ae07b768372dd07",
   "runtime_returncode": 0,
   "schema_version": "openhands-sdk-readiness-attestation-v1.1",
   "status": "passed",
