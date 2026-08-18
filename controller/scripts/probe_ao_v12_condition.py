@@ -54,6 +54,7 @@ def _spawn_and_observe(
     if not workspace.is_dir():
         workspace = Path.home() / ".ao/data/worktrees" / project / session_id
     status = _run("git", "-C", str(workspace), "status", "--porcelain", "--untracked-files=all")
+    changed_paths = sorted(line[3:] for line in status.stdout.splitlines() if len(line) > 3)
     evidence = {
         "session_id_sha256": _sha(session_id),
         "spawn_output_sha256": _sha(spawned.stdout + spawned.stderr),
@@ -64,6 +65,7 @@ def _spawn_and_observe(
         "workspace_path_sha256": _sha(str(workspace.resolve())),
         "workspace_clean": status.returncode == 0 and status.stdout == "",
         "workspace_status_sha256": _sha(status.stdout + status.stderr),
+        "changed_paths": changed_paths,
     }
     return session_id, evidence
 
