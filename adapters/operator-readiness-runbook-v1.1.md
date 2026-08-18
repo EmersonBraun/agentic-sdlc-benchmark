@@ -58,7 +58,7 @@ The pilot may start only when all of the following are true:
 ```text
 check_pilot_gate.can_start == true
 ready_conditions == 18
-semantic_parity.status == ready
+semantic_parity.status == verified
 blocker_register.status == clear
 ```
 
@@ -68,11 +68,10 @@ create no benchmark run or external session.
 ## Current state
 
 As of 2026-08-18, all three ADEs, all three harnesses, and both AgentsKit
-treatments are independently ready. All 18 component-complete v1.1 conditions
-are ready, but the global semantic-parity gate remains
-blocked. Its reference-harness ON/OFF technical pair remains excluded from
-official analysis. ORCA executes `gpt-5.4` and settles capability-bound lifecycle
+treatments are independently ready. All 126 static/component preconditions are
+verified, but condition-level integration probes remain missing for 18/18
+combinations, so official collection is blocked. ORCA executes `gpt-5.4` and settles capability-bound lifecycle
 events through the terminal-ready then `dispatch --inject` path; Agent Orchestrator relies on bounded read-only datastore observation because its public CLI lacks native events;
 OpenHands 1.42.1 is ready through the pinned `uv` container bridge. mini-SWE-agent is ready through the
 authenticated Grok CLI/OAuth transport; no API key is part of the protocol.
-The only remaining gate is protocol-owned global semantic parity, not operator credentials.
+The remaining blocker is the composed 18-condition integration probe, not component installation or credentials.

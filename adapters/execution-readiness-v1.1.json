@@ -8,10 +8,10 @@
     {
       "blocker_id": "global-semantic-parity",
       "component": "protocol:semantic-parity",
-      "evidence_ref": "adapters/semantic-parity-v1.0.json",
-      "next_action": "Close every component-local blocker, verify all seven invariants for 18/18 conditions, then promote the global gate.",
+      "evidence_ref": "adapters/semantic-parity-matrix-v1.1.json",
+      "next_action": "Execute a bounded composed probe for every frozen condition and verify all seven invariants from condition-level artifacts.",
       "owner": "protocol",
-      "reason": "Component-local readiness is incomplete across the full 18-condition matrix.",
+      "reason": "Components are independently ready, but composed integration evidence is missing for all 18 conditions.",
       "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection"
     }
   ],

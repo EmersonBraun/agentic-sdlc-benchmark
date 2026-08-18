@@ -1,11 +1,19 @@
 import json
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from benchmark_controller.pilot_executor import ConditionedPilotExecutor, PilotNotReadyError
 
 
 class ConditionedPilotExecutorTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.matrix_patch = mock.patch("benchmark_controller.semantic_parity._verify_matrix_binding", return_value=True)
+        self.matrix_patch.start()
+
+    def tearDown(self) -> None:
+        self.matrix_patch.stop()
+
     def test_current_preflight_fails_closed_before_plan_side_effects(self) -> None:
         root = Path(__file__).resolve().parents[2]
         preflight = json.loads((root / "adapters" / "preflight-v1.0.json").read_text(encoding="utf-8"))
@@ -51,10 +59,16 @@ class ConditionedPilotExecutorTests(unittest.TestCase):
             )
 
     def test_verified_synthetic_matrix_returns_plan_without_fallback(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+        binding = json.loads((root / "adapters/preflight-v1.1.json").read_text())["semantic_parity"]
         preflight = {
             "protocol_version": "v1.0",
             "semantic_parity": {
+                **binding,
                 "status": "verified",
+                "conditions_verified": 18,
+                "invariants_per_condition": 7,
+                "verification_count": 126,
                 "evidence": {
                     "same_task_and_acceptance_contract": "verified",
                     "common_harness_capabilities": "verified",

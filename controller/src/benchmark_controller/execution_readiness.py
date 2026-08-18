@@ -95,9 +95,9 @@ GLOBAL_PARITY_BLOCKER = ExecutionBlocker(
     "global-semantic-parity",
     "protocol:semantic-parity",
     "protocol",
-    "Component-local readiness is incomplete across the full 18-condition matrix.",
-    "adapters/semantic-parity-v1.0.json",
-    "Close every component-local blocker, verify all seven invariants for 18/18 conditions, then promote the global gate.",
+    "Components are independently ready, but composed integration evidence is missing for all 18 conditions.",
+    "adapters/semantic-parity-matrix-v1.1.json",
+    "Execute a bounded composed probe for every frozen condition and verify all seven invariants from condition-level artifacts.",
     "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection",
 )
 

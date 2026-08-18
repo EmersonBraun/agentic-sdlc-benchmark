@@ -41,6 +41,7 @@ class AgentOrchestratorComponentReadinessTests(unittest.TestCase):
         self.assertEqual(attestation["probe_sha256"], hashlib.sha256(runner.read_bytes()).hexdigest())
         self.assertEqual(preflight["ade"]["agent-orchestrator"]["status"], "installed-ready")
         self.assertNotEqual(preflight["semantic_parity"]["status"], "verified")
+        self.assertEqual(preflight["semantic_parity"]["precondition_conditions_verified"], 18)
 
     def test_attestation_contains_no_raw_prompt_or_reply(self) -> None:
         root = Path(__file__).resolve().parents[2]
