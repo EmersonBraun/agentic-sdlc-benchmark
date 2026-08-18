@@ -7,11 +7,10 @@
       "factor_statuses": {
         "ade": "installed-not-ready",
         "agentskit": "contract-ready",
-        "harness": "installed-not-ready"
+        "harness": "installed-ready"
       },
       "missing_components": [
-        "ade:agent-orchestrator:installed-not-ready",
-        "harness:mini-swe-agent:installed-not-ready"
+        "ade:agent-orchestrator:installed-not-ready"
       ],
       "ready": false
     },
@@ -20,11 +19,10 @@
       "factor_statuses": {
         "ade": "installed-not-ready",
         "agentskit": "installed-not-ready",
-        "harness": "installed-not-ready"
+        "harness": "installed-ready"
       },
       "missing_components": [
         "ade:agent-orchestrator:installed-not-ready",
-        "harness:mini-swe-agent:installed-not-ready",
         "agentskit:on:installed-not-ready"
       ],
       "ready": false
@@ -86,11 +84,10 @@
       "factor_statuses": {
         "ade": "installed-not-ready",
         "agentskit": "contract-ready",
-        "harness": "installed-not-ready"
+        "harness": "installed-ready"
       },
       "missing_components": [
-        "ade:compozy:installed-not-ready",
-        "harness:mini-swe-agent:installed-not-ready"
+        "ade:compozy:installed-not-ready"
       ],
       "ready": false
     },
@@ -99,11 +96,10 @@
       "factor_statuses": {
         "ade": "installed-not-ready",
         "agentskit": "installed-not-ready",
-        "harness": "installed-not-ready"
+        "harness": "installed-ready"
       },
       "missing_components": [
         "ade:compozy:installed-not-ready",
-        "harness:mini-swe-agent:installed-not-ready",
         "agentskit:on:installed-not-ready"
       ],
       "ready": false
@@ -165,11 +161,10 @@
       "factor_statuses": {
         "ade": "installed-not-ready",
         "agentskit": "contract-ready",
-        "harness": "installed-not-ready"
+        "harness": "installed-ready"
       },
       "missing_components": [
-        "ade:orca:installed-not-ready",
-        "harness:mini-swe-agent:installed-not-ready"
+        "ade:orca:installed-not-ready"
       ],
       "ready": false
     },
@@ -178,11 +173,10 @@
       "factor_statuses": {
         "ade": "installed-not-ready",
         "agentskit": "installed-not-ready",
-        "harness": "installed-not-ready"
+        "harness": "installed-ready"
       },
       "missing_components": [
         "ade:orca:installed-not-ready",
-        "harness:mini-swe-agent:installed-not-ready",
         "agentskit:on:installed-not-ready"
       ],
       "ready": false
@@ -240,6 +234,7 @@
       "ready": false
     }
   ],
+  "gate_mode": "official-collection",
   "protocol_version": "v1.1",
   "ready_conditions": 0,
   "schema_version": "condition-readiness-v1.1",

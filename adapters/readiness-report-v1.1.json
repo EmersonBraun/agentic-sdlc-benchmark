@@ -1,0 +1,307 @@
+{
+  "blocked_components": 5,
+  "components": [
+    {
+      "blockers": [
+        "implementation-status",
+        "workspace",
+        "permissions",
+        "lifecycle-bridge",
+        "ledger-bridge"
+      ],
+      "checks": [
+        {
+          "check_id": "implementation-status",
+          "evidence": "status=installed-not-ready",
+          "passed": false
+        },
+        {
+          "check_id": "health",
+          "evidence": "present",
+          "passed": true
+        },
+        {
+          "check_id": "workspace",
+          "evidence": "missing; available=['model_candidate', 'model_configuration', 'model_execution', 'native_event_stream', 'polling_bridge', 'runtime_reachable', 'session_cleanup', 'workspace_boundary']",
+          "passed": false
+        },
+        {
+          "check_id": "permissions",
+          "evidence": "missing; available=['model_candidate', 'model_configuration', 'model_execution', 'native_event_stream', 'polling_bridge', 'runtime_reachable', 'session_cleanup', 'workspace_boundary']",
+          "passed": false
+        },
+        {
+          "check_id": "lifecycle-bridge",
+          "evidence": "missing; available=['model_candidate', 'model_configuration', 'model_execution', 'native_event_stream', 'polling_bridge', 'runtime_reachable', 'session_cleanup', 'workspace_boundary']",
+          "passed": false
+        },
+        {
+          "check_id": "ledger-bridge",
+          "evidence": "missing; available=['model_candidate', 'model_configuration', 'model_execution', 'native_event_stream', 'polling_bridge', 'runtime_reachable', 'session_cleanup', 'workspace_boundary']",
+          "passed": false
+        }
+      ],
+      "factor": "ade",
+      "key": "agent-orchestrator",
+      "ready": false,
+      "status": "installed-not-ready"
+    },
+    {
+      "blockers": [
+        "implementation-status",
+        "health",
+        "workspace",
+        "permissions",
+        "lifecycle-bridge",
+        "ledger-bridge"
+      ],
+      "checks": [
+        {
+          "check_id": "implementation-status",
+          "evidence": "status=installed-not-ready",
+          "passed": false
+        },
+        {
+          "check_id": "health",
+          "evidence": "missing; available=['candidate_model', 'candidate_model_execution', 'current_shell_command', 'daemon_reachable', 'live_lifecycle_ledger', 'provider_bound_session', 'provider_model_execution', 'required_model', 'required_model_provider_result', 'session_cleanup', 'unknown_event_policy', 'workspace_resolution']",
+          "passed": false
+        },
+        {
+          "check_id": "workspace",
+          "evidence": "missing; available=['candidate_model', 'candidate_model_execution', 'current_shell_command', 'daemon_reachable', 'live_lifecycle_ledger', 'provider_bound_session', 'provider_model_execution', 'required_model', 'required_model_provider_result', 'session_cleanup', 'unknown_event_policy', 'workspace_resolution']",
+          "passed": false
+        },
+        {
+          "check_id": "permissions",
+          "evidence": "missing; available=['candidate_model', 'candidate_model_execution', 'current_shell_command', 'daemon_reachable', 'live_lifecycle_ledger', 'provider_bound_session', 'provider_model_execution', 'required_model', 'required_model_provider_result', 'session_cleanup', 'unknown_event_policy', 'workspace_resolution']",
+          "passed": false
+        },
+        {
+          "check_id": "lifecycle-bridge",
+          "evidence": "missing; available=['candidate_model', 'candidate_model_execution', 'current_shell_command', 'daemon_reachable', 'live_lifecycle_ledger', 'provider_bound_session', 'provider_model_execution', 'required_model', 'required_model_provider_result', 'session_cleanup', 'unknown_event_policy', 'workspace_resolution']",
+          "passed": false
+        },
+        {
+          "check_id": "ledger-bridge",
+          "evidence": "missing; available=['candidate_model', 'candidate_model_execution', 'current_shell_command', 'daemon_reachable', 'live_lifecycle_ledger', 'provider_bound_session', 'provider_model_execution', 'required_model', 'required_model_provider_result', 'session_cleanup', 'unknown_event_policy', 'workspace_resolution']",
+          "passed": false
+        }
+      ],
+      "factor": "ade",
+      "key": "compozy",
+      "ready": false,
+      "status": "installed-not-ready"
+    },
+    {
+      "blockers": [
+        "implementation-status",
+        "permissions",
+        "lifecycle-bridge",
+        "ledger-bridge"
+      ],
+      "checks": [
+        {
+          "check_id": "implementation-status",
+          "evidence": "status=installed-not-ready",
+          "passed": false
+        },
+        {
+          "check_id": "health",
+          "evidence": "present",
+          "passed": true
+        },
+        {
+          "check_id": "workspace",
+          "evidence": "present",
+          "passed": true
+        },
+        {
+          "check_id": "permissions",
+          "evidence": "missing; available=['candidate_model', 'candidate_provider_execution', 'dispatch_attempts', 'graph_state', 'live_lifecycle_ledger', 'model_execution', 'read_only_probe', 'registered_project', 'required_model', 'required_model_provider_result', 'runtime_reachable', 'runtime_state', 'worker_done', 'workspace_boundary']",
+          "passed": false
+        },
+        {
+          "check_id": "lifecycle-bridge",
+          "evidence": "missing; available=['candidate_model', 'candidate_provider_execution', 'dispatch_attempts', 'graph_state', 'live_lifecycle_ledger', 'model_execution', 'read_only_probe', 'registered_project', 'required_model', 'required_model_provider_result', 'runtime_reachable', 'runtime_state', 'worker_done', 'workspace_boundary']",
+          "passed": false
+        },
+        {
+          "check_id": "ledger-bridge",
+          "evidence": "missing; available=['candidate_model', 'candidate_provider_execution', 'dispatch_attempts', 'graph_state', 'live_lifecycle_ledger', 'model_execution', 'read_only_probe', 'registered_project', 'required_model', 'required_model_provider_result', 'runtime_reachable', 'runtime_state', 'worker_done', 'workspace_boundary']",
+          "passed": false
+        }
+      ],
+      "factor": "ade",
+      "key": "orca",
+      "ready": false,
+      "status": "installed-not-ready"
+    },
+    {
+      "blockers": [],
+      "checks": [
+        {
+          "check_id": "implementation-status",
+          "evidence": "status=contract-ready",
+          "passed": true
+        },
+        {
+          "check_id": "neutral-control",
+          "evidence": "status=contract-ready",
+          "passed": true
+        }
+      ],
+      "factor": "agentskit",
+      "key": "off",
+      "ready": true,
+      "status": "contract-ready"
+    },
+    {
+      "blockers": [
+        "implementation-status",
+        "cli",
+        "live-ledger"
+      ],
+      "checks": [
+        {
+          "check_id": "implementation-status",
+          "evidence": "status=installed-not-ready",
+          "passed": false
+        },
+        {
+          "check_id": "cli",
+          "evidence": "missing; available=['agentskit_os_used', 'event_bridge', 'ledger_emission', 'ledger_redaction', 'provider_backed_parity', 'public_only']",
+          "passed": false
+        },
+        {
+          "check_id": "event-bridge",
+          "evidence": "present",
+          "passed": true
+        },
+        {
+          "check_id": "redaction",
+          "evidence": "present",
+          "passed": true
+        },
+        {
+          "check_id": "live-ledger",
+          "evidence": "missing; available=['agentskit_os_used', 'event_bridge', 'ledger_emission', 'ledger_redaction', 'provider_backed_parity', 'public_only']",
+          "passed": false
+        }
+      ],
+      "factor": "agentskit",
+      "key": "on",
+      "ready": false,
+      "status": "installed-not-ready"
+    },
+    {
+      "blockers": [],
+      "checks": [
+        {
+          "check_id": "implementation-status",
+          "evidence": "status=installed-ready",
+          "passed": true
+        },
+        {
+          "check_id": "runtime",
+          "evidence": "present",
+          "passed": true
+        },
+        {
+          "check_id": "workspace-boundary",
+          "evidence": "present",
+          "passed": true
+        },
+        {
+          "check_id": "permission-parity",
+          "evidence": "present",
+          "passed": true
+        },
+        {
+          "check_id": "ledger-bridge",
+          "evidence": "present",
+          "passed": true
+        }
+      ],
+      "factor": "harness",
+      "key": "mini-swe-agent",
+      "ready": true,
+      "status": "installed-ready"
+    },
+    {
+      "blockers": [
+        "implementation-status",
+        "runtime",
+        "workspace-boundary",
+        "permission-parity",
+        "ledger-bridge"
+      ],
+      "checks": [
+        {
+          "check_id": "implementation-status",
+          "evidence": "status=dependency-resolution-failed",
+          "passed": false
+        },
+        {
+          "check_id": "runtime",
+          "evidence": "missing; available=['evidence', 'installed', 'status']",
+          "passed": false
+        },
+        {
+          "check_id": "workspace-boundary",
+          "evidence": "missing; available=['dependency_overrides', 'normal_resolver']",
+          "passed": false
+        },
+        {
+          "check_id": "permission-parity",
+          "evidence": "missing; available=['dependency_overrides', 'normal_resolver']",
+          "passed": false
+        },
+        {
+          "check_id": "ledger-bridge",
+          "evidence": "missing; available=['dependency_overrides', 'normal_resolver']",
+          "passed": false
+        }
+      ],
+      "factor": "harness",
+      "key": "openhands-sdk",
+      "ready": false,
+      "status": "dependency-resolution-failed"
+    },
+    {
+      "blockers": [],
+      "checks": [
+        {
+          "check_id": "implementation-status",
+          "evidence": "status=contract-ready",
+          "passed": true
+        },
+        {
+          "check_id": "runtime",
+          "evidence": "present",
+          "passed": true
+        },
+        {
+          "check_id": "workspace-boundary",
+          "evidence": "present",
+          "passed": true
+        },
+        {
+          "check_id": "permission-parity",
+          "evidence": "present",
+          "passed": true
+        },
+        {
+          "check_id": "ledger-bridge",
+          "evidence": "present",
+          "passed": true
+        }
+      ],
+      "factor": "harness",
+      "key": "reference",
+      "ready": true,
+      "status": "contract-ready"
+    }
+  ],
+  "protocol_version": "v1.1",
+  "ready_components": 3
+}

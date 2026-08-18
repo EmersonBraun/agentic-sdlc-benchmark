@@ -127,7 +127,7 @@
   "harness": {
     "reference": {"installed": true, "status": "contract-ready", "technical_pilot_status": "contract-ready", "evidence": {"workspace_boundary": "contract-tested", "permission_parity": "contract-tested", "ledger_bridge": "live"}},
     "openhands-sdk": {"installed": false, "status": "dependency-resolution-failed", "evidence": {"normal_resolver": "failed", "dependency_overrides": false}},
-    "mini-swe-agent": {"installed": true, "status": "installed-not-ready", "evidence": {"workspace_boundary": "passed", "permission_parity": "contract-tested", "ledger_bridge": "live", "model_auth": "fail-closed"}}
+    "mini-swe-agent": {"installed": true, "status": "installed-ready", "technical_pilot_status": "installed-ready", "evidence": {"workspace_boundary": "passed", "permission_parity": "contract-tested", "ledger_bridge": "live", "model_auth": "native-cli-oauth", "policy_model": "grok-4.5", "api_credentials_used": false, "greenfield_task_parity": "passed", "brownfield_task_parity": "passed", "session_cleanup": "passed", "live_workspace_mode": "implemented"}}
   },
   "agentskit": {
     "off": {"installed": true, "status": "contract-ready", "technical_pilot_status": "contract-ready", "evidence": {"neutral_control": "contract-tested"}},
@@ -150,6 +150,7 @@
     "openhands-resolver-attestation-v1.0.json",
     "mini-swe-attestation-v1.0.json",
     "mini-swe-v1.1-preflight-attestation.json",
+    "mini-swe-cli-bridge-attestation-v1.1.json",
     "agentskit-integrated-fixture-attestation-v1.0.json",
     "agentskit-v1.1-preflight-attestation.json"
   ]

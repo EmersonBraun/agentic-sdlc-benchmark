@@ -22,7 +22,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 | Compozy 0.3.0-beta.16 | installed-not-ready | Exact `gpt-5.4` provider-bound prompt, isolated workspace cleanup, and redacted event-to-ledger bridge | Cross-ADE/harness/AgentsKit semantic parity is still unverified |
 | Reference Harness | contract-ready | Common argv, workspace, permissions, and ledger contract | External ADE readiness still gates every primary condition |
 | OpenHands SDK | dependency-resolution-failed | Normal resolver failure is reproduced for tested versions | Upstream-compatible dependency graph |
-| mini-SWE-agent 2.4.6 | installed-not-ready | Isolated image, read-only workspace, network boundary, and CLI startup | Non-production model/auth boundary and task parity |
+| mini-SWE-agent 2.4.6 | installed-ready | Grok `grok-4.5` through native CLI/OAuth, mini-SWE-controlled tools, append-only ledger, greenfield and Umami product tests, submission, source integrity, session cleanup, and container cleanup | Reliability is measured during repetitions; no readiness blocker remains |
 | AgentsKit OFF | contract-ready | Neutral control contract | None at the contract level |
 | AgentsKit ON | installed-not-ready | Pinned public source, core bridge, redaction, integrated fixture, and offline component checks | Model-backed task parity with all declared components and matched OFF |
 
@@ -41,6 +41,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 - [Latest Compozy availability probe](compozy-v1.1-availability-probe-attestation-2.json)
 - [Compozy provider/lifecycle bridge probe](compozy-v1.1-session-probe-attestation.json)
 - [mini-SWE boundary probe](mini-swe-v1.1-preflight-attestation.json)
+- [mini-SWE native CLI bridge and cross-product task probes](mini-swe-cli-bridge-attestation-v1.1.json)
 - [AgentsKit pinned preflight](agentskit-v1.1-preflight-attestation.json)
 - [Deterministic execution-readiness report](execution-readiness-v1.1.json)
 - [Private evaluation companion](https://github.com/EmersonBraun/agentic-sdlc-benchmark-private) (access-controlled; manifest hash is recorded in the preflight JSON)

@@ -48,7 +48,7 @@ The cross-runtime model investigation is [`model-compatibility-v1.0.json`](model
 
 OpenHands resolver evidence is [`openhands-resolver-attestation-v1.0.json`](openhands-resolver-attestation-v1.0.json). The pinned Python 3.12 environment still fails normal dependency resolution, so no session is started.
 
-mini-SWE-agent bounded runtime evidence is [`mini-swe-attestation-v1.0.json`](mini-swe-attestation-v1.0.json). Its isolated image, read-only workspace boundary, ledger bridge, and fail-closed model probe pass; model-backed task parity remains blocked.
+mini-SWE-agent's historical bounded runtime evidence is [`mini-swe-attestation-v1.0.json`](mini-swe-attestation-v1.0.json). The v1.1 native CLI bridge evidence is [`mini-swe-cli-bridge-attestation-v1.1.json`](mini-swe-cli-bridge-attestation-v1.1.json): `grok-4.5` executes through Grok CLI/OAuth with model-owned tools disabled, while mini-SWE controls isolated greenfield and Umami environments, append-only ledger events, submission, and cleanup. No API key is used.
 
 The current catalog is declarative. It freezes names, adapter versions, entrypoints, and the no-fallback rule; it does not claim that the external tools are installed. Live integrations must pass the installation and semantic-parity gates before a pilot run can use them.
 

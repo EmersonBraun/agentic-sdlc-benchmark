@@ -75,11 +75,11 @@ BLOCKER_SPECS: dict[str, ExecutionBlocker] = {
         "docker run --rm python:3.12.10-slim python -m pip install --dry-run --no-cache-dir openhands-sdk==1.42.1 openhands-tools==1.42.1 openhands-workspace==1.42.1",
     ),
     "harness:mini-swe-agent": ExecutionBlocker(
-        "mini-swe-model-credential", "harness:mini-swe-agent", "operator",
-        "The isolated runtime passes, but no non-production provider credential is available for task execution.",
-        "adapters/mini-swe-v1.1-preflight-attestation.json",
-        "Configure a non-production XAI_API_KEY in the execution environment without committing or publishing it.",
-        "test -n \"$XAI_API_KEY\"",
+        "mini-swe-cli-transport", "harness:mini-swe-agent", "protocol",
+        "The isolated runtime requires successful model and task execution through the frozen native CLI transport.",
+        "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+        "Run the bounded greenfield and brownfield CLI bridge probes and require tests, ledger, submission, and cleanup.",
+        "PYTHONPATH=controller/src pipx run --spec mini-swe-agent==2.4.6 python controller/scripts/probe_mini_swe_cli_bridge.py",
     ),
     "harness:reference": ExecutionBlocker(
         "reference-harness-contract", "harness:reference", "protocol",

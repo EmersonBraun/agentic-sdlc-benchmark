@@ -13,11 +13,12 @@ class ExecutionReadinessTests(unittest.TestCase):
 
         self.assertFalse(report.can_start_official_collection)
         self.assertEqual(report.official_conditions_ready, 0)
-        self.assertEqual(len(report.blockers), 6)
+        self.assertEqual(len(report.blockers), 5)
         self.assertEqual(
             {blocker.owner for blocker in report.blockers},
-            {"operator", "upstream", "protocol"},
+            {"upstream", "protocol"},
         )
+        self.assertNotIn("harness:mini-swe-agent", {blocker.component for blocker in report.blockers})
         self.assertIn("compozy__reference__on", report.technical_conditions_ready)
 
     def test_all_ready_components_unlock_official_collection(self) -> None:

@@ -125,8 +125,8 @@ def _harness_descriptors() -> dict[str, ComponentDescriptor]:
             "harness",
             "mini-swe-agent",
             "mini-swe-agent-2.4.6",
-            "installed-not-ready",
-            "external:mini-swe-agent",
+            "installed-ready",
+            "controller:mini-swe-cli-bridge",
             COMMON_HARNESS_CAPABILITIES,
         ),
     }

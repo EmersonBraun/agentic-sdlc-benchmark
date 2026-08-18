@@ -45,8 +45,8 @@ HARNESS_RUNTIME_SPECS = {
     "mini-swe-agent": HarnessRuntimeSpec(
         "mini-swe-agent",
         HARNESS_DESCRIPTORS["mini-swe-agent"],
-        runtime_image="python:3.12.10-slim",
-        session_entrypoint="mini",
+        runtime_image="product-snapshot-selected",
+        session_entrypoint="controller/scripts/probe_mini_swe_cli_bridge.py",
     ),
 }
 
@@ -99,11 +99,19 @@ def build_harness_adapter(
     ledger: Ledger,
     *,
     permission_mode: str,
-) -> HarnessAdapter:
+) -> Any:
     try:
         spec = HARNESS_RUNTIME_SPECS[key]
     except KeyError as exc:
         raise ValueError(f"Unknown harness adapter: {key!r}") from exc
+    if key == "mini-swe-agent":
+        from .mini_swe import MiniSweAgentAdapter
+
+        return MiniSweAgentAdapter(
+            workspace,
+            ledger,
+            permission_mode=permission_mode,
+        )
     return HarnessAdapter(
         spec,
         ControlledAdapter(workspace, ledger, permission_mode=permission_mode),  # type: ignore[arg-type]

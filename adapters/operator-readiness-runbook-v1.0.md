@@ -70,7 +70,6 @@ As of 2026-08-18, the local closure checks pass, but all 18 v1.1 conditions
 remain blocked. Compozy plus the reference harness has a valid excluded ON/OFF
 technical pair. ORCA executes `gpt-5.4` but rejects authoritative lifecycle
 settlement; Agent Orchestrator lacks observable model output/native events;
-OpenHands 1.42.1 does not resolve normally; and mini-SWE-agent lacks the
-temporary non-production `XAI_API_KEY` required by the frozen `grok-4.5`
-executor policy. The credential is the only current operator-owned gate. It
-must be supplied through the local environment and never committed or printed.
+OpenHands 1.42.1 does not resolve normally. mini-SWE-agent is ready through the
+authenticated Grok CLI/OAuth transport; no API key is part of the protocol.
+The remaining gates are upstream or protocol-owned, not operator credentials.

@@ -29,11 +29,11 @@ private audit store until the release policy permits publication.
 
 ## Current status
 
-The repository contains five immutable technical-pilot bundles for the
-preregistered Compozy × Reference Harness × AgentsKit OFF condition. Attempts
-recorded integration discoveries as the acceptance criteria were strengthened;
-the fifth passed model execution, lifecycle normalization, fixture integrity,
-and residual-state cleanup. Every attempt sets `analysis_eligible: false`.
+The repository contains eight immutable technical-pilot bundles for the
+preregistered Compozy × Reference Harness conditions. The latest matched
+AgentsKit OFF/ON pair passes model execution, lifecycle normalization, fixture
+integrity, native public AgentsKit wiring, and residual-state cleanup. Every
+technical attempt sets `analysis_eligible: false`.
 There are still no official observations or performance results, and the
 official 18/18 gate remains unchanged.
 
