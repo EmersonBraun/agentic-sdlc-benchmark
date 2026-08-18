@@ -18,6 +18,11 @@ MISSING_GATES = {
     "frozen_base_worktree", "full_sdlc", "complete_ade_ledger",
     "agentskit_inside_ade", "permission_parity", "independent_evaluation",
 }
+EXECUTED_PROBE_HASHES = {
+    "agent-orchestrator": "41b7c106e864322a0111605cecb2168b3a2983a1ca016ff1a91306f0459f06fc",
+    "compozy": "e37bda514a0ea3a0ca88c1d739d0aa9ab71ba9523f932b3fad7b92b21216c932",
+    "orca": "8b00048644a3fcbdea8fc9b43a172dda1d3f2cce99534253c89d66d4a29914ea",
+}
 
 
 def _sha(path: Path) -> str:
@@ -46,7 +51,7 @@ def _validate_smoke(path: Path, expected_condition: str) -> dict:
     revision = document.get("source_revision", {})
     probe_hash = document.get("source_hashes", {}).get("probe")
     if not all((
-        isinstance(probe_hash, str) and len(probe_hash) == 64,
+        probe_hash == EXECUTED_PROBE_HASHES[ade],
         revision.get("git_commit") == "55fd50270f11c5c9a7a69d6f2e9d9d1a3db85498",
         revision.get("probe_sha256_matches_commit") is True,
     )):
@@ -61,6 +66,34 @@ def _validate_smoke(path: Path, expected_condition: str) -> dict:
         or executor.get("model", executor.get("configured_model")) != "grok-4.5"
     ):
         raise RuntimeError(f"connectivity smoke topology binding failed: {path.name}")
+    if ade == "compozy":
+        planner_run = planner.get("execution", {})
+        executor_run = executor.get("execution", {})
+        observed = all((
+            planner_run.get("sentinel_observed"), planner_run.get("done_observed"),
+            planner_run.get("providers") == ["codex"], planner_run.get("models") == ["gpt-5.4"],
+            executor_run.get("sentinel_observed"), executor_run.get("done_observed"),
+            executor_run.get("providers") == ["grok-cli"],
+        ))
+    elif ade == "orca":
+        observed = all(
+            all((
+                settlement.get("status") == "completed", settlement.get("failure_count") == 0,
+                settlement.get("capability_hash_present"), settlement.get("capability_revoked"),
+                settlement.get("worker_done_accepted"), settlement.get("delivery_acknowledged"),
+            ))
+            for settlement in (planner.get("settlement", {}), executor.get("settlement", {}))
+        )
+    else:
+        observed = all(
+            all((
+                execution.get("sentinel_observed"), execution.get("effective_model_observed"),
+                execution.get("workspace_clean"), execution.get("trust_prompt_observed") is False,
+            ))
+            for execution in (planner.get("execution", {}), executor.get("execution", {}))
+        )
+    if not observed:
+        raise RuntimeError(f"connectivity smoke execution observation failed: {path.name}")
     return document
 
 

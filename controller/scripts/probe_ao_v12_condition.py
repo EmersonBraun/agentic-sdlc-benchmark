@@ -39,9 +39,10 @@ def _spawn_and_observe(
     )
     match = SESSION_PATTERN.search(spawned.stdout + spawned.stderr)
     session_id = match.group(1) if match else None
+    if session_id:
+        session_registry.append(session_id)
     if spawned.returncode or not session_id:
         raise RuntimeError(f"AO did not create the {kind} session")
-    session_registry.append(session_id)
     capture = ""
     deadline = time.monotonic() + 180
     while time.monotonic() < deadline:

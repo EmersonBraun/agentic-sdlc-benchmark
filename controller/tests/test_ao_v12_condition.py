@@ -19,3 +19,7 @@ class AOV12ConditionProbeTests(unittest.TestCase):
         ).read_text()
         self.assertIn("if not workspace_value or not workspace.is_dir()", source)
         self.assertIn("session_registry.append(session_id)", source)
+        self.assertLess(
+            source.index("session_registry.append(session_id)"),
+            source.index('if spawned.returncode or not session_id:'),
+        )
