@@ -14,16 +14,23 @@
   "semantic_parity": {
     "contract": "semantic-parity-v1.0.json",
     "status": "not-ready",
+    "matrix": "semantic-parity-matrix-v1.1.json",
+    "matrix_sha256": "990a4c806e794060253b8525b0d5192cdaf13982d42950ce000e33a5dc9a0f15",
+    "precondition_conditions_verified": 18,
+    "conditions_verified": 0,
+    "invariants_per_condition": 7,
+    "precondition_verification_count": 126,
+    "verification_count": 0,
     "evidence": {
-      "same_task_and_acceptance_contract": "contract-defined",
-      "common_harness_capabilities": "contract-defined",
-      "workspace_boundary": "partially-verified",
-      "permission_mode": "partially-verified",
-      "lifecycle_events": "not-verified",
-      "append_only_ledger": "contract-tested",
-      "no_fallback_resolution": "enforced"
+      "same_task_and_acceptance_contract": "precondition-verified",
+      "common_harness_capabilities": "precondition-verified",
+      "workspace_boundary": "component-verified-integration-pending",
+      "permission_mode": "component-verified-integration-pending",
+      "lifecycle_events": "component-verified-integration-pending",
+      "append_only_ledger": "component-verified-integration-pending",
+      "no_fallback_resolution": "contract-verified-integration-pending"
     },
-    "decision": "The v1.1 cohort inherits the parity contract. Compozy and AgentsKit ON are component-ready and four component-complete conditions are ready, but collection remains blocked until all seven invariants are verified for the full 18-condition matrix."
+    "decision": "All 126 static/component preconditions are hash-bound, but 0/18 condition-level integration probes exist. Official collection remains blocked until every ADE x harness x AgentsKit combination proves the seven invariants together."
   },
   "technical_pilot": {
     "status": "verified",

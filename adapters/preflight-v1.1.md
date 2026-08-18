@@ -2,10 +2,10 @@
 
 ## Decision
 
-The v1.1 cohort is approved as a separate model-topology cohort, but it is
-**not ready for benchmark collection**. Four conditions are component-complete,
-but the global gate remains closed until **18 of 18** are ready. No official
-benchmark run or performance result exists.
+The eight v1.1 components are independently ready, and 126/126 static/component
+preconditions are hash-bound. The cohort is **not yet ready for official
+collection** because condition-level integration evidence is still missing for
+18/18 ADE × harness × AgentsKit combinations. No official result exists.
 
 ## Model policy
 
@@ -32,6 +32,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 - [Preflight machine record](preflight-v1.1.json)
 - [Host machine inventory](machine-inventory-v1.1.json)
 - [Condition readiness snapshot](condition-readiness-v1.1.json)
+- [18-condition semantic-parity matrix](semantic-parity-matrix-v1.1.json)
 - [v1.1 blocker register](blocker-register-v1.1.json)
 - [ORCA lifecycle probe](orca-v1.1-lifecycle-probe-attestation.json)
 - [Latest ORCA lifecycle probe](orca-v1.1-lifecycle-probe-attestation-2.json)
@@ -67,6 +68,6 @@ semantic_parity.status == verified
 no fallback resolution was used
 ```
 
-Until then, the controller must create no run bundle and invoke no benchmark
-task. Provider authentication, upstream dependency changes, or a new model
-choice require explicit external setup or a new protocol decision.
+The release gate remains closed until all 18 bounded condition probes pass.
+Provider authentication, upstream dependency changes, source-hash drift, or a
+new model choice must also fail closed.

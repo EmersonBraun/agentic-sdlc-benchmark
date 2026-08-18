@@ -1,0 +1,2130 @@
+{
+  "component_statuses": {
+    "ade": {
+      "agent-orchestrator": "installed-ready",
+      "compozy": "installed-ready",
+      "orca": "installed-ready"
+    },
+    "agentskit": {
+      "off": "contract-ready",
+      "on": "installed-ready"
+    },
+    "harness": {
+      "mini-swe-agent": "installed-ready",
+      "openhands-sdk": "installed-ready",
+      "reference": "contract-ready"
+    }
+  },
+  "condition_count": 18,
+  "conditions": [
+    {
+      "condition_id": "orca__reference__off",
+      "factors": {
+        "ade": "orca",
+        "agentskit": "off",
+        "harness": "reference"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_orca.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_orca.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_orca.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "orca__reference__on",
+      "factors": {
+        "ade": "orca",
+        "agentskit": "on",
+        "harness": "reference"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_orca.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_orca.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_orca.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "orca__openhands-sdk__off",
+      "factors": {
+        "ade": "orca",
+        "agentskit": "off",
+        "harness": "openhands-sdk"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "orca__openhands-sdk__on",
+      "factors": {
+        "ade": "orca",
+        "agentskit": "on",
+        "harness": "openhands-sdk"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "orca__mini-swe-agent__off",
+      "factors": {
+        "ade": "orca",
+        "agentskit": "off",
+        "harness": "mini-swe-agent"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "orca__mini-swe-agent__on",
+      "factors": {
+        "ade": "orca",
+        "agentskit": "on",
+        "harness": "mini-swe-agent"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "adapters/orca-v1.1-lifecycle-probe-attestation-5.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "controller/tests/test_orca.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "agent-orchestrator__reference__off",
+      "factors": {
+        "ade": "agent-orchestrator",
+        "agentskit": "off",
+        "harness": "reference"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "agent-orchestrator__reference__on",
+      "factors": {
+        "ade": "agent-orchestrator",
+        "agentskit": "on",
+        "harness": "reference"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "agent-orchestrator__openhands-sdk__off",
+      "factors": {
+        "ade": "agent-orchestrator",
+        "agentskit": "off",
+        "harness": "openhands-sdk"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "agent-orchestrator__openhands-sdk__on",
+      "factors": {
+        "ade": "agent-orchestrator",
+        "agentskit": "on",
+        "harness": "openhands-sdk"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "agent-orchestrator__mini-swe-agent__off",
+      "factors": {
+        "ade": "agent-orchestrator",
+        "agentskit": "off",
+        "harness": "mini-swe-agent"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "agent-orchestrator__mini-swe-agent__on",
+      "factors": {
+        "ade": "agent-orchestrator",
+        "agentskit": "on",
+        "harness": "mini-swe-agent"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agent-orchestrator-v1.1-execution-attestation.json",
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_ao_component_readiness.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "compozy__reference__off",
+      "factors": {
+        "ade": "compozy",
+        "agentskit": "off",
+        "harness": "reference"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "compozy__reference__on",
+      "factors": {
+        "ade": "compozy",
+        "agentskit": "on",
+        "harness": "reference"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_adapters.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "compozy__openhands-sdk__off",
+      "factors": {
+        "ade": "compozy",
+        "agentskit": "off",
+        "harness": "openhands-sdk"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "compozy__openhands-sdk__on",
+      "factors": {
+        "ade": "compozy",
+        "agentskit": "on",
+        "harness": "openhands-sdk"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/openhands-sdk-v1.1-readiness-attestation.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_openhands_probe.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "compozy__mini-swe-agent__off",
+      "factors": {
+        "ade": "compozy",
+        "agentskit": "off",
+        "harness": "mini-swe-agent"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/agentskit.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    },
+    {
+      "condition_id": "compozy__mini-swe-agent__on",
+      "factors": {
+        "ade": "compozy",
+        "agentskit": "on",
+        "harness": "mini-swe-agent"
+      },
+      "integration_evidence_ref": null,
+      "invariants": {
+        "append_only_ledger": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ledger.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "common_harness_capabilities": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/adapters.py",
+            "controller/src/benchmark_controller/harness_adapters.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "lifecycle_events": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "schemas/ledger-event.schema.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "no_fallback_resolution": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/ade_adapters.py",
+            "controller/src/benchmark_controller/pilot_executor.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        },
+        "permission_mode": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "protocol/protocol-v1.1.md"
+          ],
+          "status": "precondition-verified"
+        },
+        "same_task_and_acceptance_contract": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py",
+            "protocol/conditions-v1.1.json",
+            "tasks/public/issue-index-v1.1.json"
+          ],
+          "status": "precondition-verified"
+        },
+        "workspace_boundary": {
+          "evidence_refs": [
+            "adapters/agentskit-v1.1-component-readiness-attestation.json",
+            "adapters/compozy-v1.1-component-readiness-attestation.json",
+            "adapters/mini-swe-cli-bridge-attestation-v1.1.json",
+            "controller/scripts/build_semantic_parity_matrix.py",
+            "controller/src/benchmark_controller/external.py",
+            "controller/src/benchmark_controller/semantic_parity.py",
+            "controller/tests/test_agentskit_component_readiness.py",
+            "controller/tests/test_compozy.py",
+            "controller/tests/test_compozy_lifecycle.py",
+            "controller/tests/test_mini_swe_cli_model.py"
+          ],
+          "status": "precondition-verified"
+        }
+      },
+      "verified": false
+    }
+  ],
+  "conditions_sha256": "489b5192113894aa0686b92678481ff0c0fbe96a7fd546c9e9ca80f6d07176af",
+  "failure_policy": "Any missing component, evidence file, invariant, malformed condition, or hash mismatch blocks official collection.",
+  "generator": "controller/scripts/build_semantic_parity_matrix.py",
+  "integration_verification_count": 0,
+  "invariant_count": 7,
+  "precondition_verification_count": 126,
+  "protocol_version": "v1.1",
+  "schema_version": "semantic-parity-matrix-v1.1",
+  "source_hashes": {
+    "adapters/agent-orchestrator-v1.1-execution-attestation.json": "1303a998be6184ef3d450a2e9f967f280a90612ae8d4903212a007d657be12e0",
+    "adapters/agentskit-v1.1-component-readiness-attestation.json": "c6c71375ec1952242e3694ac349cf22488b0366791d5a70c03379525c143b202",
+    "adapters/compozy-v1.1-component-readiness-attestation.json": "2dae0da2af95c644e9dd2067f215cfad22297699314ae89a7667be96cf10e402",
+    "adapters/mini-swe-cli-bridge-attestation-v1.1.json": "cf17f8855d2278ff2c1e6ec98c5a300cb81b10b46e8a8dee1297a6a997ea236e",
+    "adapters/openhands-sdk-v1.1-readiness-attestation.json": "310eb3de5c4100f58723d7d6ad3bfe06b089d1ffd01f4429199d8164812975a4",
+    "adapters/orca-v1.1-lifecycle-probe-attestation-5.json": "8b060ddfd01aeae690ab28f5904be33b1c84c46961e7ee75a1f1bbed8cc33e5e",
+    "controller/scripts/build_semantic_parity_matrix.py": "488e00628b114ed3bcf09e1711dd96b4dbf4ba9a1fb1c4d6c9ecf93b09b15bdb",
+    "controller/src/benchmark_controller/adapters.py": "ab67a7b7b4fc5cba9b6ef8440a96232026eca190425fd340e74d16d82d266a67",
+    "controller/src/benchmark_controller/ade_adapters.py": "c1280a1e2a174a966ec59aac4fbbe103c189fdd30ada31a403ac220b4af89000",
+    "controller/src/benchmark_controller/agentskit.py": "4737fea5ba1c2b6055f0e6cf1461ea212ee27b7f235acef5e0a0cd9ba649a8be",
+    "controller/src/benchmark_controller/external.py": "0e267889037c1ce978eb7cd3e1d0274a167826b2ede1fa5c7bc2559050c2e97d",
+    "controller/src/benchmark_controller/harness_adapters.py": "e0e2046fe6b862e182b9931e774d5de10b890f73e4e5d78e86c23293dc8a4a7e",
+    "controller/src/benchmark_controller/ledger.py": "f2bd836ca62d56e62e6f5f916f270e341ba5791065124ea45021f2dee4b42261",
+    "controller/src/benchmark_controller/pilot_executor.py": "15e9cdc513854537a3981f0cb6cfe72cdf3aaccaa7813c7fbf392518922e264c",
+    "controller/src/benchmark_controller/semantic_parity.py": "2598072322c603f8c16a096f68144877907cf40a1a3fad1e41d842bec7fca542",
+    "controller/tests/test_adapters.py": "ffb2c7767c54981cf54addcde30d0670bbd824f5cfaf5acc6a591405776a68ba",
+    "controller/tests/test_agentskit.py": "ae85cc7a805861e26a236eea94fdd12957e310c439aedb7bd795edd907f024ab",
+    "controller/tests/test_agentskit_component_readiness.py": "808940ab7ef644886f66926537770af169cdfbdeec8877807e0d5702e59540ee",
+    "controller/tests/test_ao_component_readiness.py": "4f6e0e7e232f6da89c6b86745d8ec19f5f30da51d0010754c2325edf01dcd3ba",
+    "controller/tests/test_compozy.py": "2c7a47ce2ac83ce6d8d2451ed167246cb137514923e797ea38e8e49fcb35818f",
+    "controller/tests/test_compozy_lifecycle.py": "1ddffa6713d1b4dee1b816baf33fb1131e63680f39f260b06f708c661d695238",
+    "controller/tests/test_mini_swe_cli_model.py": "0c264f2ab17fa87318abd437963aa71c2d22e6d1bad5ef76f83e6a1d288447d5",
+    "controller/tests/test_openhands_probe.py": "446f719d187bea4bee883d002674b195ed64b52ff58c4d439d90826d24a60097",
+    "controller/tests/test_orca.py": "d4ee5ac3a6f01f0ccc2703b7c74f81216c8f331298a643118d8055f0b616fba0",
+    "protocol/conditions-v1.1.json": "489b5192113894aa0686b92678481ff0c0fbe96a7fd546c9e9ca80f6d07176af",
+    "protocol/protocol-v1.1.md": "94f723034cb1c822ec741291d1998ea91171d658889290801d10a0b3501387ab",
+    "schemas/ledger-event.schema.json": "bed7d57da0cb57b7a8c2690bda8e7b5be8bc8dfd50dba4abfa1f57ad1b5eba29",
+    "tasks/public/issue-index-v1.1.json": "b93aac30af5aed6b0501f4bf001d67d37b49b5339c1c75552878f1bb8a159291"
+  },
+  "status": "preconditions-verified"
+}

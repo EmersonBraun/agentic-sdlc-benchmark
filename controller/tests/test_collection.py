@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from benchmark_controller.collection import ExecutionOutcome, PilotCollectionCoordinator
@@ -13,9 +14,14 @@ def _ready_preflight() -> dict:
         "same_task_and_acceptance_contract", "common_harness_capabilities", "workspace_boundary",
         "permission_mode", "lifecycle_events", "append_only_ledger", "no_fallback_resolution",
     )}
+    root = Path(__file__).resolve().parents[2]
+    binding = json.loads((root / "adapters/preflight-v1.1.json").read_text())["semantic_parity"]
     return {
         "protocol_version": "v1.1",
-        "semantic_parity": {"status": "verified", "evidence": evidence},
+        "semantic_parity": {
+            **binding, "status": "verified", "evidence": evidence,
+            "conditions_verified": 18, "invariants_per_condition": 7, "verification_count": 126,
+        },
         "ade": {name: {"status": "installed-ready"} for name in ("orca", "agent-orchestrator", "compozy")},
         "harness": {"reference": {"status": "contract-ready"}, "openhands-sdk": {"status": "installed-ready"}, "mini-swe-agent": {"status": "installed-ready"}},
         "agentskit": {"off": {"status": "contract-ready"}, "on": {"status": "installed-ready"}},
@@ -38,6 +44,13 @@ class _FakeBackend:
 
 
 class CollectionCoordinatorTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.matrix_patch = mock.patch("benchmark_controller.semantic_parity._verify_matrix_binding", return_value=True)
+        self.matrix_patch.start()
+
+    def tearDown(self) -> None:
+        self.matrix_patch.stop()
+
     def test_collects_and_finalizes_schedule_without_raw_backend_output(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -1,5 +1,6 @@
 import json
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from benchmark_controller.execution_readiness import evaluate_execution_readiness
@@ -7,6 +8,13 @@ from benchmark_controller.semantic_parity import REQUIRED_EVIDENCE_KEYS
 
 
 class ExecutionReadinessTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.matrix_patch = mock.patch("benchmark_controller.semantic_parity._verify_matrix_binding", return_value=True)
+        self.matrix_patch.start()
+
+    def tearDown(self) -> None:
+        self.matrix_patch.stop()
+
     def test_current_v11_report_names_every_operational_blocker(self) -> None:
         root = Path(__file__).resolve().parents[2]
         preflight = json.loads((root / "adapters" / "preflight-v1.1.json").read_text(encoding="utf-8"))
@@ -28,11 +36,17 @@ class ExecutionReadinessTests(unittest.TestCase):
         self.assertIn("compozy__reference__on", report.technical_conditions_ready)
 
     def test_all_ready_components_unlock_official_collection(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+        binding = json.loads((root / "adapters/preflight-v1.1.json").read_text())["semantic_parity"]
         preflight = {
             "protocol_version": "v1.1",
             "technical_pilot": {"allowed_conditions": []},
             "semantic_parity": {
+                **binding,
                 "status": "verified",
+                "conditions_verified": 18,
+                "invariants_per_condition": 7,
+                "verification_count": 126,
                 "evidence": {key: "verified" for key in REQUIRED_EVIDENCE_KEYS},
             },
             "ade": {key: {"status": "installed-ready"} for key in ("orca", "agent-orchestrator", "compozy")},

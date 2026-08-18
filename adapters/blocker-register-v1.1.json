@@ -8,12 +8,19 @@
   "blockers": [
     {
       "component": "protocol:semantic-parity",
-      "evidence_refs": ["semantic-parity-v1.0.json", "preflight-v1.1.json", "../protocol/conditions-v1.1.json"],
-      "blocking_conditions": ["all seven invariants are not verified across the complete 18-condition matrix"],
-      "resolution_gate": "Every component is independently ready and all seven semantic-parity invariants are verified for 18/18 conditions before official collection.",
-      "safe_next_action": "Resolve the remaining component-local blockers, regenerate condition readiness, and promote this global protocol gate only at 18/18."
+      "evidence_refs": ["semantic-parity-matrix-v1.1.json", "preflight-v1.1.json", "../protocol/conditions-v1.1.json"],
+      "blocking_conditions": ["condition-level integration evidence is missing for 18/18 ADE x harness x AgentsKit combinations"],
+      "resolution_gate": "Each frozen condition executes a bounded integration probe and all seven invariants pass together before official collection.",
+      "safe_next_action": "Implement the composed condition probe, execute it for the deterministic 18-condition schedule, and regenerate the hash-bound matrix from those run artifacts."
     }
   ],
+  "precondition_evidence": {
+    "matrix": "semantic-parity-matrix-v1.1.json",
+    "conditions_verified": 18,
+    "invariants_per_condition": 7,
+    "verification_count": 126,
+    "condition_integration_probes": 0
+  },
   "external_references": {
     "compozy_repository_and_runtime_documentation": "https://github.com/compozy/compozy"
   }
