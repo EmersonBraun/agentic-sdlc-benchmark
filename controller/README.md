@@ -82,3 +82,32 @@ live executor after the complete readiness gate passes. The
 real ADE/harness/AgentsKit backend, finalizes every outcome, and converts
 backend exceptions into `INFRASTRUCTURE_FAILURE`; it never substitutes a fake
 executor.
+
+## Continuous condition runner
+
+`benchmark_controller.condition_runner.ComposedConditionRunner` is the
+persistent execution boundary used by a live collection backend. It advances a
+condition through requirements, planning, decomposition, implementation,
+testing, PR, QA, review, merge, and documentation until a measured terminal
+state is reached.
+
+The runner:
+
+- creates one branch and Git worktree from the frozen base commit;
+- passes that worktree to the selected ADE workflow and harness backend;
+- persists `condition-runner-state.json` atomically after every transition;
+- marks a process-interrupted partial run `INVALID_MEASUREMENT`, preserving the
+  frozen rule that official partial runs are never resumed;
+- retries bounded transient failures and records every attempt;
+- stops fail-closed on exhausted retries, a failed gate, or required HITL;
+- preserves failed worktrees for diagnosis and removes successful worktrees;
+- enforces frozen wall, effective-work, external-wait, token, and cost limits
+  from the manifest while adapters remain the authoritative timing source;
+- requires an independent verifier and all protocol quality gates before
+  returning `MERGED`.
+
+ADE backends remain responsible for exercising their native workflow,
+parallelism, worker, and linked-worktree capabilities. The controller-owned
+worktree is the common isolation boundary, not a replacement for native ADE
+orchestration. A backend must implement `ConditionStepBackend`; it cannot be
+silently replaced by another ADE or harness.

@@ -8,10 +8,10 @@
   "blockers": [
     {
       "component": "protocol:semantic-parity",
-      "evidence_refs": ["semantic-parity-matrix-v1.1.json", "preflight-v1.1.json", "../protocol/conditions-v1.1.json"],
+      "evidence_refs": ["semantic-parity-matrix-v1.1.json", "preflight-v1.1.json", "../protocol/conditions-v1.1.json", "../controller/src/benchmark_controller/condition_runner.py", "../controller/tests/test_condition_runner.py"],
       "blocking_conditions": ["condition-level integration evidence is missing for 18/18 ADE x harness x AgentsKit combinations"],
       "resolution_gate": "Each frozen condition executes a bounded integration probe and all seven invariants pass together before official collection.",
-      "safe_next_action": "Implement the composed condition probe, execute it for the deterministic 18-condition schedule, and regenerate the hash-bound matrix from those run artifacts."
+      "safe_next_action": "Bind the native ADE workflows, harnesses, and AgentsKit ON/OFF implementations to the composed runner; execute the deterministic 18-condition integration schedule; then regenerate the hash-bound matrix from those artifacts."
     }
   ],
   "precondition_evidence": {
@@ -19,7 +19,9 @@
     "conditions_verified": 18,
     "invariants_per_condition": 7,
     "verification_count": 126,
-    "condition_integration_probes": 0
+    "condition_integration_probes": 0,
+    "composed_runner": "implemented-and-controller-wired",
+    "native_condition_backends": 0
   },
   "external_references": {
     "compozy_repository_and_runtime_documentation": "https://github.com/compozy/compozy"
