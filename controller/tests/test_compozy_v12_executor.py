@@ -192,3 +192,13 @@ class CompozyV12ExecutorTests(unittest.TestCase):
         self.assertFalse(complete)
         self.assertFalse(observation["token_breakdown_observed"])
         self.assertEqual(observation["context_used"], 34766)
+
+    def test_complementary_partial_usage_events_are_not_complete_accounting(self):
+        events = [
+            {"type": "usage", "content": {"input_tokens": 10, "output_tokens": 2}},
+            {"type": "usage", "content": {
+                "cached_tokens": 1, "reasoning_tokens": 1, "cost_usd": 0.01,
+            }},
+        ]
+        _, _, complete = CompozyV12RoleExecutor._usage(events)
+        self.assertFalse(complete)

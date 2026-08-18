@@ -73,6 +73,8 @@ class CompozyV12RoleExecutor:
             return self._outcome(request, "timeout", reason="controller-deadline-exceeded")
         setup_ms = 0.0
         prompt_started: int | None = None
+        effective_ms = 0.0
+        cleanup_started: int | None = None
         try:
             setup_ms += self._verify_provider_configuration(self._timeout(request))
             session_id, session_ms = self._session(request, self._timeout(request))
@@ -101,6 +103,7 @@ class CompozyV12RoleExecutor:
                 events, recovery_ms = self._recover_events(session_id, request, after=cursor)
                 prompt_ms = max(0, (time.monotonic_ns() - prompt_started) / 1_000_000 - recovery_ms)
                 setup_ms += recovery_ms
+            effective_ms = prompt_ms
             text = self._agent_text(events)
             self._verify_turn(request, events, text, sentinel, runtime_provider)
             metadata = self._metadata(request, text, events, sentinel)
@@ -108,7 +111,9 @@ class CompozyV12RoleExecutor:
             metadata["usage_observation"] = self._usage_observation(events, tokens)
             if self._remaining_seconds(request) <= 0:
                 raise subprocess.TimeoutExpired("compozy", 0)
+            cleanup_started = time.monotonic_ns() if request.step == "merge" else None
             cleanup_ms = self._stop(request, session_id) if request.step == "merge" else 0
+            cleanup_started = None
             outcome = NativeStepExecution(
                 status="completed", role=request.role, provider=request.provider, model=request.model,
                 workspace=request.worktree, effective_work_ms=prompt_ms,
@@ -118,13 +123,15 @@ class CompozyV12RoleExecutor:
                 metadata=metadata, completion_proof=metadata.get("completion_proof"),
             )
         except subprocess.TimeoutExpired:
+            setup_ms += self._elapsed_ms(cleanup_started)
             outcome = self._outcome(
-                request, "timeout", effective_work_ms=self._elapsed_ms(prompt_started),
+                request, "timeout", effective_work_ms=effective_ms or self._elapsed_ms(prompt_started),
                 orchestration_overhead_ms=setup_ms, reason="controller-deadline-exceeded",
             )
         except RuntimeError as exc:
+            setup_ms += self._elapsed_ms(cleanup_started)
             outcome = self._outcome(
-                request, "retry", effective_work_ms=self._elapsed_ms(prompt_started),
+                request, "retry", effective_work_ms=effective_ms or self._elapsed_ms(prompt_started),
                 orchestration_overhead_ms=setup_ms, reason=type(exc).__name__,
             )
         self._cache[request.idempotency_key] = outcome
@@ -348,14 +355,14 @@ class CompozyV12RoleExecutor:
     def _usage(events: Sequence[Mapping[str, Any]]) -> tuple[dict[str, int], float, bool]:
         tokens = {"input": 0, "output": 0, "cached": 0, "reasoning": 0}
         cost = 0.0
-        observed_fields: set[str] = set()
-        cost_observed = False
+        record_completeness: list[bool] = []
         for event in events:
             if event.get("type") != "usage":
                 continue
             content = event.get("content", event.get("usage", event))
             if not isinstance(content, Mapping):
                 continue
+            observed_fields: set[str] = set()
             for target, aliases in {
                 "input": ("input_tokens", "input"), "output": ("output_tokens", "output"),
                 "cached": ("cached_tokens", "cached"), "reasoning": ("reasoning_tokens", "reasoning"),
@@ -364,10 +371,11 @@ class CompozyV12RoleExecutor:
                 if any(isinstance(content.get(alias), int) for alias in aliases):
                     observed_fields.add(target)
                 tokens[target] += int(value)
-            if isinstance(content.get("cost_usd"), (int, float)):
-                cost_observed = True
+            cost_observed = isinstance(content.get("cost_usd"), (int, float))
+            if cost_observed:
                 cost += float(content["cost_usd"])
-        return tokens, cost, observed_fields == set(tokens) and cost_observed
+            record_completeness.append(observed_fields == set(tokens) and cost_observed)
+        return tokens, cost, bool(record_completeness) and all(record_completeness)
 
     @staticmethod
     def _usage_observation(
