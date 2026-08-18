@@ -50,6 +50,8 @@ class _Session:
     workspace: Path
     kind: str
     observed_turn_ms: float | None = None
+    branch: str | None = None
+    repository: Path | None = None
 
 
 class AgentOrchestratorV12RoleExecutor:
@@ -74,6 +76,7 @@ class AgentOrchestratorV12RoleExecutor:
         self._cache: dict[tuple[str, str], NativeStepExecution] = {}
         self._config_checked = False
         self._cleanup_failed = False
+        self._wait_capture_ms = 0.0
 
     def execute(self, request: NativeStepRequest) -> NativeStepExecution:
         if request.role == "independent_evaluator":
@@ -99,6 +102,7 @@ class AgentOrchestratorV12RoleExecutor:
             existing, capture_ms = self._capture(session, request)
             orchestration_ms += capture_ms
             effective_started = time.monotonic_ns()
+            self._wait_capture_ms = 0.0
             capture, wait_ms = self._wait(session, sentinel, request)
             effective_ms += max(0, self._elapsed(effective_started) - wait_ms)
             effective_started = None
@@ -129,7 +133,8 @@ class AgentOrchestratorV12RoleExecutor:
             )
         except subprocess.TimeoutExpired:
             if effective_started is not None:
-                effective_ms += self._elapsed(effective_started)
+                effective_ms += max(0, self._elapsed(effective_started) - self._wait_capture_ms)
+                orchestration_ms += self._wait_capture_ms
             result = self._outcome(
                 request, "timeout", "controller-deadline-exceeded",
                 effective_work_ms=effective_ms,
@@ -137,9 +142,8 @@ class AgentOrchestratorV12RoleExecutor:
             )
         except RuntimeError as exc:
             self._discard_session(request.run_id, request.step if "kind" in locals() else None)
-            status = "failed" if self._cleanup_failed else "retry"
             result = self._outcome(
-                request, status, self._runtime_reason(exc), effective_work_ms=effective_ms,
+                request, "retry", self._runtime_reason(exc), effective_work_ms=effective_ms,
                 orchestration_overhead_ms=orchestration_ms,
             )
         if result.status == "completed":
@@ -161,7 +165,13 @@ class AgentOrchestratorV12RoleExecutor:
             self.transport.run((
                 str(self.ao_path), "session", "cleanup", "--project", self.project, "--yes",
             ), timeout_seconds=60)
+            if session.branch and session.repository:
+                self.transport.run(
+                    ("git", "-C", str(session.repository), "branch", "-D", session.branch),
+                    timeout_seconds=30,
+                )
             self._sessions.pop(key, None)
+            self._cleanup_failed = False
         except Exception:
             self._cleanup_failed = True
 
@@ -177,8 +187,10 @@ class AgentOrchestratorV12RoleExecutor:
         return "native-runtime-error"
 
     def close(self) -> None:
-        failed = self._cleanup_failed
-        for key, session in tuple(self._sessions.items())[::-1]:
+        failed = False
+        sessions = tuple(self._sessions.items())[::-1]
+        killed_keys: set[tuple[str, str]] = set()
+        for key, session in sessions:
             killed = False
             for _ in range(3):
                 try:
@@ -189,7 +201,7 @@ class AgentOrchestratorV12RoleExecutor:
                 except Exception:
                     continue
                 killed = True
-                self._sessions.pop(key, None)
+                killed_keys.add(key)
                 break
             failed = failed or not killed
         try:
@@ -198,6 +210,21 @@ class AgentOrchestratorV12RoleExecutor:
             ), timeout_seconds=60)
         except Exception:
             failed = True
+        if not failed:
+            for key, session in sessions:
+                if key not in killed_keys:
+                    continue
+                if session.branch and session.repository:
+                    try:
+                        self.transport.run(
+                            ("git", "-C", str(session.repository), "branch", "-D", session.branch),
+                            timeout_seconds=30,
+                        )
+                    except Exception:
+                        failed = True
+                        continue
+                self._sessions.pop(key, None)
+            self._cleanup_failed = failed
         evaluator_close = getattr(self.evaluator, "close", None)
         if callable(evaluator_close):
             try:
@@ -234,7 +261,9 @@ class AgentOrchestratorV12RoleExecutor:
     ) -> tuple[_Session, float, float]:
         key = (request.run_id, request.step)
         if key in self._sessions:
-            raise RuntimeError("prior AO stage session was not cleaned")
+            self._discard_session(request.run_id, request.step)
+            if key in self._sessions:
+                raise RuntimeError("prior AO stage session was not cleaned")
         preparation_ms = 0.0
         if kind == "orchestrator":
             expected = self.transport.run(
@@ -257,6 +286,7 @@ class AgentOrchestratorV12RoleExecutor:
         # AO owns a persistent shared worktree for orchestrators. Supplying a
         # branch there currently breaks Codex TUI bootstrap; workers remain
         # isolated on a stage-specific branch.
+        branch: str | None = None
         if kind == "worker":
             branch = "benchmark/" + hashlib.sha256(request.idempotency_key.encode()).hexdigest()[:20]
             expected = self.transport.run(
@@ -275,7 +305,7 @@ class AgentOrchestratorV12RoleExecutor:
             raise RuntimeError("AO returned no session id")
         session_id = match.group(1)
         try:
-            session, inspection_ms = self._inspect_session(session_id, kind, request)
+            session, inspection_ms = self._inspect_session(session_id, kind, request, branch)
         except Exception:
             # A spawn can return success even when the TUI bootstrap exits.
             # Reclaim that partial session so a retry cannot reuse it by name.
@@ -304,8 +334,15 @@ class AgentOrchestratorV12RoleExecutor:
         cleaned = self.transport.run((
             str(self.ao_path), "session", "cleanup", "--project", self.project, "--yes",
         ), timeout_seconds=self._timeout(request, cap=60))
+        branch_ms = 0.0
+        if session.branch:
+            deleted = self.transport.run(
+                ("git", "-C", str(request.worktree), "branch", "-D", session.branch),
+                timeout_seconds=self._timeout(request, cap=30),
+            )
+            branch_ms = deleted.duration_ms
         self._sessions.pop(key, None)
-        return killed.duration_ms + cleaned.duration_ms
+        return killed.duration_ms + cleaned.duration_ms + branch_ms
 
     def _synchronize_product_workspace(
         self, session: _Session, request: NativeStepRequest,
@@ -375,7 +412,7 @@ class AgentOrchestratorV12RoleExecutor:
         return head.duration_ms
 
     def _inspect_session(
-        self, session_id: str, kind: str, request: NativeStepRequest,
+        self, session_id: str, kind: str, request: NativeStepRequest, branch: str | None,
     ) -> tuple[_Session, float]:
         result = self.transport.run((
             str(self.ao_path), "session", "get", session_id, "--project", self.project, "--json",
@@ -413,7 +450,7 @@ class AgentOrchestratorV12RoleExecutor:
         if head != expected:
             raise RuntimeError("AO delegated workspace base commit mismatch")
         turn_ms = self._observed_turn_ms(payload)
-        return _Session(session_id, workspace, kind, turn_ms), (
+        return _Session(session_id, workspace, kind, turn_ms, branch, request.worktree), (
             result.duration_ms + head_result.duration_ms + expected_result.duration_ms
         )
 
@@ -441,6 +478,7 @@ class AgentOrchestratorV12RoleExecutor:
         while self._remaining(request) > 0:
             capture, duration = self._capture(session, request)
             waited_ms += duration
+            self._wait_capture_ms = waited_ms
             if self._stage_occurrences(capture, sentinel) >= 2:
                 return capture, waited_ms
             time.sleep(min(0.5, self._remaining(request)))
