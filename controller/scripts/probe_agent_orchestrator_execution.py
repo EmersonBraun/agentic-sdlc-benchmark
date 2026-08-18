@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import plistlib
 import shutil
 import subprocess
 import tempfile
@@ -29,7 +30,8 @@ CLI = "/Applications/Agent Orchestrator.app/Contents/Resources/daemon/ao"
 DATABASE = Path.home() / ".ao" / "data" / "ao.db"
 MODEL = "gpt-5.4"
 EXPECTED_REPLY = "PARITY_PROBE_READY"
-AO_VERSION = "0.12.6"
+AO_REQUIRED_VERSION = "0.12.6"
+AO_INFO_PLIST = Path("/Applications/Agent Orchestrator.app/Contents/Info.plist")
 PROBE_COMMAND = [
     "PYTHONPATH=controller/src",
     "python3",
@@ -88,12 +90,17 @@ def main() -> int:
         return 2
 
     project_id = f"benchmark-ao-execution-{int(time.time())}"
+    with AO_INFO_PLIST.open("rb") as stream:
+        observed_version = str(plistlib.load(stream)["CFBundleShortVersionString"])
     result: dict[str, Any] = {
         "schema_version": "agent-orchestrator-execution-attestation-v1.1",
         "observed_at": datetime.now(timezone.utc).isoformat(),
         "analysis_eligible": False,
         "operator": "local-primary-operator",
-        "component_version": AO_VERSION,
+        "component_version": observed_version,
+        "required_component_version": AO_REQUIRED_VERSION,
+        "component_version_observed": observed_version == AO_REQUIRED_VERSION,
+        "version_source_sha256": hashlib.sha256(AO_INFO_PLIST.read_bytes()).hexdigest(),
         "runtime_sha256": hashlib.sha256(Path(CLI).read_bytes()).hexdigest(),
         "probe_command": PROBE_COMMAND,
         "public_cli_event_stream": "not-exposed",
@@ -247,7 +254,18 @@ def main() -> int:
         and result["cleanup"].get("project_remove", {}).get("returncode") == 0
     )
     result["cleanup"]["passed"] = cleanup_passed
-    result["status"] = "passed" if result.get("error_type") is None and cleanup_passed else "failed"
+    redaction_candidate = json.dumps(result, sort_keys=True)
+    redaction_verified = EXPECTED_REPLY not in redaction_candidate and "Read-only parity probe" not in redaction_candidate
+    result["redaction"] = {
+        "forbidden_values_absent": redaction_verified,
+        "method": "serialized-attestation-scan",
+    }
+    result["status"] = "passed" if (
+        result.get("error_type") is None
+        and cleanup_passed
+        and result["component_version_observed"]
+        and redaction_verified
+    ) else "failed"
     rendered = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if args.output:
         args.output.write_text(rendered, encoding="utf-8")

@@ -66,7 +66,6 @@ def read_provider_evidence(database: Path, session_id: str, expected_reply: str)
         "assistant_reply_sha256": sha256_text(assistant_text) if assistant_text else None,
         "input_tokens_observed": int(usage[0]) if usage else 0,
         "output_tokens_observed": int(usage[1]) if usage else 0,
-        "raw_content_in_attestation": False,
     }
 
 
@@ -79,7 +78,6 @@ def _empty_evidence() -> dict[str, Any]:
         "assistant_reply_sha256": None,
         "input_tokens_observed": 0,
         "output_tokens_observed": 0,
-        "raw_content_in_attestation": False,
     }
 
 
@@ -107,7 +105,6 @@ def read_codex_execution_identity(sessions_root: Path, provider_conversation_id:
         "effective_models": sorted(models),
         "effective_providers": sorted(providers),
         "native_rollout_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-        "raw_content_in_attestation": False,
     }
 
 
@@ -140,7 +137,6 @@ def evidence_passes(evidence: dict[str, Any], identity: dict[str, Any], configur
             evidence.get("required_provider_sequence_complete") is True,
             evidence.get("expected_reply_observed") is True,
             int(evidence.get("output_tokens_observed", 0)) > 0,
-            evidence.get("raw_content_in_attestation") is False,
             identity.get("identity_observed") is True,
             identity.get("effective_models") == [configured_model],
             identity.get("effective_providers") == ["openai"],
