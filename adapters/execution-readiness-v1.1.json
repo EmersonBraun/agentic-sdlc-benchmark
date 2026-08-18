@@ -2,7 +2,7 @@
   "blocker_summary": {
     "operator": 0,
     "protocol": 1,
-    "upstream": 3
+    "upstream": 2
   },
   "blockers": [
     {
@@ -13,15 +13,6 @@
       "owner": "upstream",
       "reason": "gpt-5.4 executes, but authoritative worker_done is rejected with dispatch_capability_invalid.",
       "recheck_command": "orca status --json"
-    },
-    {
-      "blocker_id": "ao-observability",
-      "component": "ade:agent-orchestrator",
-      "evidence_ref": "adapters/agent-orchestrator-v1.1-session-probe-attestation.json",
-      "next_action": "Recheck a release that exposes independently observable model execution and lifecycle events.",
-      "owner": "upstream",
-      "reason": "The public CLI starts and cleans sessions but exposes neither model output nor a native event stream.",
-      "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/probe_agent_orchestrator_lifecycle.py"
     },
     {
       "blocker_id": "openhands-dependency-graph",

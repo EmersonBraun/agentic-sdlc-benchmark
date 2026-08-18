@@ -38,6 +38,8 @@ The ORCA v1.1 probe sequence starts at [`orca-v1.1-lifecycle-probe-attestation.j
 
 The v1.1 Agent Orchestrator session recheck is [`agent-orchestrator-v1.1-session-probe-attestation.json`](agent-orchestrator-v1.1-session-probe-attestation.json). Spawn, polling, termination, cleanup, and the redacted ledger bridge pass, but model-backed execution and native event-stream parity remain unverified.
 
+The closing v1.1 execution evidence is [`agent-orchestrator-v1.1-execution-attestation.json`](agent-orchestrator-v1.1-execution-attestation.json). It proves one isolated `gpt-5.4` completion, the required persisted provider-event sequence, token use, normalized ledger transitions, and zero active-session leakage. The public CLI still exposes no event stream; the probe therefore uses bounded read-only local-datastore access and persists only hashes, counts, event names, and booleans.
+
 The v1.1 Compozy session recheck is [`compozy-v1.1-session-probe-attestation.json`](compozy-v1.1-session-probe-attestation.json). Exact `gpt-5.4` execution, isolated cleanup, and the live event-stream-to-redacted-ledger bridge establish component-local readiness. Full 18-condition semantic parity remains an independent protocol gate.
 
 The pinned public AgentsKit v1.1 preflight is [`agentskit-v1.1-preflight-attestation.json`](agentskit-v1.1-preflight-attestation.json). Core, bridge, integrated fixture, and external offline checks pass, and one excluded model-backed technical condition verifies public-only ON wiring. Official ON parity remains intentionally unverified.

@@ -95,8 +95,12 @@
     "agent-orchestrator": {
       "installed": true,
       "version": "0.12.6",
-      "status": "installed-not-ready",
+      "status": "installed-ready",
       "evidence": {
+        "registered_project": "isolated-disposable-git-worktree",
+        "permission_mode": "default-no-tool-use",
+        "lifecycle_bridge": "four-redacted-events",
+        "ledger_bridge": "passed",
         "runtime_reachable": true,
         "workspace_boundary": "passed",
         "polling_bridge": "verified",
@@ -104,9 +108,13 @@
         "session_cleanup": "passed",
         "model_candidate": "gpt-5.4",
         "model_configuration": "accepted",
-        "model_execution": "not-observed"
+        "model_execution": "observed",
+        "provider_events": ["turn.started", "message.completed", "usage", "turn.completed"],
+        "output_tokens_observed": 43,
+        "raw_content_persisted": false,
+        "active_session_leak_count": 0
       },
-      "decision": "Polling lifecycle, cleanup, and gpt-5.4 worker configuration are bounded-verified; model output and full semantic parity remain blocked because the public CLI does not expose them."
+      "decision": "A fresh isolated gpt-5.4 session produced the expected redacted completion, token usage, complete persisted provider-event sequence, normalized ledger transitions, and zero cleanup leakage. AO is component-ready; its public CLI still lacks an event stream, so the controller uses bounded read-only access to AO's local datastore and records that limitation."
     },
     "compozy": {
       "installed": true,
@@ -154,6 +162,7 @@
     "orca-v1.1-lifecycle-probe-attestation-4.json",
     "agent-orchestrator-session-attestation-v1.0.json",
     "agent-orchestrator-v1.1-session-probe-attestation.json",
+    "agent-orchestrator-v1.1-execution-attestation.json",
     "compozy-session-attestation-v1.0.json",
     "compozy-v1.1-session-probe-attestation.json",
     "compozy-v1.1-component-readiness-attestation.json",

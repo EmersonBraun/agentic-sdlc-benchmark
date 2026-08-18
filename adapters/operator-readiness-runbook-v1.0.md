@@ -71,7 +71,7 @@ As of 2026-08-18, Compozy is independently ready and two component-complete
 v1.1 conditions are ready, but the global 18/18 collection gate remains
 blocked. Its reference-harness ON/OFF technical pair remains excluded from
 official analysis. ORCA executes `gpt-5.4` but rejects authoritative lifecycle
-settlement; Agent Orchestrator lacks observable model output/native events;
+settlement; Agent Orchestrator relies on bounded read-only datastore observation because its public CLI lacks native events;
 OpenHands 1.42.1 does not resolve normally. mini-SWE-agent is ready through the
 authenticated Grok CLI/OAuth transport; no API key is part of the protocol.
 The remaining gates are upstream or protocol-owned, not operator credentials.

@@ -11,7 +11,7 @@ const fallback = {
     model_policy: "../protocol/model-policy-v1.1.json",
     ade: {
       orca: { status: "installed-not-ready" },
-      "agent-orchestrator": { status: "installed-not-ready" },
+      "agent-orchestrator": { status: "installed-ready" },
       compozy: { status: "installed-not-ready" },
     },
     harness: {

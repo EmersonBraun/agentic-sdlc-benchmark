@@ -14,13 +14,14 @@ class ExecutionReadinessTests(unittest.TestCase):
 
         self.assertFalse(report.can_start_official_collection)
         self.assertEqual(report.official_conditions_ready, 0)
-        self.assertEqual(len(report.blockers), 4)
+        self.assertEqual(len(report.blockers), 3)
         self.assertEqual(
             {blocker.owner for blocker in report.blockers},
             {"upstream", "protocol"},
         )
         self.assertNotIn("harness:mini-swe-agent", {blocker.component for blocker in report.blockers})
         self.assertNotIn("ade:compozy", {blocker.component for blocker in report.blockers})
+        self.assertNotIn("ade:agent-orchestrator", {blocker.component for blocker in report.blockers})
         self.assertNotIn("agentskit:on", {blocker.component for blocker in report.blockers})
         self.assertIn("protocol:semantic-parity", {blocker.component for blocker in report.blockers})
         self.assertIn("compozy__reference__on", report.technical_conditions_ready)

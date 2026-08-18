@@ -1,19 +1,13 @@
 {
-  "blocked_components": 3,
+  "blocked_components": 2,
   "components": [
     {
-      "blockers": [
-        "implementation-status",
-        "workspace",
-        "permissions",
-        "lifecycle-bridge",
-        "ledger-bridge"
-      ],
+      "blockers": [],
       "checks": [
         {
           "check_id": "implementation-status",
-          "evidence": "status=installed-not-ready",
-          "passed": false
+          "evidence": "status=installed-ready",
+          "passed": true
         },
         {
           "check_id": "health",
@@ -22,29 +16,29 @@
         },
         {
           "check_id": "workspace",
-          "evidence": "missing; available=['model_candidate', 'model_configuration', 'model_execution', 'native_event_stream', 'polling_bridge', 'runtime_reachable', 'session_cleanup', 'workspace_boundary']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         },
         {
           "check_id": "permissions",
-          "evidence": "missing; available=['model_candidate', 'model_configuration', 'model_execution', 'native_event_stream', 'polling_bridge', 'runtime_reachable', 'session_cleanup', 'workspace_boundary']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         },
         {
           "check_id": "lifecycle-bridge",
-          "evidence": "missing; available=['model_candidate', 'model_configuration', 'model_execution', 'native_event_stream', 'polling_bridge', 'runtime_reachable', 'session_cleanup', 'workspace_boundary']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         },
         {
           "check_id": "ledger-bridge",
-          "evidence": "missing; available=['model_candidate', 'model_configuration', 'model_execution', 'native_event_stream', 'polling_bridge', 'runtime_reachable', 'session_cleanup', 'workspace_boundary']",
-          "passed": false
+          "evidence": "present",
+          "passed": true
         }
       ],
       "factor": "ade",
       "key": "agent-orchestrator",
-      "ready": false,
-      "status": "installed-not-ready"
+      "ready": true,
+      "status": "installed-ready"
     },
     {
       "blockers": [],
@@ -292,5 +286,5 @@
     }
   ],
   "protocol_version": "v1.1",
-  "ready_components": 5
+  "ready_components": 6
 }

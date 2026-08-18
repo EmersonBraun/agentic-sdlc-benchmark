@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from .adapters import ADE_DESCRIPTORS, ComponentDescriptor
-from .ao_lifecycle import SessionLifecycleObserver
+from .ao_lifecycle import SessionLifecycleObserver, normalize_session_snapshot
 from .external import ControlledAdapter, LifecycleBridge
 from .ledger import Ledger
 
@@ -89,10 +90,45 @@ class AgentOrchestratorAdapter:
                 "worker",
                 "--mode",
                 "chat",
+                "--harness",
+                "codex",
             ),
             stage_id="intake",
             access="write",
         )
+
+    def observe_session(self, *, project_id: str, session_id: str) -> dict[str, Any]:
+        """Fetch and ledger one public session-state transition."""
+
+        snapshot = self._json_command(
+            ("session", "get", session_id, "--project", project_id, "--json"),
+            stage_id="implementation",
+        )
+        self.record_observed_session_state(snapshot, stage_id="implementation")
+        return snapshot
+
+    def terminate_session(
+        self, *, project_id: str, session_id: str, timeout_seconds: float = 30
+    ) -> dict[str, Any]:
+        """Terminate a bounded session and record its terminal transition."""
+
+        command = self.runtime.run(
+            (self.cli_path, "session", "kill", session_id, "--project", project_id),
+            stage_id="implementation",
+            actor="infrastructure",
+            access="write",
+            time_category="orchestration_overhead",
+        )
+        if command.returncode != 0:
+            raise RuntimeError("Agent Orchestrator command failed: session kill")
+        deadline = time.monotonic() + timeout_seconds
+        while time.monotonic() < deadline:
+            snapshot = self.observe_session(project_id=project_id, session_id=session_id)
+            normalized = normalize_session_snapshot(snapshot)
+            if normalized["snapshot_state"] in {"terminated", "stopped", "killed", "completed", "complete"}:
+                return snapshot
+            time.sleep(0.25)
+        raise RuntimeError("Agent Orchestrator termination was not independently observed")
 
     def record_lifecycle_event(
         self,

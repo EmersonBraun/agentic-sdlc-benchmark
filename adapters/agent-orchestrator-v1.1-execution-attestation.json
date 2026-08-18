@@ -1,0 +1,104 @@
+{
+  "analysis_eligible": false,
+  "cleanup": {
+    "active_session_leak_count": 0,
+    "fixture_destroyed": true,
+    "passed": true,
+    "project_remove": {
+      "output_sha256": "4234ec20f4a8aba84f5bc4fc2aeb33caed3ede882d2fd49732ac1aa7f89a41b6",
+      "returncode": 0
+    },
+    "session_list": {
+      "output_sha256": "08b5cf17a4e07510475d94940b49a6f7b536ba014f44f84f0a6006bca21d6978",
+      "returncode": 0
+    },
+    "session_schema_valid": true,
+    "target_session_terminated": true
+  },
+  "commands": {
+    "kill": {
+      "output_sha256": "cbbacd1c7a2fe100e4445922fbbd3370d9640d81b6002e4a0ba1c6089d92dc33",
+      "returncode": 0
+    },
+    "post_kill_observation": {
+      "output_sha256": "08b5cf17a4e07510475d94940b49a6f7b536ba014f44f84f0a6006bca21d6978",
+      "returncode": 0
+    },
+    "project_add": {
+      "output_sha256": "4f92041a2f527e43deb8f9d6a32a522ab2f00a535fc3799722925c17f3da69ee",
+      "returncode": 0
+    },
+    "project_config": {
+      "output_sha256": "95f3f6b2f8a48430c1444643f21bab9cb21d59e0fb041beec8fca3d1e2f86bab",
+      "returncode": 0
+    },
+    "spawn": {
+      "output_sha256": "718b4ddefee620bb0c4bd97877aa05d0bf906067c51643e849c6d7c34deb0d9c",
+      "returncode": 0
+    }
+  },
+  "component_version": "0.12.6",
+  "component_version_observed": true,
+  "configured_model": "gpt-5.4",
+  "datastore_access": "read-only-redacted",
+  "datastore_schema_sha256": "214250b58eb7163e32ad6e00ee2bb4e4605d7ec074bc0f9107bddb2c8f6b379f",
+  "fixture_tree_sha256": "7b264674c10546f32590196394b4cbf8bd824da3cdff1619432f1d39160a44df",
+  "ledger_event_count": 4,
+  "model_configuration_observed": true,
+  "model_identity": {
+    "effective_models": [
+      "gpt-5.4"
+    ],
+    "effective_providers": [
+      "openai"
+    ],
+    "identity_observed": true,
+    "native_rollout_sha256": "ebc608abbc67b8e848057f16c6c43f42cd4148d165f385551e327837c160feb5"
+  },
+  "observed_at": "2026-08-18T16:28:58.894314+00:00",
+  "operator": "local-primary-operator",
+  "permission_configuration_observed": true,
+  "probe_command": [
+    "PYTHONPATH=controller/src",
+    "python3",
+    "controller/scripts/probe_agent_orchestrator_execution.py",
+    "--confirm"
+  ],
+  "probe_sha256": "983d125177c579d737fd59d6d344bd8adaa585f63b0d8f42bef247b978066ae5",
+  "provider_evidence": {
+    "assistant_message_count": 1,
+    "assistant_reply_sha256": "17fee59ddfe89443a0b73c0548f25656e4ffbf756806d9989f023bf3033b646c",
+    "expected_reply_observed": true,
+    "input_tokens_observed": 20255,
+    "output_tokens_observed": 43,
+    "provider_event_sequence": [
+      "turn.started",
+      "message.completed",
+      "usage",
+      "turn.completed"
+    ],
+    "required_provider_sequence_complete": true
+  },
+  "public_cli_event_stream": "not-exposed",
+  "redaction": {
+    "forbidden_values_absent": true,
+    "method": "serialized-attestation-scan"
+  },
+  "required_component_version": "0.12.6",
+  "runtime_sha256": "1223e55763f43a99ef8ccf42b11247b7b9d77a793d43bcfe4fc2e28baf7cf419",
+  "schema_version": "agent-orchestrator-execution-attestation-v1.1",
+  "session": {
+    "model_execution_observed": true,
+    "session_id_sha256": "90fd4ec2e99ee018fd003dee31b84273fc2cbd52cccaf30120ae7243249ea2ad"
+  },
+  "status": "passed",
+  "version_source_sha256": "7cad5817d25ce4fafd69b897aa1fe806ef016f35fa1b97085f30d55dc2a56c29",
+  "workspace": {
+    "clean": true,
+    "complete_tree_matches_fixture": true,
+    "head_matches_fixture": true,
+    "path_sha256": "1ffc9de7323f64643726cef1001cab89773701955104b261baaa13a76c69e372",
+    "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "workspace_commit_sha256": "5a7763f87a8e4f21fe814d6ad04b3eaad6f301c9568e2c862de68c4229def16a"
+}

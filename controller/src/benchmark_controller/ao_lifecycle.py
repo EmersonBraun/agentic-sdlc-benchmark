@@ -11,6 +11,7 @@ _STATE_STATUS = {
     "starting": "started",
     "initializing": "started",
     "running": "started",
+    "working": "started",
     "active": "started",
     "waiting": "started",
     "awaiting_input": "started",
