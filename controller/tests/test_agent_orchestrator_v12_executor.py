@@ -29,6 +29,8 @@ class Transport:
             return AOCommandResult("spawned session ao-session-1", "", 3)
         if "session" in argv and "get" in argv:
             return AOCommandResult(json.dumps({"session": {"workspacePath": str(self.workspace)}}), "", 1)
+        if argv[0] == "git" and "status" in argv:
+            return AOCommandResult("", "", 1)
         if argv[0] == "git":
             return AOCommandResult("a" * 40 + "\n", "", 1)
         if argv[:2] == ("tmux", "capture-pane"):
@@ -38,7 +40,7 @@ class Transport:
             payload = json.dumps(
                 {"completion_proof": {
                     "verified_gates": ["unit-tests"], "product_quality_score": 90,
-                    "merge_commit": "b" * 40,
+                    "merge_commit": "a" * 40,
                 }} if self.step == "merge" else {"handoff_payload": {
                     "requirements": "resolved", "implementation_plan": ["build"],
                     "acceptance_criteria": ["passes"],
@@ -126,7 +128,7 @@ class AgentOrchestratorV12ExecutorTests(unittest.TestCase):
                 "code-10x", ao_path=Path("/ao"), transport=transport,
             ).execute(request)
             self.assertEqual(result.status, "completed")
-            self.assertEqual(result.completion_proof["merge_commit"], "b" * 40)
+            self.assertEqual(result.completion_proof["merge_commit"], "a" * 40)
 
     def test_mutating_worker_commit_is_cherry_picked_into_measured_worktree(self):
         class SyncTransport(Transport):
@@ -171,7 +173,8 @@ class AgentOrchestratorV12ExecutorTests(unittest.TestCase):
                 "code-10x", ao_path=Path("/ao"), transport=transport,
             ).execute(request)
             self.assertEqual(result.status, "completed")
-            self.assertTrue(any("cherry-pick" in call for call in transport.calls))
+            cherry_pick = next(call for call in transport.calls if "cherry-pick" in call)
+            self.assertIn("a" * 40 + ".." + "b" * 40, cherry_pick)
 
     def test_close_propagates_to_independent_evaluator(self):
         class Evaluator:

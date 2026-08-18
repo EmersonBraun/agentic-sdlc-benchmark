@@ -8,6 +8,7 @@ import re
 import subprocess
 import time
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Mapping, Protocol, Sequence
 
@@ -48,6 +49,7 @@ class _Session:
     session_id: str
     workspace: Path
     kind: str
+    observed_turn_ms: float | None = None
 
 
 class AgentOrchestratorV12RoleExecutor:
@@ -76,7 +78,7 @@ class AgentOrchestratorV12RoleExecutor:
     def execute(self, request: NativeStepRequest) -> NativeStepExecution:
         if request.role == "independent_evaluator":
             if self.evaluator is None:
-                return self._outcome(request, "failed", "independent-evaluator-unavailable")
+                return self._outcome(request, "retry", "independent-evaluator-unavailable")
             return self.evaluator.execute(request)
         semantic_key = (request.run_id, request.step)
         if semantic_key in self._cache:
@@ -85,24 +87,38 @@ class AgentOrchestratorV12RoleExecutor:
             return self._outcome(request, "timeout", "controller-deadline-exceeded")
         orchestration_ms = 0.0
         effective_started: int | None = None
+        effective_ms = 0.0
+        synchronized_head: str | None = None
         try:
             orchestration_ms += self._verify_config(request)
             kind = "orchestrator" if request.step in PLANNER_STEPS else "worker"
             session, setup_ms, initial_effective_ms = self._ensure_session(request, kind)
             orchestration_ms += setup_ms
+            effective_ms = initial_effective_ms
             _, sentinel = self._prompt(request)
             existing, capture_ms = self._capture(session, request)
             orchestration_ms += capture_ms
             effective_started = time.monotonic_ns()
             capture, wait_ms = self._wait(session, sentinel, request)
-            effective_ms = initial_effective_ms + max(0, self._elapsed(effective_started) - wait_ms)
+            effective_ms += max(0, self._elapsed(effective_started) - wait_ms)
             orchestration_ms += wait_ms
             self._verify_capture(request, session, capture, sentinel)
             metadata = self._metadata(request, capture, sentinel, session)
-            orchestration_ms += self._synchronize_product_workspace(session, request)
             if self._remaining(request) <= 0:
                 raise subprocess.TimeoutExpired("ao", 0)
-            orchestration_ms += self._stop_session(request, request.step)
+            sync_ms, synchronized_head = self._synchronize_product_workspace(session, request)
+            orchestration_ms += sync_ms
+            orchestration_ms += self._validate_merge_binding(request, metadata)
+            try:
+                orchestration_ms += self._stop_session(request, request.step)
+            except RuntimeError:
+                self._rollback_product_workspace(request, synchronized_head)
+                synchronized_head = None
+                raise
+            if self._remaining(request) <= 0:
+                self._rollback_product_workspace(request, synchronized_head)
+                synchronized_head = None
+                raise subprocess.TimeoutExpired("ao", 0)
             result = NativeStepExecution(
                 status="completed", role=request.role, provider=request.provider, model=request.model,
                 workspace=request.worktree, effective_work_ms=effective_ms, external_wait_ms=0,
@@ -113,13 +129,14 @@ class AgentOrchestratorV12RoleExecutor:
         except subprocess.TimeoutExpired:
             result = self._outcome(
                 request, "timeout", "controller-deadline-exceeded",
-                effective_work_ms=self._elapsed(effective_started),
+                effective_work_ms=effective_ms,
                 orchestration_overhead_ms=orchestration_ms,
             )
         except RuntimeError as exc:
             self._discard_session(request.run_id, request.step if "kind" in locals() else None)
+            status = "failed" if self._cleanup_failed else "retry"
             result = self._outcome(
-                request, "retry", self._runtime_reason(exc), effective_work_ms=self._elapsed(effective_started),
+                request, status, self._runtime_reason(exc), effective_work_ms=effective_ms,
                 orchestration_overhead_ms=orchestration_ms,
             )
         if result.status == "completed":
@@ -214,7 +231,7 @@ class AgentOrchestratorV12RoleExecutor:
     ) -> tuple[_Session, float, float]:
         key = (request.run_id, request.step)
         if key in self._sessions:
-            return self._sessions[key], 0, 0
+            raise RuntimeError("prior AO stage session was not cleaned")
         preparation_ms = 0.0
         if kind == "orchestrator":
             expected = self.transport.run(
@@ -230,7 +247,7 @@ class AgentOrchestratorV12RoleExecutor:
         command = [
             str(self.ao_path), "spawn", "--project", self.project,
             "--name", ("v12-" + kind[:4] + "-" + hashlib.sha256(
-                f"{request.run_id}:{request.step}".encode()
+                request.idempotency_key.encode()
             ).hexdigest()[:8])[:20],
             "--issue", "18", "--prompt", prompt, "--kind", kind, "--mode", "tui",
         ]
@@ -238,7 +255,7 @@ class AgentOrchestratorV12RoleExecutor:
         # branch there currently breaks Codex TUI bootstrap; workers remain
         # isolated on a stage-specific branch.
         if kind == "worker":
-            branch = f"benchmark/{request.run_id}-{request.step}"
+            branch = "benchmark/" + hashlib.sha256(request.idempotency_key.encode()).hexdigest()[:20]
             expected = self.transport.run(
                 ("git", "-C", str(request.worktree), "rev-parse", "HEAD"),
                 timeout_seconds=self._timeout(request, cap=10),
@@ -255,7 +272,7 @@ class AgentOrchestratorV12RoleExecutor:
             raise RuntimeError("AO returned no session id")
         session_id = match.group(1)
         try:
-            session = self._inspect_session(session_id, kind, request)
+            session, inspection_ms = self._inspect_session(session_id, kind, request)
         except Exception:
             # A spawn can return success even when the TUI bootstrap exits.
             # Reclaim that partial session so a retry cannot reuse it by name.
@@ -263,14 +280,16 @@ class AgentOrchestratorV12RoleExecutor:
                 self.transport.run((
                     str(self.ao_path), "session", "kill", session_id,
                     "--project", self.project,
-                ), timeout_seconds=self._timeout(request, cap=30))
+                ), timeout_seconds=30)
             finally:
                 self.transport.run((
                     str(self.ao_path), "session", "cleanup", "--project", self.project, "--yes",
-                ), timeout_seconds=self._timeout(request, cap=60))
+                ), timeout_seconds=60)
             raise
         self._sessions[key] = session
-        return session, preparation_ms, result.duration_ms
+        effective_ms = min(result.duration_ms, session.observed_turn_ms or result.duration_ms)
+        preparation_ms += inspection_ms + max(0, result.duration_ms - effective_ms)
+        return session, preparation_ms, effective_ms
 
     def _stop_session(self, request: NativeStepRequest, step: str) -> float:
         key = (request.run_id, step)
@@ -285,11 +304,16 @@ class AgentOrchestratorV12RoleExecutor:
         self._sessions.pop(key, None)
         return killed.duration_ms + cleaned.duration_ms
 
-    def _synchronize_product_workspace(self, session: _Session, request: NativeStepRequest) -> float:
+    def _synchronize_product_workspace(
+        self, session: _Session, request: NativeStepRequest,
+    ) -> tuple[float, str | None]:
         """Cherry-pick role-owned commits into the controller's measured worktree."""
 
-        if request.step not in {"implementation", "documentation"}:
-            return 0
+        mutating_steps = {
+            "implementation", "local-testing", "pull-request", "ci-qa", "documentation", "merge",
+        }
+        if request.step not in mutating_steps:
+            return 0, None
         status = self.transport.run(
             ("git", "-C", str(session.workspace), "status", "--porcelain"),
             timeout_seconds=self._timeout(request, cap=10),
@@ -306,14 +330,57 @@ class AgentOrchestratorV12RoleExecutor:
         )
         duration = status.duration_ms + source.duration_ms + target.duration_ms
         if source.stdout.strip() == target.stdout.strip():
-            raise RuntimeError("AO mutating stage produced no committed change")
-        picked = self.transport.run(
-            ("git", "-C", str(request.worktree), "cherry-pick", source.stdout.strip()),
-            timeout_seconds=self._timeout(request, cap=60),
-        )
-        return duration + picked.duration_ms
+            if request.step == "implementation":
+                raise RuntimeError("AO implementation produced no committed change")
+            return duration, None
+        ancestor = self.transport.run((
+            "git", "-C", str(session.workspace), "merge-base", "--is-ancestor",
+            target.stdout.strip(), source.stdout.strip(),
+        ), timeout_seconds=self._timeout(request, cap=10))
+        duration += ancestor.duration_ms
+        try:
+            picked = self.transport.run((
+                "git", "-C", str(request.worktree), "cherry-pick",
+                f"{target.stdout.strip()}..{source.stdout.strip()}",
+            ), timeout_seconds=self._timeout(request, cap=60))
+        except RuntimeError:
+            try:
+                self.transport.run(
+                    ("git", "-C", str(request.worktree), "cherry-pick", "--abort"),
+                    timeout_seconds=30,
+                )
+            finally:
+                self.transport.run(
+                    ("git", "-C", str(request.worktree), "reset", "--hard", target.stdout.strip()),
+                    timeout_seconds=30,
+                )
+            raise
+        return duration + picked.duration_ms, target.stdout.strip()
 
-    def _inspect_session(self, session_id: str, kind: str, request: NativeStepRequest) -> _Session:
+    def _rollback_product_workspace(self, request: NativeStepRequest, head: str | None) -> None:
+        if head is None:
+            return
+        self.transport.run(
+            ("git", "-C", str(request.worktree), "reset", "--hard", head),
+            timeout_seconds=30,
+        )
+
+    def _validate_merge_binding(self, request: NativeStepRequest, metadata: Mapping[str, Any]) -> float:
+        if request.step != "merge":
+            return 0
+        proof = metadata.get("completion_proof")
+        merge_commit = proof.get("merge_commit") if isinstance(proof, Mapping) else None
+        head = self.transport.run(
+            ("git", "-C", str(request.worktree), "rev-parse", "HEAD"),
+            timeout_seconds=self._timeout(request, cap=10),
+        )
+        if merge_commit != head.stdout.strip():
+            raise RuntimeError("AO merge proof is not bound to the measured product commit")
+        return head.duration_ms
+
+    def _inspect_session(
+        self, session_id: str, kind: str, request: NativeStepRequest,
+    ) -> tuple[_Session, float]:
         result = self.transport.run((
             str(self.ao_path), "session", "get", session_id, "--project", self.project, "--json",
         ), timeout_seconds=self._timeout(request, cap=30))
@@ -337,17 +404,34 @@ class AgentOrchestratorV12RoleExecutor:
             ).resolve()
         if not workspace.is_dir():
             raise RuntimeError("AO delegated workspace is missing")
-        head = self.transport.run(
+        head_result = self.transport.run(
             ("git", "-C", str(workspace), "rev-parse", "HEAD"),
             timeout_seconds=self._timeout(request, cap=10),
-        ).stdout.strip()
-        expected = self.transport.run(
+        )
+        expected_result = self.transport.run(
             ("git", "-C", str(request.worktree), "rev-parse", "HEAD"),
             timeout_seconds=self._timeout(request, cap=10),
-        ).stdout.strip()
+        )
+        head = head_result.stdout.strip()
+        expected = expected_result.stdout.strip()
         if head != expected:
             raise RuntimeError("AO delegated workspace base commit mismatch")
-        return _Session(session_id, workspace, kind)
+        turn_ms = self._observed_turn_ms(payload)
+        return _Session(session_id, workspace, kind, turn_ms), (
+            result.duration_ms + head_result.duration_ms + expected_result.duration_ms
+        )
+
+    @staticmethod
+    def _observed_turn_ms(payload: Mapping[str, Any]) -> float | None:
+        created = payload.get("createdAt")
+        activity = payload.get("activity")
+        last = activity.get("lastActivityAt") if isinstance(activity, Mapping) else None
+        if not isinstance(created, str) or not isinstance(last, str):
+            return None
+        try:
+            return max(0, (datetime.fromisoformat(last) - datetime.fromisoformat(created)).total_seconds() * 1000)
+        except ValueError:
+            return None
 
     def _capture(self, session: _Session, request: NativeStepRequest) -> tuple[str, float]:
         result = self.transport.run(
@@ -402,8 +486,8 @@ class AgentOrchestratorV12RoleExecutor:
                 " State the supplied handoff and AgentsKit SHA-256 digests verbatim. "
                 "Commit all product changes before the sentinel and leave the worktree clean."
             )
-        if request.step == "documentation":
-            rules += " Commit all documentation changes before the sentinel and leave the worktree clean."
+        if request.step in {"local-testing", "pull-request", "ci-qa", "documentation", "merge"}:
+            rules += " Commit any product changes before the sentinel and leave the worktree clean."
         if request.step == "review":
             rules += (
                 " Return JSON with completion_proof containing verified_gates and "

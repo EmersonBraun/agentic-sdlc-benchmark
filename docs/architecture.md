@@ -76,8 +76,10 @@ controller-frozen product commit before spawn. Mutating stages must commit and
 leave a clean worktree; the controller then cherry-picks that exact commit into
 the measured product worktree so later stages evaluate the produced artifact.
 Stable stage sentinels and a semantic completion cache prevent duplicate
-completed work across bounded retries. Session creation and cleanup are
-orchestration overhead, while the spawn-bound model turn is effective work.
+completed work across bounded retries. Session creation, inspection, and
+cleanup are orchestration overhead. Effective work uses AO's observed
+creation-to-last-activity turn interval; remaining spawn wall time is setup
+overhead.
 Raw output is not published, and every stage receives terminal cleanup.
 
 Checkpoints are not permission to resume a measurement after process failure.
