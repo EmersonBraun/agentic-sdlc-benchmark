@@ -47,6 +47,15 @@ class OpenHandsSDKAdapter:
             )
             raise
         self.runtime.prepare()
+        try:
+            _assert_supported_dependency_layout(self.runtime.workspace)
+        except ValueError:
+            self.runtime.ledger.record(
+                stage_id="intake", actor="infrastructure", event_type="harness.runtime.materialized",
+                time_category="harness_overhead", duration_ms=0, status="failed",
+                payload={"unsupported_dependency_layout": True}, tool="openhands-sdk-container-adapter-v1.1",
+            )
+            raise
         with tempfile.TemporaryDirectory(prefix="agentic-sdlc-openhands-runtime-") as directory:
             context = Path(directory)
             dependency_manifest = context / "dependency-manifest"
@@ -221,6 +230,19 @@ def _runtime_dockerfile() -> str:
         "RUN if [ -f /build-workspace/pnpm-lock.yaml ]; then cd /build-workspace && pnpm install --frozen-lockfile && mv node_modules /opt/product-node_modules; fi && rm -rf /build-workspace && mkdir /workspace",
         "WORKDIR /workspace", "",
     ))
+
+
+def _assert_supported_dependency_layout(workspace: Path) -> None:
+    package_file = workspace / "package.json"
+    if package_file.is_file():
+        package = json.loads(package_file.read_text(encoding="utf-8"))
+        dependency_groups = ("dependencies", "devDependencies", "optionalDependencies", "peerDependencies")
+        values = [value for group in dependency_groups for value in package.get(group, {}).values()]
+        if any(isinstance(value, str) and value.startswith(("workspace:", "file:", "link:")) for value in values):
+            raise ValueError("local package dependencies are not supported by the isolated runtime materializer")
+    workspace_file = workspace / "pnpm-workspace.yaml"
+    if workspace_file.is_file() and any(line.strip().startswith("packages:") for line in workspace_file.read_text(encoding="utf-8").splitlines()):
+        raise ValueError("multi-package pnpm workspaces are not supported by the isolated runtime materializer")
 
 
 def _confirmed_absent(command: tuple[str, ...]) -> bool:

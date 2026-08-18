@@ -9,7 +9,7 @@ from benchmark_controller.ade_adapters import ADENotReadyError, build_ade_adapte
 from benchmark_controller.harness_adapters import build_harness_adapter
 from benchmark_controller.ledger import Ledger
 from benchmark_controller.mini_swe import MiniSweAgentAdapter
-from benchmark_controller.openhands_sdk import OpenHandsSDKAdapter, RUNTIME_IMAGE, _replace_workspace
+from benchmark_controller.openhands_sdk import OpenHandsSDKAdapter, RUNTIME_IMAGE, _assert_supported_dependency_layout, _replace_workspace
 
 
 class RuntimeAdapterRegistryTests(unittest.TestCase):
@@ -77,6 +77,13 @@ class RuntimeAdapterRegistryTests(unittest.TestCase):
             _replace_workspace(target, source)
             self.assertEqual((target / ".git/HEAD").read_text(), "new")
             self.assertEqual((target / "result.txt").read_text(), "done")
+
+    def test_openhands_rejects_local_workspace_dependencies(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            (workspace / "package.json").write_text(json.dumps({"dependencies": {"local": "workspace:*"}}))
+            with self.assertRaisesRegex(ValueError, "local package dependencies"):
+                _assert_supported_dependency_layout(workspace)
 
     def test_mini_swe_registry_resolves_live_cli_bridge(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
