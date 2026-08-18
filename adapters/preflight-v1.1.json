@@ -73,24 +73,30 @@
     "orca": {
       "installed": true,
       "runtime_version": "1.4.184",
-      "status": "installed-not-ready",
+      "status": "installed-ready",
       "evidence": {
         "runtime_reachable": true,
         "runtime_state": "ready",
         "graph_state": "ready",
         "registered_project": "Code 10x",
+        "permission_mode": "explicit-terminal-ready-dispatch-injection",
         "workspace_boundary": "verified",
         "read_only_probe": "passed",
         "candidate_model": "gpt-5.4",
         "candidate_provider_execution": "passed",
         "required_model": "gpt-5.4",
         "required_model_provider_result": "passed",
-        "live_lifecycle_ledger": "blocked-dispatch-capability",
+        "live_lifecycle_ledger": "passed-57-redacted-events-with-normalized-settlement-and-cleanup",
+        "lifecycle_bridge": "capability-bound-worker-done-accepted",
+        "ledger_bridge": "passed",
         "model_execution": "observed",
-        "dispatch_attempts": 3,
-        "worker_done": "rejected-dispatch_capability_invalid"
+        "dispatch_attempts": 5,
+        "worker_done": "accepted-capability-bound",
+        "supported_dispatch_path": "terminal-ready-then-dispatch-inject",
+        "composed_worker_start_path": "excluded-input-readiness-race",
+        "cleanup": "passed"
       },
-      "decision": "Graph and gpt-5.4 execution are verified, but three supervised Dispatches rejected worker_done because the runtime did not supply a valid Dispatch capability. v1.1 collection remains blocked until authoritative lifecycle settlement succeeds."
+      "decision": "ORCA 1.4.184 is component-ready through the explicit terminal-ready then dispatch --inject path. The capability-bound gpt-5.4 worker_done settled authoritatively, delivery was acknowledged, the workspace remained unchanged, and all live probe terminals were removed. The composed worker-start path is excluded because its pre-readiness injection can lose the capability."
     },
     "agent-orchestrator": {
       "installed": true,
@@ -160,6 +166,9 @@
     "orca-v1.1-lifecycle-probe-attestation-2.json",
     "orca-v1.1-lifecycle-probe-attestation-3.json",
     "orca-v1.1-lifecycle-probe-attestation-4.json",
+    "orca-v1.1-lifecycle-probe-attestation-5.json",
+    "orca-v1.1-lifecycle-observation-5.json",
+    "orca-v1.1-lifecycle-probe-ledger-5.jsonl",
     "agent-orchestrator-session-attestation-v1.0.json",
     "agent-orchestrator-v1.1-session-probe-attestation.json",
     "agent-orchestrator-v1.1-execution-attestation.json",

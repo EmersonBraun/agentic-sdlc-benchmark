@@ -1,13 +1,34 @@
 import json
+import hashlib
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
-from benchmark_controller.orca import OrcaAdapter, OrcaNotReadyError
+from benchmark_controller.orca import OrcaAdapter
 from benchmark_controller.ledger import Ledger
+from benchmark_controller.external import AdapterCommandResult
 
 
 class OrcaAdapterTests(unittest.TestCase):
+    def test_v11_passing_attestation_is_ledger_and_source_bound(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+        attestation = json.loads((root / "adapters/orca-v1.1-lifecycle-probe-attestation-5.json").read_text())
+        self.assertEqual(attestation["status"], "passed")
+        self.assertTrue(attestation["orchestration"]["worker_done_accepted"])
+        self.assertEqual(attestation["orchestration"]["dispatch_terminal_state"], "completed")
+        self.assertEqual(attestation["cleanup"]["live_probe_terminals_remaining"], 0)
+        evidence = attestation["evidence"]
+        for field, path in (
+            ("ledger_sha256", root / "adapters/orca-v1.1-lifecycle-probe-ledger-5.jsonl"),
+            ("orca_adapter_source_sha256", root / "controller/src/benchmark_controller/orca.py"),
+            ("ade_registry_source_sha256", root / "controller/src/benchmark_controller/ade_adapters.py"),
+            ("descriptor_source_sha256", root / "controller/src/benchmark_controller/adapters.py"),
+            ("probe_source_sha256", root / "controller/scripts/probe_orca_lifecycle.py"),
+            ("observation_sha256", root / "adapters/orca-v1.1-lifecycle-observation-5.json"),
+        ):
+            self.assertEqual(evidence[field], hashlib.sha256(path.read_bytes()).hexdigest())
+
     def test_read_only_preflight_redacts_runtime_details(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -34,14 +55,82 @@ class OrcaAdapterTests(unittest.TestCase):
             self.assertTrue(result.accounts["system_default_auth"])
             self.assertNotIn("private", json.dumps(result.to_dict()))
 
-    def test_workflow_creation_fails_closed(self) -> None:
+    def test_ready_workflow_binds_coordinator_identity(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             adapter = OrcaAdapter(
                 root / "workspace",
                 Ledger(root / "ledger.jsonl", run_id="run_orca_blocked", task_id="pilot_smoke"),
             )
-            with self.assertRaises(OrcaNotReadyError):
-                adapter.start_workflow(objective="pilot")
-            events = (root / "ledger.jsonl").read_text(encoding="utf-8")
-            self.assertIn("lifecycle.workflow.start", events)
+            observed = {}
+            adapter._json_command = lambda args, **kwargs: observed.update(args=args, kwargs=kwargs) or {"ok": True, "result": {"run": {"id": "run_bound"}}}  # type: ignore[method-assign]
+            adapter.start_workflow(objective="pilot", coordinator_handle="term_coordinator")
+            self.assertIn("term_coordinator", observed["args"])
+            self.assertEqual(observed["kwargs"]["access"], "write")
+            with self.assertRaisesRegex(RuntimeError, "cannot replace"):
+                adapter.start_workflow(objective="replacement", coordinator_handle="term_other")
+
+    def test_ready_dispatch_enforces_create_wait_inject_order(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adapter = OrcaAdapter(
+                root / "workspace",
+                Ledger(root / "ledger.jsonl", run_id="run_orca_sequence", task_id="pilot_smoke"),
+                permission_mode="approve-all",
+            )
+            adapter.run_id = "run_bound"
+            adapter.coordinator_handle = "term_coordinator"
+            adapter.task_ids.add("task_ready")
+            commands = []
+            outputs = iter([
+                {"ok": True, "result": {"worktree": {"id": "repo::workspace", "path": str((root / "workspace").resolve())}}},
+                {"ok": True, "result": {"terminal": {"handle": "term_worker"}}},
+                {"ok": True, "result": {"wait": {"satisfied": True, "status": "running"}}},
+                {"ok": True, "result": {"wait": {"satisfied": True, "status": "running"}}},
+                {"ok": True, "result": {"dispatch": {"id": "ctx_ready"}}},
+            ])
+            adapter._json_command = lambda args, **kwargs: commands.append(args) or next(outputs)  # type: ignore[method-assign]
+            with mock.patch("benchmark_controller.orca.time.sleep"):
+                result = adapter.start_ready_dispatch(
+                    task_id="task_ready", coordinator_handle="term_coordinator", agent_command="codex",
+                )
+            self.assertEqual(result["terminal_handle"], "term_worker")
+            self.assertEqual([command[:2] for command in commands], [("worktree", "current"), ("terminal", "create"), ("terminal", "wait"), ("terminal", "wait"), ("orchestration", "dispatch")])
+            self.assertIn("id:repo::workspace", commands[1])
+            self.assertIn("tui-idle", commands[2])
+            self.assertIn("--inject", commands[4])
+
+    def test_json_command_rejects_semantic_cli_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adapter = OrcaAdapter(
+                root / "workspace",
+                Ledger(root / "ledger.jsonl", run_id="run_orca_error", task_id="pilot_smoke"),
+            )
+            adapter.runtime.run = lambda *args, **kwargs: AdapterCommandResult(("orca",), 0, json.dumps({"ok": False, "error": {"code": "failed"}}), "")  # type: ignore[method-assign]
+            with self.assertRaisesRegex(RuntimeError, "ORCA command failed"):
+                adapter._json_command(("status", "--json"), stage_id="intake")
+
+    def test_json_command_rejects_missing_boolean_ok(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adapter = OrcaAdapter(
+                root / "workspace",
+                Ledger(root / "ledger.jsonl", run_id="run_orca_error", task_id="pilot_smoke"),
+            )
+            adapter.runtime.run = lambda *args, **kwargs: AdapterCommandResult(("orca",), 0, json.dumps({"result": {}}), "")  # type: ignore[method-assign]
+            with self.assertRaisesRegex(RuntimeError, "boolean ok"):
+                adapter._json_command(("status", "--json"), stage_id="intake")
+
+    def test_settlement_rejects_unbound_worker_terminal(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adapter = OrcaAdapter(
+                root / "workspace",
+                Ledger(root / "ledger.jsonl", run_id="run_orca_binding", task_id="pilot_smoke"),
+            )
+            adapter.run_id = "run_bound"
+            adapter.coordinator_handle = "term_coordinator"
+            adapter.dispatch_bindings["task_bound"] = ("term_worker", "ctx_bound")
+            with self.assertRaisesRegex(PermissionError, "not bound"):
+                adapter.await_settlement(task_id="task_bound", terminal_handle="term_other")

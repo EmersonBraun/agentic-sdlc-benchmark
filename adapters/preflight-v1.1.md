@@ -18,7 +18,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 
 | Component | Status | What is verified | What remains |
 |---|---|---|---|
-| ORCA 1.4.184 | installed-not-ready | Runtime, graph, workspace, three supervised `gpt-5.4` executions, cleanup, and release | Runtime rejected every authoritative `worker_done` with `dispatch_capability_invalid`; lifecycle settlement is unverified |
+| ORCA 1.4.184 | installed-ready | Runtime, graph, workspace, `gpt-5.4`, capability-bound `worker_done`, delivery acknowledgment, ledger, and cleanup | Supported path is terminal readiness followed by `dispatch --inject`; composed `worker-start` remains excluded due to an input-readiness race |
 | Agent Orchestrator 0.12.6 | installed-ready | Isolated `gpt-5.4` completion, persisted provider-event sequence, polling ledger bridge, termination, cleanup, and zero leakage | Public CLI event stream remains unavailable; bounded read-only datastore observation is documented |
 | Compozy 0.3.0-beta.16 | installed-ready | Exact `gpt-5.4` provider-bound prompt, isolated workspace cleanup, and redacted event-to-ledger bridge | Component ready; global 18-condition semantic parity remains a separate protocol gate |
 | Reference Harness | contract-ready | Common argv, workspace, permissions, and ledger contract | External ADE readiness still gates every primary condition |
@@ -37,6 +37,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 - [Latest ORCA lifecycle probe](orca-v1.1-lifecycle-probe-attestation-2.json)
 - [Latest ORCA bootstrap diagnostic](orca-v1.1-lifecycle-probe-attestation-3.json)
 - [Latest ORCA Dispatch-capability diagnostic](orca-v1.1-lifecycle-probe-attestation-4.json)
+- [Passing ORCA lifecycle settlement](orca-v1.1-lifecycle-probe-attestation-5.json)
 - [Agent Orchestrator session probe](agent-orchestrator-v1.1-session-probe-attestation.json)
 - [Agent Orchestrator execution attestation](agent-orchestrator-v1.1-execution-attestation.json)
 - [OpenHands SDK readiness attestation](openhands-sdk-v1.1-readiness-attestation.json)

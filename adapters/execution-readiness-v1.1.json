@@ -2,18 +2,9 @@
   "blocker_summary": {
     "operator": 0,
     "protocol": 1,
-    "upstream": 1
+    "upstream": 0
   },
   "blockers": [
-    {
-      "blocker_id": "orca-dispatch-capability",
-      "component": "ade:orca",
-      "evidence_ref": "adapters/orca-v1.1-lifecycle-probe-attestation-4.json",
-      "next_action": "Install an ORCA runtime that supplies a valid Dispatch capability, then require one accepted worker_done and complete release.",
-      "owner": "upstream",
-      "reason": "gpt-5.4 executes, but authoritative worker_done is rejected with dispatch_capability_invalid.",
-      "recheck_command": "orca status --json"
-    },
     {
       "blocker_id": "global-semantic-parity",
       "component": "protocol:semantic-parity",

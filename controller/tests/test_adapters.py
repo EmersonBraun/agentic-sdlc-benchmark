@@ -31,7 +31,7 @@ class AdapterContractTests(unittest.TestCase):
     def test_live_execution_fails_closed_for_uninstalled_external_components(self) -> None:
         plan = build_execution_plan(
             run_id="run_fail-closed",
-            ade="orca",
+            ade="compozy",
             harness="reference",
             agentskit="off",
         )

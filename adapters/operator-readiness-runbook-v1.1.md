@@ -67,12 +67,12 @@ create no benchmark run or external session.
 
 ## Current state
 
-As of 2026-08-18, Compozy, Agent Orchestrator, OpenHands SDK, mini-SWE-agent,
-the reference harness, and both AgentsKit treatments are independently ready.
-Twelve component-complete v1.1 conditions are ready, but the global 18/18 collection gate remains
+As of 2026-08-18, all three ADEs, all three harnesses, and both AgentsKit
+treatments are independently ready. All 18 component-complete v1.1 conditions
+are ready, but the global semantic-parity gate remains
 blocked. Its reference-harness ON/OFF technical pair remains excluded from
-official analysis. ORCA executes `gpt-5.4` but rejects authoritative lifecycle
-settlement; Agent Orchestrator relies on bounded read-only datastore observation because its public CLI lacks native events;
+official analysis. ORCA executes `gpt-5.4` and settles capability-bound lifecycle
+events through the terminal-ready then `dispatch --inject` path; Agent Orchestrator relies on bounded read-only datastore observation because its public CLI lacks native events;
 OpenHands 1.42.1 is ready through the pinned `uv` container bridge. mini-SWE-agent is ready through the
 authenticated Grok CLI/OAuth transport; no API key is part of the protocol.
-The remaining gates are upstream or protocol-owned, not operator credentials.
+The only remaining gate is protocol-owned global semantic parity, not operator credentials.
