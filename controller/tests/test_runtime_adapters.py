@@ -2,6 +2,8 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from subprocess import CompletedProcess
+from unittest.mock import patch
 
 from benchmark_controller.ade_adapters import ADENotReadyError, build_ade_adapter
 from benchmark_controller.harness_adapters import build_harness_adapter
@@ -36,6 +38,27 @@ class RuntimeAdapterRegistryTests(unittest.TestCase):
             harness.assert_ready()
             self.assertIsInstance(harness, OpenHandsSDKAdapter)
             self.assertEqual(harness.descriptor.adapter_version, "openhands-sdk-1.42.1")
+
+    def test_openhands_executes_through_container_and_records_cleanup(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            ledger = Ledger(root / "ledger.jsonl", run_id="run_openhands_mock", task_id="pilot_smoke")
+            harness = build_harness_adapter("openhands-sdk", root / "workspace", ledger, permission_mode="approve-all")
+
+            def fake_run(command, **kwargs):
+                argv = tuple(command)
+                if argv[:3] == ("docker", "container", "inspect") or argv[:3] == ("docker", "image", "inspect"):
+                    return CompletedProcess(argv, 1, "", "Error: No such object")
+                if argv[:2] == ("docker", "run"):
+                    payload = {"schema_version": "openhands-command-result-v1.1", "returncode": 0, "stdout": "ok\n", "stderr": ""}
+                    return CompletedProcess(argv, 0, json.dumps(payload) + "\n", "")
+                return CompletedProcess(argv, 0, "", "")
+
+            with patch("benchmark_controller.openhands_sdk.subprocess.run", side_effect=fake_run):
+                result = harness.run_command(["git", "status", "--short"], stage_id="local-testing", actor="executor", access="read")
+            self.assertEqual(result.stdout, "ok\n")
+            event = json.loads(ledger.path.read_text().splitlines()[-1])
+            self.assertEqual(event["status"], "completed")
 
     def test_mini_swe_registry_resolves_live_cli_bridge(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

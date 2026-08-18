@@ -6,13 +6,17 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from benchmark_controller.ledger import Ledger
 
@@ -23,6 +27,11 @@ NATIVE_FIELDS = {
     "read_marker_observed", "read_stdout_sha256", "write_exit_code", "write_denied",
     "write_stderr_sha256", "workspace_tree_sha256", "raw_content_in_result",
 }
+EXPECTED_VERSIONS = {
+    "openhands-sdk": "1.42.1", "openhands-tools": "1.42.1",
+    "openhands-workspace": "1.42.1", "openhands-agent-server": "1.42.1",
+}
+SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -62,6 +71,13 @@ def parse_native_result(output: str) -> dict[str, Any]:
         raise ValueError("native boolean field has invalid type")
     if result["raw_content_in_result"] is not False:
         raise ValueError("native result reports raw content")
+    if result["versions"] != EXPECTED_VERSIONS or result["workspace_type"] != "LocalWorkspace":
+        raise ValueError("native identity does not match the frozen contract")
+    if result["read_exit_code"] != 0 or not isinstance(result["write_exit_code"], int) or isinstance(result["write_exit_code"], bool) or result["write_exit_code"] == 0:
+        raise ValueError("native exit codes do not prove read/write behavior")
+    for field in ("read_stdout_sha256", "write_stderr_sha256", "workspace_tree_sha256"):
+        if not isinstance(result[field], str) or SHA256_PATTERN.fullmatch(result[field]) is None:
+            raise ValueError(f"{field} is not a SHA-256 digest")
     return result
 
 
@@ -100,12 +116,14 @@ def execute_probe(
         subprocess.run(("docker", "rm", "--force", name), capture_output=True, text=True, check=False)
         subprocess.run(("docker", "image", "rm", "--force", tag), capture_output=True, text=True, check=False)
     duration_ms = (time.monotonic_ns() - started) / 1_000_000
-    container_removed = subprocess.run(
+    container_inspect = subprocess.run(
         ("docker", "container", "inspect", name), capture_output=True, text=True, check=False,
-    ).returncode != 0
-    image_removed = subprocess.run(
+    )
+    image_inspect = subprocess.run(
         ("docker", "image", "inspect", tag), capture_output=True, text=True, check=False,
-    ).returncode != 0
+    )
+    container_removed = container_inspect.returncode != 0 and "No such" in container_inspect.stderr
+    image_removed = image_inspect.returncode != 0 and "No such" in image_inspect.stderr
     return build, runtime, build_command, run_command, duration_ms, image_id_sha256, container_removed, image_removed
 
 
@@ -185,7 +203,7 @@ def main() -> int:
         "resolver_policy": {"no_deps": False, "dependency_overrides": False, "pre_release": False, "require_hashes": True},
         "image": IMAGE,
         "lock_sha256": sha256_bytes(lockfile.read_bytes()),
-        "operator_probe_command": ["python", "controller/scripts/probe_openhands_sdk.py", "--confirm", "--output", str(args.output), "--ledger", str(args.ledger)],
+        "operator_probe_command": [sys.executable, "controller/scripts/probe_openhands_sdk.py", "--confirm", "--output", str(args.output), "--ledger", str(args.ledger)],
         "container_name_sha256": sha256_bytes(name.encode()),
         "image_tag_sha256": sha256_bytes(tag.encode()),
         "build_command_sha256": sha256_bytes(json.dumps(build_command, separators=(",", ":")).encode()),
@@ -213,7 +231,7 @@ def main() -> int:
         result["error"] = error
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({"status": result["status"], "output": str(args.output)}))
-    return 0 if passed else 1
+    return 0 if result["status"] == "passed" else 1
 
 
 if __name__ == "__main__":

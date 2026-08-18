@@ -16,7 +16,9 @@ from .external import AccessType, AdapterCommandResult, ControlledAdapter, Permi
 from .ledger import Ledger
 
 IMAGE = "ghcr.io/astral-sh/uv:python3.12-bookworm-slim@sha256:e5b65587bce7de595f299855d7385fe7fca39b8a74baa261ba1b7147afa78e58"
+NODE_IMAGE = "node:22.13.0-bookworm-slim@sha256:f5a0871ab03b035c58bdb3007c3d177b001c2145c18e81817b71624dcf7d8bff"
 IGNORED = {".git", ".next", ".DS_Store", "node_modules"}
+CONTEXT_IGNORED = {".next", ".DS_Store", "node_modules"}
 
 
 class OpenHandsSDKAdapter:
@@ -46,33 +48,39 @@ class OpenHandsSDKAdapter:
         normalized = _validate_command(command)
         if env:
             raise ValueError("OpenHands container adapter does not accept host environment injection")
-        if access == "network":
-            raise PermissionError("OpenHands collection boundary is network-isolated")
         self.runtime.permissions.authorize(access)
         self.runtime.prepare()
         container = f"benchmark-openhands-command-{time.time_ns()}"
         tag = f"agentic-sdlc-openhands-command:{time.time_ns()}"
         container_removed = False
         image_removed = False
+        pending_error: Exception | None = None
         started = time.monotonic_ns()
         result = AdapterCommandResult(normalized, 125, "", "OpenHands command did not start")
         with tempfile.TemporaryDirectory(prefix="agentic-sdlc-openhands-command-") as directory:
             context = Path(directory)
-            shutil.copytree(self.runtime.workspace, context / "workspace", ignore=shutil.ignore_patterns(*IGNORED))
+            shutil.copytree(self.runtime.workspace, context / "workspace", ignore=shutil.ignore_patterns(*CONTEXT_IGNORED))
             shutil.copy2(self._root / "controller/scripts/openhands_command_bridge.py", context / "bridge.py")
             shutil.copy2(self._root / "adapters/openhands-sdk-v1.1.requirements.lock", context / "requirements.lock")
             dockerfile = "\n".join((
+                f"FROM {NODE_IMAGE} AS node_runtime",
                 f"FROM {IMAGE}",
+                "COPY --from=node_runtime /usr/local /usr/local",
                 "COPY requirements.lock /requirements.lock",
                 "RUN uv pip install --system --require-hashes -r /requirements.lock",
+                "RUN npm install --global pnpm@10.33.0",
                 "COPY bridge.py /bridge.py",
                 "COPY workspace /workspace",
+                "RUN if [ -f /workspace/pnpm-lock.yaml ]; then cd /workspace && pnpm install --frozen-lockfile; fi",
                 "WORKDIR /workspace",
                 "",
             ))
             (context / "Dockerfile").write_text(dockerfile, encoding="utf-8")
             build = ("docker", "build", "--quiet", "--tag", tag, str(context))
-            run = ["docker", "run", "--name", container, "--network", "none", "--cap-drop=ALL", "--security-opt=no-new-privileges", "--pids-limit", "256"]
+            run = ["docker", "run", "--name", container]
+            if access != "network":
+                run += ["--network", "none"]
+            run += ["--cap-drop=ALL", "--security-opt=no-new-privileges", "--pids-limit", "256"]
             if access == "read":
                 run.append("--read-only")
             run += ["--tmpfs", "/tmp:rw,noexec,nosuid,size=64m", tag, "python", "/bridge.py", json.dumps(normalized)]
@@ -93,11 +101,14 @@ class OpenHandsSDKAdapter:
                         _replace_workspace(self.runtime.workspace, exported)
             except subprocess.TimeoutExpired as exc:
                 result = AdapterCommandResult(normalized, 124, exc.stdout or "", exc.stderr or "", timed_out=True)
+            except Exception as exc:
+                pending_error = exc
+                result = AdapterCommandResult(normalized, 125, "", type(exc).__name__)
             finally:
                 subprocess.run(("docker", "rm", "--force", container), capture_output=True, text=True, check=False)
                 subprocess.run(("docker", "image", "rm", "--force", tag), capture_output=True, text=True, check=False)
-                container_removed = not _docker_exists(("docker", "container", "inspect", container))
-                image_removed = not _docker_exists(("docker", "image", "inspect", tag))
+                container_removed = _confirmed_absent(("docker", "container", "inspect", container))
+                image_removed = _confirmed_absent(("docker", "image", "inspect", tag))
         duration_ms = (time.monotonic_ns() - started) / 1_000_000
         self.runtime.ledger.record(
             stage_id=stage_id, actor=actor, event_type="adapter.command.executed",
@@ -111,6 +122,8 @@ class OpenHandsSDKAdapter:
         )
         if not container_removed or not image_removed:
             raise RuntimeError("OpenHands container cleanup could not be verified")
+        if pending_error is not None:
+            raise pending_error
         return result
 
 
@@ -131,8 +144,9 @@ def _parse_result(output: str) -> dict[str, object]:
     return value
 
 
-def _docker_exists(command: tuple[str, ...]) -> bool:
-    return subprocess.run(command, capture_output=True, text=True, check=False).returncode == 0
+def _confirmed_absent(command: tuple[str, ...]) -> bool:
+    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    return result.returncode != 0 and "No such" in result.stderr
 
 
 def _replace_workspace(target: Path, source: Path) -> None:
@@ -143,6 +157,8 @@ def _replace_workspace(target: Path, source: Path) -> None:
             else:
                 child.unlink()
     for child in source.iterdir():
+        if child.name in IGNORED:
+            continue
         destination = target / child.name
         if child.is_dir() and not child.is_symlink():
             shutil.copytree(child, destination)

@@ -13,10 +13,13 @@ from probe_openhands_sdk import parse_native_result
 class OpenHandsProbeTests(unittest.TestCase):
     def test_parses_one_structured_result_amid_resolver_logs(self) -> None:
         payload = {
-            "schema_version": "openhands-native-probe-v1.1", "versions": {}, "versions_exact": True,
+            "schema_version": "openhands-native-probe-v1.1", "versions": {
+                "openhands-sdk": "1.42.1", "openhands-tools": "1.42.1",
+                "openhands-workspace": "1.42.1", "openhands-agent-server": "1.42.1",
+            }, "versions_exact": True,
             "workspace_type": "LocalWorkspace", "read_exit_code": 0, "read_marker_observed": True,
-            "read_stdout_sha256": "a", "write_exit_code": 1, "write_denied": True,
-            "write_stderr_sha256": "b", "workspace_tree_sha256": "c", "raw_content_in_result": False,
+            "read_stdout_sha256": "a" * 64, "write_exit_code": 1, "write_denied": True,
+            "write_stderr_sha256": "b" * 64, "workspace_tree_sha256": "c" * 64, "raw_content_in_result": False,
         }
         self.assertEqual(parse_native_result("resolver log\n" + json.dumps(payload)), payload)
 
