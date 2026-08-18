@@ -69,6 +69,14 @@ input/output/cached/reasoning token and cost breakdown. Technical-pilot records
 therefore mark this field unavailable; official collection fails closed until
 the concrete executor can observe complete token/cost accounting.
 
+The Agent Orchestrator implementation keeps one native orchestrator session
+for analytical stages and one native worker session for implementation stages.
+Each AO session owns its ADE-managed worktree, whose initial commit is checked
+against the controller-frozen worktree before use. Stable per-stage sentinels
+and a semantic stage cache prevent duplicate prompts across bounded retries.
+The controller records only redacted capture hashes and normalized evidence;
+all AO sessions and worktrees receive bounded terminal cleanup retries.
+
 Checkpoints are not permission to resume a measurement after process failure.
 They support bounded retries during one process and idempotent cleanup after a
 terminal state. Interrupted measurements remain invalid and are replaced by a
