@@ -121,6 +121,13 @@ class RunBundleWriterTests(unittest.TestCase):
             )
             self.assertEqual(bundle.manifest["gate_mode"], "technical-pilot")
             self.assertFalse(bundle.manifest["analysis_eligible"])
+            final = RunBundleWriter(
+                preflight,
+                temporary / "runs",
+                tasks,
+                gate_mode="technical-pilot",
+            ).finalize(bundle, terminal_state="TECHNICAL_PASS")
+            self.assertEqual(final["terminal_state"], "TECHNICAL_PASS")
 
     def test_finalize_records_terminal_state_and_rejects_second_close(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

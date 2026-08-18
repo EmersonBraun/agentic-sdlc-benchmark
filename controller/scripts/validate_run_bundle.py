@@ -45,7 +45,8 @@ def validate_bundle(directory: Path, tasks_root: Path, protocol: str) -> list[st
     required = {
         "schema_version", "protocol_version", "run_id", "task_id",
         "task_manifest_sha256", "product_id", "condition_id", "replicate",
-        "randomization_seed", "base_commit", "terminal_state", "artifacts",
+        "randomization_seed", "base_commit", "gate_mode", "analysis_eligible",
+        "terminal_state", "artifacts",
     }
     for key in sorted(required - set(manifest)):
         _error(errors, manifest_path, f"missing {key}")
@@ -73,6 +74,20 @@ def validate_bundle(directory: Path, tasks_root: Path, protocol: str) -> list[st
         _error(errors, manifest_path, "randomization_seed must be non-negative")
     if not isinstance(manifest.get("artifacts"), list):
         _error(errors, manifest_path, "artifacts must be an array")
+    gate_mode = manifest.get("gate_mode")
+    analysis_eligible = manifest.get("analysis_eligible")
+    terminal_state = manifest.get("terminal_state")
+    if gate_mode not in {"technical-pilot", "official-collection"}:
+        _error(errors, manifest_path, "invalid gate_mode")
+    if not isinstance(analysis_eligible, bool):
+        _error(errors, manifest_path, "analysis_eligible must be boolean")
+    if gate_mode == "technical-pilot":
+        if analysis_eligible is not False:
+            _error(errors, manifest_path, "technical pilot must be analysis-ineligible")
+        if terminal_state not in {"NOT_APPLICABLE", "TECHNICAL_PASS", "TECHNICAL_FAIL"}:
+            _error(errors, manifest_path, "invalid technical-pilot terminal_state")
+    elif terminal_state in {"TECHNICAL_PASS", "TECHNICAL_FAIL"}:
+        _error(errors, manifest_path, "technical terminal state on official collection")
 
     try:
         lines = ledger_path.read_text(encoding="utf-8").splitlines()
