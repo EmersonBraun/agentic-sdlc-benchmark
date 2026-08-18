@@ -4,10 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from benchmark_controller.agent_orchestrator import (
-    AgentOrchestratorAdapter,
-    AgentOrchestratorNotReadyError,
-)
+from benchmark_controller.agent_orchestrator import AgentOrchestratorAdapter
 from benchmark_controller.ledger import Ledger
 
 
@@ -33,11 +30,11 @@ class AgentOrchestratorAdapterTests(unittest.TestCase):
             self.assertEqual(result.agents["auth_probe"], "passed")
             self.assertFalse(result.to_dict()["agent_sessions_started"])
 
-    def test_spawn_fails_closed_before_command_execution(self) -> None:
+    def test_spawn_still_requires_explicit_write_permission(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             adapter = self._adapter(root)
-            with self.assertRaises(AgentOrchestratorNotReadyError):
+            with self.assertRaises(PermissionError):
                 adapter.spawn(project_id="code-10x", name="pilot", issue="pilot-1", prompt="run")
             events = (root / "ledger.jsonl").read_text(encoding="utf-8")
-            self.assertIn("lifecycle.session.spawn", events)
+            self.assertIn("adapter.command.blocked", events)

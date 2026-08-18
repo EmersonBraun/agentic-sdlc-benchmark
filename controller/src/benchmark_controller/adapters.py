@@ -93,7 +93,7 @@ def _ade_descriptors() -> dict[str, ComponentDescriptor]:
             "ade",
             "agent-orchestrator",
             "agent-orchestrator-0.12.6",
-            "installed-not-ready",
+            "installed-ready",
             "external:agent-orchestrator",
             lifecycle,
         ),

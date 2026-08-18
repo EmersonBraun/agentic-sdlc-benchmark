@@ -54,13 +54,6 @@ BLOCKER_SPECS: dict[str, ExecutionBlocker] = {
         "Install an ORCA runtime that supplies a valid Dispatch capability, then require one accepted worker_done and complete release.",
         "orca status --json",
     ),
-    "ade:agent-orchestrator": ExecutionBlocker(
-        "ao-observability", "ade:agent-orchestrator", "upstream",
-        "The public CLI starts and cleans sessions but exposes neither model output nor a native event stream.",
-        "adapters/agent-orchestrator-v1.1-session-probe-attestation.json",
-        "Recheck a release that exposes independently observable model execution and lifecycle events.",
-        "PYTHONPATH=controller/src python3 controller/scripts/probe_agent_orchestrator_lifecycle.py",
-    ),
     "ade:compozy": ExecutionBlocker(
         "compozy-runtime-parity", "ade:compozy", "protocol",
         "The Compozy runtime has not independently satisfied its declared workspace, model, lifecycle, ledger, and cleanup contract.",

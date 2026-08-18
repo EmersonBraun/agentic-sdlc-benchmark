@@ -8,6 +8,11 @@ from benchmark_controller.ledger import Ledger
 
 
 class AgentOrchestratorLifecycleTests(unittest.TestCase):
+    def test_normalizes_working_state_exposed_by_current_runtime(self) -> None:
+        event = normalize_session_snapshot({"id": "session-1", "status": "working"})
+        self.assertEqual(event["status"], "started")
+        self.assertEqual(event["snapshot_state"], "working")
+
     def test_normalizes_and_redacts_session_state(self) -> None:
         event = normalize_session_snapshot({"id": "session-private", "status": "running"})
         self.assertEqual(event["status"], "started")

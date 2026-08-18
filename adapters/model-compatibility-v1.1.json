@@ -14,16 +14,17 @@
     "model-policy-v1.1.json",
     "model-compatibility-v1.0.json",
     "orca-session-attestation-v1.0.json",
+    "agent-orchestrator-v1.1-execution-attestation.json",
     "compozy-model-connectivity-attestation-v1.0.json"
   ],
   "candidate_execution": {
     "orca": {"model": "gpt-5.4", "status": "executed", "bounded_response": true, "workspace_mutated": false},
+    "agent_orchestrator": {"model": "gpt-5.4", "status": "executed", "bounded_response": true, "session_cleaned": true, "workspace_mutated": false},
     "compozy": {"model": "gpt-5.4", "status": "executed", "session_cleaned": true, "workspace_mutated": false},
     "codex_cli": {"model": "gpt-5.4", "status": "executed", "sandbox": "read-only", "workspace_mutated": false},
     "evaluator": {"model": "gpt-5.4-mini", "status": "executed-in-compozy-and-codex-cli"}
   },
   "remaining_gates": [
-    "Agent Orchestrator semantic parity",
     "OpenHands dependency resolution",
     "mini-SWE-agent controlled model boundary",
     "AgentsKit ON provider-backed parity",
