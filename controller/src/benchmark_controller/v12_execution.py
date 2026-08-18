@@ -26,6 +26,7 @@ V12_REQUIRED_SOURCE_REFS = {
     "protocol/protocol-v1.2.md",
     "controller/src/benchmark_controller/v12_execution.py",
     "controller/src/benchmark_controller/v12_ade_backends.py",
+    "controller/src/benchmark_controller/v12_integration.py",
 }
 
 
