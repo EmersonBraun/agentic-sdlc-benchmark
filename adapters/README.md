@@ -12,7 +12,7 @@ Agent Orchestrator lifecycle-surface evidence is [`agent-orchestrator-lifecycle-
 
 The historical blocker register is [`blocker-register-v1.0.json`](blocker-register-v1.0.json). The v1.1 cohort has its own [`blocker-register-v1.1.json`](blocker-register-v1.1.json); each blocker has a resolution gate and a safe next action, and no shortcut is allowed to silently change the experiment.
 
-The operator-facing closure procedure is [`operator-readiness-runbook-v1.0.md`](operator-readiness-runbook-v1.0.md). It sequences the remaining external gates, preserves the no-fallback policy, and defines the evidence required before collection. The public v1.1 status summary is [`preflight-v1.1.md`](preflight-v1.1.md).
+The current operator-facing closure procedure is [`operator-readiness-runbook-v1.1.md`](operator-readiness-runbook-v1.1.md). The v1.0 runbook remains frozen historical evidence. The public v1.1 status summary is [`preflight-v1.1.md`](preflight-v1.1.md).
 
 The isolated session probe is specified in [`session-parity-test-v1.0.json`](session-parity-test-v1.0.json). It is preparation-only and requires explicit operator confirmation before any session or provider call.
 

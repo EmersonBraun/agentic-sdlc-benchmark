@@ -112,6 +112,14 @@ def build_harness_adapter(
             ledger,
             permission_mode=permission_mode,
         )
+    if key == "openhands-sdk":
+        from .openhands_sdk import OpenHandsSDKAdapter
+
+        return OpenHandsSDKAdapter(
+            workspace,
+            ledger,
+            permission_mode=permission_mode,  # type: ignore[arg-type]
+        )
     return HarnessAdapter(
         spec,
         ControlledAdapter(workspace, ledger, permission_mode=permission_mode),  # type: ignore[arg-type]

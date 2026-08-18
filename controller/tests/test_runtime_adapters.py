@@ -7,6 +7,7 @@ from benchmark_controller.ade_adapters import ADENotReadyError, build_ade_adapte
 from benchmark_controller.harness_adapters import build_harness_adapter
 from benchmark_controller.ledger import Ledger
 from benchmark_controller.mini_swe import MiniSweAgentAdapter
+from benchmark_controller.openhands_sdk import OpenHandsSDKAdapter
 
 
 class RuntimeAdapterRegistryTests(unittest.TestCase):
@@ -33,8 +34,8 @@ class RuntimeAdapterRegistryTests(unittest.TestCase):
                 "openhands-sdk", root / "openhands-sdk", ledger, permission_mode="approve-all"
             )
             harness.assert_ready()
-            self.assertIn("sha256:", harness.spec.runtime_image)
-            self.assertEqual(harness.spec.session_entrypoint, "controller/scripts/probe_openhands_sdk.py")
+            self.assertIsInstance(harness, OpenHandsSDKAdapter)
+            self.assertEqual(harness.descriptor.adapter_version, "openhands-sdk-1.42.1")
 
     def test_mini_swe_registry_resolves_live_cli_bridge(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -12,7 +12,12 @@ from probe_openhands_sdk import parse_native_result
 
 class OpenHandsProbeTests(unittest.TestCase):
     def test_parses_one_structured_result_amid_resolver_logs(self) -> None:
-        payload = {"schema_version": "openhands-native-probe-v1.1", "versions_exact": True}
+        payload = {
+            "schema_version": "openhands-native-probe-v1.1", "versions": {}, "versions_exact": True,
+            "workspace_type": "LocalWorkspace", "read_exit_code": 0, "read_marker_observed": True,
+            "read_stdout_sha256": "a", "write_exit_code": 1, "write_denied": True,
+            "write_stderr_sha256": "b", "workspace_tree_sha256": "c", "raw_content_in_result": False,
+        }
         self.assertEqual(parse_native_result("resolver log\n" + json.dumps(payload)), payload)
 
     def test_rejects_missing_or_duplicated_structured_results(self) -> None:
@@ -29,17 +34,19 @@ class OpenHandsReadinessEvidenceTests(unittest.TestCase):
         attestation = json.loads((root / "adapters" / "openhands-sdk-v1.1-readiness-attestation.json").read_text())
         self.assertEqual(attestation["status"], "passed")
         self.assertEqual(attestation["resolver"], "uv")
-        self.assertEqual(attestation["resolver_policy"], {"dependency_overrides": False, "no_deps": False, "pre_release": False})
+        self.assertEqual(attestation["resolver_policy"], {"dependency_overrides": False, "no_deps": False, "pre_release": False, "require_hashes": True})
         self.assertTrue(attestation["native"]["versions_exact"])
         self.assertTrue(attestation["native"]["write_denied"])
         self.assertTrue(attestation["workspace_unchanged"])
         self.assertTrue(attestation["container_removed"])
         self.assertEqual(attestation["ledger_event_count"], 4)
         self.assertFalse(attestation["raw_output_persisted"])
+        self.assertTrue(attestation["redaction_scan_passed"])
         for field, path in (
             ("probe_source_sha256", root / "controller" / "scripts" / "probe_openhands_sdk.py"),
             ("native_probe_source_sha256", root / "controller" / "scripts" / "openhands_native_probe.py"),
             ("ledger_sha256", root / "adapters" / "openhands-sdk-v1.1-probe-ledger.jsonl"),
+            ("lock_sha256", root / "adapters" / "openhands-sdk-v1.1.requirements.lock"),
         ):
             self.assertEqual(attestation[field], hashlib.sha256(path.read_bytes()).hexdigest())
         events = [

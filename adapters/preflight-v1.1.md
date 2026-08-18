@@ -40,6 +40,7 @@ Evidence from v1.0 and v1.1 is never mixed.
 - [Agent Orchestrator session probe](agent-orchestrator-v1.1-session-probe-attestation.json)
 - [Agent Orchestrator execution attestation](agent-orchestrator-v1.1-execution-attestation.json)
 - [OpenHands SDK readiness attestation](openhands-sdk-v1.1-readiness-attestation.json)
+- [Operator readiness runbook](operator-readiness-runbook-v1.1.md)
 - [Compozy session probe](compozy-v1.1-session-probe-attestation.json)
 - [Latest Compozy availability probe](compozy-v1.1-availability-probe-attestation-2.json)
 - [Compozy provider/lifecycle bridge probe](compozy-v1.1-session-probe-attestation.json)

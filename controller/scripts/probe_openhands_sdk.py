@@ -17,12 +17,12 @@ from typing import Any
 from benchmark_controller.ledger import Ledger
 
 IMAGE = "ghcr.io/astral-sh/uv:python3.12-bookworm-slim@sha256:e5b65587bce7de595f299855d7385fe7fca39b8a74baa261ba1b7147afa78e58"
-PACKAGES = (
-    "openhands-sdk==1.42.1",
-    "openhands-tools==1.42.1",
-    "openhands-workspace==1.42.1",
-)
 IGNORED = {".git", ".next", ".DS_Store", "node_modules"}
+NATIVE_FIELDS = {
+    "schema_version", "versions", "versions_exact", "workspace_type", "read_exit_code",
+    "read_marker_observed", "read_stdout_sha256", "write_exit_code", "write_denied",
+    "write_stderr_sha256", "workspace_tree_sha256", "raw_content_in_result",
+}
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -54,9 +54,59 @@ def parse_native_result(output: str) -> dict[str, Any]:
             continue
         if isinstance(value, dict) and value.get("schema_version") == "openhands-native-probe-v1.1":
             candidates.append(value)
-    if len(candidates) != 1:
-        raise ValueError("expected exactly one structured OpenHands native result")
-    return candidates[0]
+    if len(candidates) != 1 or set(candidates[0]) != NATIVE_FIELDS:
+        raise ValueError("expected exactly one exact-schema OpenHands native result")
+    result = candidates[0]
+    bool_fields = ("versions_exact", "read_marker_observed", "write_denied", "raw_content_in_result")
+    if any(not isinstance(result[field], bool) for field in bool_fields):
+        raise ValueError("native boolean field has invalid type")
+    if result["raw_content_in_result"] is not False:
+        raise ValueError("native result reports raw content")
+    return result
+
+
+def execute_probe(
+    *, context: Path, dockerfile: str, fixture: Path, native_probe: Path,
+    lockfile: Path, name: str, tag: str,
+) -> tuple[subprocess.CompletedProcess[str], subprocess.CompletedProcess[str] | None, tuple[str, ...], tuple[str, ...], float, str | None, bool, bool]:
+    """Build/run the probe and always remove its uniquely named Docker artifacts."""
+    build_command = (
+        "docker", "build", "--no-cache", "--label", "agentic-sdlc-benchmark=openhands-readiness",
+        "--tag", tag, str(context),
+    )
+    run_command = (
+        "docker", "run", "--name", name, "--read-only", "--network", "none",
+        "--cap-drop=ALL", "--security-opt", "no-new-privileges", "--pids-limit", "256",
+        "--memory", "4g", "--tmpfs", "/tmp:rw,noexec,nosuid,size=64m", tag,
+    )
+    shutil.copy2(native_probe, context / "openhands_native_probe.py")
+    shutil.copy2(lockfile, context / "requirements.lock")
+    shutil.copytree(fixture, context / "fixture", ignore=shutil.ignore_patterns(*IGNORED))
+    (context / "Dockerfile").write_text(dockerfile, encoding="utf-8")
+    started = time.monotonic_ns()
+    runtime: subprocess.CompletedProcess[str] | None = None
+    image_id_sha256: str | None = None
+    try:
+        build = subprocess.run(build_command, capture_output=True, text=True, check=False, timeout=600)
+        if build.returncode == 0:
+            inspected = subprocess.run(
+                ("docker", "image", "inspect", tag, "--format", "{{.Id}}"),
+                capture_output=True, text=True, check=False,
+            )
+            if inspected.returncode == 0:
+                image_id_sha256 = sha256_bytes(inspected.stdout.strip().encode())
+            runtime = subprocess.run(run_command, capture_output=True, text=True, check=False, timeout=120)
+    finally:
+        subprocess.run(("docker", "rm", "--force", name), capture_output=True, text=True, check=False)
+        subprocess.run(("docker", "image", "rm", "--force", tag), capture_output=True, text=True, check=False)
+    duration_ms = (time.monotonic_ns() - started) / 1_000_000
+    container_removed = subprocess.run(
+        ("docker", "container", "inspect", name), capture_output=True, text=True, check=False,
+    ).returncode != 0
+    image_removed = subprocess.run(
+        ("docker", "image", "inspect", tag), capture_output=True, text=True, check=False,
+    ).returncode != 0
+    return build, runtime, build_command, run_command, duration_ms, image_id_sha256, container_removed, image_removed
 
 
 def main() -> int:
@@ -68,17 +118,21 @@ def main() -> int:
     if not args.confirm:
         print(json.dumps({"executable": False, "reason": "operator confirmation required"}))
         return 2
+    if args.output.exists() or args.ledger.exists():
+        raise FileExistsError("output and ledger paths must not exist")
 
     root = Path(__file__).resolve().parents[2]
     fixture = root / "products" / "greenfield"
     native_probe = root / "controller" / "scripts" / "openhands_native_probe.py"
+    lockfile = root / "adapters" / "openhands-sdk-v1.1.requirements.lock"
     before = tree_sha256(fixture)
     name = f"benchmark-openhands-{int(time.time())}"
     tag = f"agentic-sdlc-openhands-readiness:{int(time.time())}"
     dockerfile = "\n".join((
         f"FROM {IMAGE}",
         "ENV OPENHANDS_SUPPRESS_BANNER=1",
-        "RUN uv pip install --system " + " ".join(PACKAGES),
+        "COPY requirements.lock /requirements.lock",
+        "RUN uv pip install --system --require-hashes -r /requirements.lock",
         "COPY openhands_native_probe.py /probe.py",
         "COPY fixture /workspace",
         "WORKDIR /workspace",
@@ -87,23 +141,10 @@ def main() -> int:
     ))
     ledger = Ledger(args.ledger, run_id="run_openhands-sdk-readiness", task_id="pilot_smoke")
     with tempfile.TemporaryDirectory(prefix="agentic-sdlc-openhands-build-") as directory:
-        context = Path(directory)
-        shutil.copy2(native_probe, context / "openhands_native_probe.py")
-        shutil.copytree(fixture, context / "fixture", ignore=shutil.ignore_patterns(*IGNORED))
-        (context / "Dockerfile").write_text(dockerfile, encoding="utf-8")
-        build_command = (
-            "docker", "build", "--no-cache", "--label", "agentic-sdlc-benchmark=openhands-readiness",
-            "--tag", tag, str(context),
+        build, runtime, build_command, run_command, duration_ms, image_id_sha256, container_removed, image_removed = execute_probe(
+            context=Path(directory), dockerfile=dockerfile, fixture=fixture, native_probe=native_probe,
+            lockfile=lockfile, name=name, tag=tag,
         )
-        started = time.monotonic_ns()
-        build = subprocess.run(build_command, capture_output=True, text=True, check=False, timeout=600)
-        duration_ms = (time.monotonic_ns() - started) / 1_000_000
-    run_command = (
-        "docker", "run", "--rm", "--name", name, "--read-only", "--network", "none",
-        "--cap-drop=ALL", "--security-opt", "no-new-privileges", "--pids-limit", "256",
-        "--memory", "4g", "--tmpfs", "/tmp:rw,noexec,nosuid,size=64m", tag,
-    )
-    runtime = subprocess.run(run_command, capture_output=True, text=True, check=False, timeout=120) if build.returncode == 0 else None
     combined = build.stdout + build.stderr + (runtime.stdout + runtime.stderr if runtime else "")
     native: dict[str, Any] = {}
     error: str | None = None
@@ -111,18 +152,6 @@ def main() -> int:
         native = parse_native_result(runtime.stdout + runtime.stderr if runtime else "")
     except ValueError as exc:
         error = str(exc)
-    inspect = subprocess.run(
-        ("docker", "ps", "-a", "--filter", f"name=^{name}$", "--format", "{{.ID}}"),
-        capture_output=True, text=True, check=False,
-    )
-    container_removed = inspect.returncode == 0 and not inspect.stdout.strip()
-    image_inspect = subprocess.run(
-        ("docker", "image", "inspect", tag, "--format", "{{.Id}}"),
-        capture_output=True, text=True, check=False,
-    )
-    image_id_sha256 = sha256_bytes(image_inspect.stdout.strip().encode()) if image_inspect.returncode == 0 else None
-    image_remove = subprocess.run(("docker", "image", "rm", tag), capture_output=True, text=True, check=False)
-    image_removed = image_remove.returncode == 0
     passed = all((
         build.returncode == 0,
         runtime is not None and runtime.returncode == 0,
@@ -153,9 +182,12 @@ def main() -> int:
         "status": "passed" if passed else "failed",
         "analysis_eligible": False,
         "resolver": "uv",
-        "resolver_policy": {"no_deps": False, "dependency_overrides": False, "pre_release": False},
+        "resolver_policy": {"no_deps": False, "dependency_overrides": False, "pre_release": False, "require_hashes": True},
         "image": IMAGE,
-        "packages": list(PACKAGES),
+        "lock_sha256": sha256_bytes(lockfile.read_bytes()),
+        "operator_probe_command": ["python", "controller/scripts/probe_openhands_sdk.py", "--confirm", "--output", str(args.output), "--ledger", str(args.ledger)],
+        "container_name_sha256": sha256_bytes(name.encode()),
+        "image_tag_sha256": sha256_bytes(tag.encode()),
         "build_command_sha256": sha256_bytes(json.dumps(build_command, separators=(",", ":")).encode()),
         "run_command_sha256": sha256_bytes(json.dumps(run_command, separators=(",", ":")).encode()),
         "probe_source_sha256": sha256_bytes(Path(__file__).read_bytes()),
@@ -169,10 +201,14 @@ def main() -> int:
         "built_image_id_sha256": image_id_sha256,
         "container_removed": container_removed,
         "image_removed": image_removed,
-        "ledger_event_count": 4,
+        "ledger_event_count": len(args.ledger.read_text().splitlines()),
         "ledger_sha256": sha256_bytes(args.ledger.read_bytes()),
         "raw_output_persisted": False,
     }
+    serialized = json.dumps(result, sort_keys=True)
+    result["redaction_scan_passed"] = not any(secret in serialized for secret in ("OPENHANDS_WORKSPACE_READY", ".forbidden-write"))
+    if not result["redaction_scan_passed"] or result["ledger_event_count"] != 4:
+        result["status"] = "failed"
     if error:
         result["error"] = error
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
