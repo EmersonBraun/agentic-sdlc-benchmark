@@ -78,14 +78,16 @@ idempotent retries inside one uninterrupted run and idempotent terminal
 cleanup. A process-interrupted measurement is never resumed: it becomes
 `INVALID_MEASUREMENT`, and a replacement receives a new run ID.
 
-Codex-to-Grok delegation must cross an integrity-bound handoff file inside the
-frozen run worktree. AgentsKit ON must materialize its public component context
-inside that same worktree; OFF must prove that no such context or event exists.
+Codex-to-Grok delegation must cross an integrity-bound handoff in the run-bundle
+control plane, bound to the frozen run worktree. AgentsKit ON materializes its
+public component context in that non-versionable control plane and executes the
+components with the same worktree as their workspace; OFF must prove that no
+such context or event exists.
 Hashes alone are public evidence, but the receiving role must acknowledge the
 exact handoff/context digest before its step can complete.
 
 AgentsKit context is admissible only with per-component native execution
 evidence bound to the run worktree. OFF conditions reject both factor files and
-AgentsKit ledger events. Instrumentation is deleted before merge, and the
+AgentsKit ledger events. Instrumentation never enters the product tree, and the
 independent evaluator identity is enforced in the runner rather than delegated
 to ADE configuration.

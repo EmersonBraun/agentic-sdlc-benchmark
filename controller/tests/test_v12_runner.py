@@ -4,6 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from benchmark_controller.condition_runner import ConditionStep, StepContext, StepResult
 from benchmark_controller.ledger import Ledger
@@ -12,6 +13,7 @@ from benchmark_controller.v12_runner import (
     AGENTSKIT_CONTEXT_RELATIVE,
     HANDOFF_RELATIVE,
     V12HandoffBackend,
+    V12NativeCollectionBackend,
     V12NativeConditionRunner,
 )
 
@@ -134,8 +136,9 @@ class V12RunnerTests(unittest.TestCase):
                 idempotency_key="decomposition-1", **base,
             ))
             self.assertEqual(decomposition.status, "completed")
-            self.assertTrue((worktree / HANDOFF_RELATIVE).is_file())
-            self.assertTrue((worktree / AGENTSKIT_CONTEXT_RELATIVE).is_file())
+            self.assertTrue((current_bundle.directory / HANDOFF_RELATIVE).is_file())
+            self.assertTrue((current_bundle.directory / AGENTSKIT_CONTEXT_RELATIVE).is_file())
+            self.assertFalse((worktree / ".benchmark").exists())
 
             implementation = backend.execute_step(StepContext(
                 step=ConditionStep("implementation", "implementation", "executor"),
@@ -148,10 +151,10 @@ class V12RunnerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             worktree = root / "worktree"
-            path = worktree / AGENTSKIT_CONTEXT_RELATIVE
+            current_bundle = bundle(root, "off")
+            path = current_bundle.directory / AGENTSKIT_CONTEXT_RELATIVE
             path.parent.mkdir(parents=True)
             path.write_text("{}")
-            current_bundle = bundle(root, "off")
             backend = V12HandoffBackend(Delegate())
             context = StepContext(
                 assignment=assignment("off"), bundle=current_bundle,
@@ -170,7 +173,7 @@ class V12RunnerTests(unittest.TestCase):
             current_bundle = bundle(root, "off")
             delegate = Delegate()
             backend = V12HandoffBackend(delegate)
-            path = worktree / HANDOFF_RELATIVE
+            path = current_bundle.directory / HANDOFF_RELATIVE
             path.parent.mkdir(parents=True)
             path.write_text(json.dumps({"schema_version": "tampered"}))
             result = backend.execute_step(StepContext(
@@ -181,6 +184,43 @@ class V12RunnerTests(unittest.TestCase):
             ))
             self.assertEqual(result.status, "invalid-measurement")
             self.assertEqual(delegate.contexts, [])
+
+    def test_valid_envelope_payload_substitution_breaks_frozen_digest(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            worktree = root / "worktree"
+            worktree.mkdir()
+            current_bundle = bundle(root, "off")
+            delegate = Delegate()
+            backend = V12HandoffBackend(delegate)
+            base = dict(
+                assignment=assignment("off"), bundle=current_bundle, attempt=1,
+                worktree=worktree, branch="benchmark/run", deadline_epoch_ms=None,
+                accounting_tool="test-accounting",
+            )
+            backend.execute_step(StepContext(
+                step=ConditionStep("decomposition", "decomposition", "planner"),
+                idempotency_key="decomposition-1", **base,
+            ))
+            path = current_bundle.directory / HANDOFF_RELATIVE
+            document = json.loads(path.read_text())
+            document["payload"]["requirements"] = "substituted"
+            path.write_text(json.dumps(document))
+            result = backend.execute_step(StepContext(
+                step=ConditionStep("implementation", "implementation", "executor"),
+                idempotency_key="implementation-1", **base,
+            ))
+            self.assertEqual(result.status, "invalid-measurement")
+
+    def test_collection_backend_uses_v12_runner(self) -> None:
+        collection = V12NativeCollectionBackend(
+            object(), lambda assignment, bundle: object(), lambda assignment, bundle: object(),
+        )
+        expected = SimpleNamespace(terminal_state="MERGED")
+        with patch("benchmark_controller.v12_runner.V12NativeConditionRunner") as runner:
+            runner.return_value.execute.return_value = expected
+            self.assertIs(collection.execute(assignment("off"), object()), expected)
+            runner.assert_called_once()
 
     def test_rejects_self_declared_agentskit_without_execution_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -229,15 +269,16 @@ class V12RunnerTests(unittest.TestCase):
             result = V12HandoffBackend(ContaminatedDelegate()).execute_step(context)
             self.assertEqual(result.status, "invalid-measurement")
 
-    def test_merge_removes_in_worktree_instrumentation(self) -> None:
+    def test_merge_never_materializes_instrumentation_in_product_tree(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             worktree = root / "worktree"
-            evidence = worktree / HANDOFF_RELATIVE
+            current_bundle = bundle(root, "off")
+            evidence = current_bundle.directory / HANDOFF_RELATIVE
             evidence.parent.mkdir(parents=True)
             evidence.write_text("evidence")
             context = StepContext(
-                assignment=assignment("off"), bundle=bundle(root, "off"),
+                assignment=assignment("off"), bundle=current_bundle,
                 step=ConditionStep("merge", "merge", "controller"), attempt=1,
                 worktree=worktree, branch="benchmark/run", idempotency_key="merge-1",
                 deadline_epoch_ms=None, accounting_tool="test-accounting",

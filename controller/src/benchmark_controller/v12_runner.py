@@ -6,7 +6,6 @@ from dataclasses import replace
 import hashlib
 import json
 from pathlib import Path
-import shutil
 import tempfile
 from typing import Any, Callable, Mapping
 
@@ -18,10 +17,12 @@ from .condition_runner import (
     StepResult,
     WorktreeProvider,
 )
+from .collection import ExecutionOutcome
 from .matrix import MatrixAssignment
+from .run_bundles import PreparedRunBundle
 
-HANDOFF_RELATIVE = Path(".benchmark/handoffs/codex-to-grok.json")
-AGENTSKIT_CONTEXT_RELATIVE = Path(".benchmark/agentskit/context.json")
+HANDOFF_RELATIVE = Path("runtime-control/handoffs/codex-to-grok.json")
+AGENTSKIT_CONTEXT_RELATIVE = Path("runtime-control/agentskit/context.json")
 HANDOFF_KEYS = {"requirements", "implementation_plan", "acceptance_criteria"}
 PUBLIC_AGENTSKIT_COMPONENTS = {"doc-bridge", "playbook", "code-review"}
 AGENTSKIT_EVIDENCE_KEYS = {
@@ -95,8 +96,8 @@ class V12HandoffBackend:
     def execute_step(self, context: StepContext) -> StepResult:
         if context.assignment.harness is not None:
             return StepResult("invalid-measurement", reason="v1.2-harness-factor-present")
-        factor_path = context.worktree / AGENTSKIT_CONTEXT_RELATIVE
-        handoff_path = context.worktree / HANDOFF_RELATIVE
+        factor_path = context.bundle.directory / AGENTSKIT_CONTEXT_RELATIVE
+        handoff_path = context.bundle.directory / HANDOFF_RELATIVE
         factor_digest = self._prepare_factor(context, factor_path)
 
         enriched = replace(
@@ -107,7 +108,7 @@ class V12HandoffBackend:
         if context.step.name == "implementation":
             try:
                 handoff_digest = self._validate_handoff(context, handoff_path)
-            except (OSError, ValueError) as exc:
+            except (OSError, RuntimeError, ValueError) as exc:
                 return StepResult("invalid-measurement", reason=str(exc))
             enriched = replace(enriched, handoff_path=handoff_path)
         else:
@@ -117,6 +118,10 @@ class V12HandoffBackend:
         result = self.delegate.execute_step(enriched)
         if context.assignment.agentskit == "off" and self._agentskit_events_added(context, ledger_before):
             return StepResult("invalid-measurement", reason="agentskit-off-ledger-contamination")
+        if context.assignment.agentskit == "off" and (
+            factor_path.exists() or (context.worktree / ".benchmark/agentskit").exists()
+        ):
+            return StepResult("invalid-measurement", reason="agentskit-off-file-contamination")
         if result.status != "completed":
             return result
         metadata = dict(result.metadata or {})
@@ -125,7 +130,7 @@ class V12HandoffBackend:
             payload = metadata.pop("handoff_payload", None)
             try:
                 digest = self._write_handoff(context, handoff_path, payload)
-            except (OSError, ValueError) as exc:
+            except (OSError, RuntimeError, ValueError) as exc:
                 return StepResult("invalid-measurement", reason=str(exc))
             metadata["handoff_sha256"] = digest
         elif context.step.name == "implementation":
@@ -137,9 +142,6 @@ class V12HandoffBackend:
                 return StepResult("invalid-measurement", reason="agentskit-context-acknowledgement-mismatch")
             if set(metadata.get("agentskit_components_observed", [])) != PUBLIC_AGENTSKIT_COMPONENTS:
                 return StepResult("invalid-measurement", reason="agentskit-component-acknowledgement-mismatch")
-
-        if context.step.name == "merge":
-            shutil.rmtree(context.worktree / ".benchmark", ignore_errors=True)
 
         return StepResult.completed(
             artifacts=result.artifacts,
@@ -158,11 +160,12 @@ class V12HandoffBackend:
             document = json.loads(path.read_text())
             if not self._valid_factor(context, document):
                 raise RuntimeError("persisted AgentsKit context identity mismatch")
-            return _sha(path.read_bytes())
+            return self._verify_frozen_digest(path, self._lock_path(path))
         payload = dict(self.agentskit_context_factory(context))
         if not self._valid_factor(context, payload):
             raise RuntimeError("AgentsKit context violates the public-only contract")
         digest = _atomic_json(path, payload)
+        self._write_digest_lock(self._lock_path(path), digest)
         context.bundle.ledger.record(
             stage_id=context.step.stage_id,
             actor="controller",
@@ -238,6 +241,7 @@ class V12HandoffBackend:
             "payload": dict(payload),
         }
         digest = _atomic_json(path, envelope)
+        V12HandoffBackend._write_digest_lock(V12HandoffBackend._lock_path(path), digest)
         context.bundle.ledger.record(
             stage_id="decomposition",
             actor="planner",
@@ -254,14 +258,67 @@ class V12HandoffBackend:
     def _validate_handoff(context: StepContext, path: Path) -> str:
         document = json.loads(path.read_text())
         if not all((
+            set(document) == {"schema_version", "condition_id", "task_id", "task_manifest_sha256", "base_commit", "from", "to", "payload"},
             document.get("schema_version") == "codex-grok-handoff-v1.2",
             document.get("condition_id") == context.assignment.condition_id,
             document.get("task_id") == context.assignment.task_id,
             document.get("task_manifest_sha256") == context.bundle.manifest["task_manifest_sha256"],
             document.get("base_commit") == context.bundle.manifest["base_commit"],
             document.get("from", {}).get("model") == "gpt-5.4",
+            document.get("from", {}).get("provider") == "codex-cli",
+            document.get("from", {}).get("role") == "planner_requirements_lead",
             document.get("to", {}).get("model") == "grok-4.5",
+            document.get("to", {}).get("provider") == "grok-cli",
+            document.get("to", {}).get("role") == "executor_fixer",
             isinstance(document.get("payload"), Mapping),
+            set(document.get("payload", {})) == HANDOFF_KEYS,
         )):
             raise ValueError("planner handoff identity mismatch")
-        return _sha(path.read_bytes())
+        return V12HandoffBackend._verify_frozen_digest(path, V12HandoffBackend._lock_path(path))
+
+    @staticmethod
+    def _lock_path(path: Path) -> Path:
+        return path.with_suffix(path.suffix + ".sha256")
+
+    @staticmethod
+    def _write_digest_lock(path: Path, digest: str) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if path.exists():
+            raise RuntimeError("integrity lock already exists")
+        path.write_text(digest + "\n")
+
+    @staticmethod
+    def _verify_frozen_digest(path: Path, lock_path: Path) -> str:
+        expected = lock_path.read_text().strip()
+        observed = _sha(path.read_bytes())
+        if expected != observed:
+            raise RuntimeError("frozen runtime evidence digest mismatch")
+        return observed
+
+
+class V12NativeCollectionBackend:
+    """Wire the v1.2-native runner into the collection coordinator."""
+
+    def __init__(
+        self,
+        worktrees: WorktreeProvider,
+        backend_factory: Callable[[MatrixAssignment, PreparedRunBundle], ConditionStepBackend],
+        verifier_factory: Callable[[MatrixAssignment, PreparedRunBundle], CompletionVerifier],
+        *,
+        max_attempts: int = 3,
+        retry_backoff_seconds: float = 1.0,
+    ) -> None:
+        self.worktrees = worktrees
+        self.backend_factory = backend_factory
+        self.verifier_factory = verifier_factory
+        self.max_attempts = max_attempts
+        self.retry_backoff_seconds = retry_backoff_seconds
+
+    def execute(self, assignment: MatrixAssignment, bundle: PreparedRunBundle) -> ExecutionOutcome:
+        return V12NativeConditionRunner(
+            self.backend_factory(assignment, bundle),
+            self.worktrees,
+            self.verifier_factory(assignment, bundle),
+            max_attempts=self.max_attempts,
+            retry_backoff_seconds=self.retry_backoff_seconds,
+        ).execute(assignment, bundle)

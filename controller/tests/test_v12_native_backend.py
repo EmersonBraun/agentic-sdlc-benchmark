@@ -1,4 +1,5 @@
 from pathlib import Path
+import math
 from types import SimpleNamespace
 import tempfile
 import unittest
@@ -79,3 +80,17 @@ class V12NativeBackendTests(unittest.TestCase):
             self.assertEqual(result.status, "invalid-measurement")
             events = [line for line in context.bundle.ledger.path.read_text().splitlines() if line]
             self.assertEqual(len(events), 2)
+
+    def test_rejects_non_finite_accounting_without_serializing_nan(self):
+        class NonFiniteExecutor(Executor):
+            def execute(self, request):
+                execution = super().execute(request)
+                return NativeStepExecution(**{
+                    **execution.__dict__, "effective_work_ms": math.nan,
+                })
+
+        with tempfile.TemporaryDirectory() as directory:
+            context = self.context(Path(directory), "implementation")
+            result = V12NativeStageBackend(NonFiniteExecutor()).execute_step(context)
+            self.assertEqual(result.status, "invalid-measurement")
+            self.assertNotIn("NaN", context.bundle.ledger.path.read_text())

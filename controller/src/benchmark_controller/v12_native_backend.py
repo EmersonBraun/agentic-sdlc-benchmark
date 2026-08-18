@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 from pathlib import Path
 from typing import Any, Mapping, Protocol
 
@@ -135,6 +136,10 @@ class V12NativeStageBackend:
             return "native-role-binding-mismatch"
         if execution.workspace.resolve() != request.worktree:
             return "native-workspace-boundary-mismatch"
+        if not all(math.isfinite(value) for value in (
+            execution.effective_work_ms, execution.external_wait_ms, execution.cost_usd,
+        )):
+            return "native-accounting-non-finite"
         if execution.effective_work_ms < 0 or execution.external_wait_ms < 0 or execution.cost_usd < 0:
             return "native-accounting-negative"
         if set(execution.tokens) != {"input", "output", "cached", "reasoning"}:
@@ -157,7 +162,7 @@ class V12NativeStageBackend:
             actor=context.step.actor,
             event_type="backend.attempt.effective-work",
             time_category="effective_work",
-            duration_ms=max(0, execution.effective_work_ms),
+            duration_ms=max(0, execution.effective_work_ms) if math.isfinite(execution.effective_work_ms) else 0,
             status="completed" if valid else "failed",
             payload={
                 "role": execution.role, "provider": execution.provider,
@@ -165,14 +170,14 @@ class V12NativeStageBackend:
             },
             tool=context.accounting_tool,
             tokens=tokens,
-            cost_usd=max(0, execution.cost_usd),
+            cost_usd=max(0, execution.cost_usd) if math.isfinite(execution.cost_usd) else 0,
         )
         context.bundle.ledger.record(
             stage_id=context.step.stage_id,
             actor="infrastructure",
             event_type="backend.attempt.external-wait",
             time_category="external_wait",
-            duration_ms=max(0, execution.external_wait_ms),
+            duration_ms=max(0, execution.external_wait_ms) if math.isfinite(execution.external_wait_ms) else 0,
             status="completed" if valid else "failed",
             payload={"idempotency_key": context.idempotency_key},
             tool=context.accounting_tool,

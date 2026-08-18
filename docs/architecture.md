@@ -40,16 +40,18 @@ commits and public artifacts remain in the run bundle and Git history.
 
 v1.2 reuses the controller-owned state machine but has a separate state schema
 and no harness factor. A clean worktree is verified at the frozen commit before
-the ADE starts. Codex planning produces an integrity-bound handoff file inside
-that worktree; Grok must acknowledge the exact digest before implementation can
-complete. AgentsKit ON similarly materializes public-only context in the same
-worktree and requires planner/executor acknowledgement. OFF rejects any such
-context as treatment contamination.
+the ADE starts. Codex planning produces an integrity-bound handoff in the
+run-bundle control plane; Grok receives its path and must acknowledge the exact
+frozen digest before implementation can complete. AgentsKit ON similarly
+materializes public-only context in that non-versionable control plane, runs
+each component with the product worktree as its workspace, and requires
+planner/executor acknowledgement. OFF rejects any such context as treatment
+contamination.
 
 ON evidence is not self-declared: every public component records its pinned
 source, command and output digests, exit status, and exact run workspace. OFF
 also rejects AgentsKit ledger events emitted by the ADE delegate. These
-instrumentation files are removed before merge so they cannot change the
+instrumentation files never enter the product tree, so they cannot change the
 product diff. Review and completion verification are frozen to the independent
 Codex `gpt-5.4-mini` evaluator.
 
