@@ -50,6 +50,7 @@ class OpenHandsReadinessEvidenceTests(unittest.TestCase):
             ("native_probe_source_sha256", root / "controller" / "scripts" / "openhands_native_probe.py"),
             ("command_bridge_source_sha256", root / "controller" / "scripts" / "openhands_command_bridge.py"),
             ("adapter_source_sha256", root / "controller" / "src" / "benchmark_controller" / "openhands_sdk.py"),
+            ("controller_manifest_sha256", root / "controller" / "pyproject.toml"),
             ("ledger_sha256", root / "adapters" / "openhands-sdk-v1.1-probe-ledger.jsonl"),
             ("lock_sha256", root / "adapters" / "openhands-sdk-v1.1.requirements.lock"),
         ):
