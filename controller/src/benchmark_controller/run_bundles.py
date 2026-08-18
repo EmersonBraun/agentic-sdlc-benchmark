@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from .ledger import Ledger
+from .pilot import GateMode
 from .pilot_executor import ConditionedPilotExecutor, PreparedCondition
 
 
@@ -44,10 +45,18 @@ class PreparedRunBundle:
 class RunBundleWriter:
     """Create a run bundle only after all pilot gates and parity checks pass."""
 
-    def __init__(self, preflight: Mapping[str, Any], output_root: Path, tasks_root: Path | None = None) -> None:
+    def __init__(
+        self,
+        preflight: Mapping[str, Any],
+        output_root: Path,
+        tasks_root: Path | None = None,
+        *,
+        gate_mode: GateMode = "official-collection",
+    ) -> None:
         self._preflight = dict(preflight)
         self._output_root = output_root
         self._tasks_root = tasks_root
+        self._gate_mode = gate_mode
 
     def create(
         self,
@@ -72,7 +81,7 @@ class RunBundleWriter:
         blocked or invalid preparation therefore leaves no partial run behind.
         """
 
-        prepared = ConditionedPilotExecutor(self._preflight).prepare_condition(
+        prepared = ConditionedPilotExecutor(self._preflight, gate_mode=self._gate_mode).prepare_condition(
             run_id=run_id,
             ade=ade,
             harness=harness,
@@ -115,6 +124,8 @@ class RunBundleWriter:
         manifest = {
             "schema_version": "1.1",
             "protocol_version": prepared.plan.protocol_version,
+            "gate_mode": self._gate_mode,
+            "analysis_eligible": self._gate_mode == "official-collection",
             "run_id": run_id,
             "task_id": task_id,
             "task_manifest_sha256": task_manifest_sha256,

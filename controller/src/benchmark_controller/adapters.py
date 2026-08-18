@@ -46,6 +46,7 @@ class ExecutionPlan:
 
     run_id: str
     protocol_version: str
+    gate_mode: str
     ade: ComponentDescriptor
     harness: ComponentDescriptor
     agentskit: ComponentDescriptor
@@ -56,6 +57,7 @@ class ExecutionPlan:
         return {
             "run_id": self.run_id,
             "protocol_version": self.protocol_version,
+            "gate_mode": self.gate_mode,
             "ade": _descriptor_dict(self.ade),
             "harness": _descriptor_dict(self.harness),
             "agentskit": _descriptor_dict(self.agentskit),
@@ -165,6 +167,7 @@ def build_execution_plan(
     agentskit: str,
     protocol_version: str = "v1.0",
     preflight: Mapping[str, Any] | None = None,
+    gate_mode: str = "official-collection",
 ) -> ExecutionPlan:
     """Resolve a condition without changing any factor or using a fallback."""
 
@@ -177,14 +180,18 @@ def build_execution_plan(
         raise ValueError(f"Unknown AgentsKit factor: {agentskit!r}")
     if protocol_version not in {"v1.0", "v1.1"}:
         raise ValueError(f"Unsupported protocol version: {protocol_version!r}")
+    if gate_mode not in {"technical-pilot", "official-collection"}:
+        raise ValueError(f"Unsupported gate mode: {gate_mode!r}")
 
-    ade_descriptor = _descriptor_from_preflight(ADE_DESCRIPTORS[ade], preflight, ade)
-    harness_descriptor = _descriptor_from_preflight(HARNESS_DESCRIPTORS[harness], preflight, harness)
-    agentskit_descriptor = _descriptor_from_preflight(AGENTSKIT_DESCRIPTORS[agentskit], preflight, agentskit)
+    status_key = "technical_pilot_status" if gate_mode == "technical-pilot" else "status"
+    ade_descriptor = _descriptor_from_preflight(ADE_DESCRIPTORS[ade], preflight, ade, status_key=status_key)
+    harness_descriptor = _descriptor_from_preflight(HARNESS_DESCRIPTORS[harness], preflight, harness, status_key=status_key)
+    agentskit_descriptor = _descriptor_from_preflight(AGENTSKIT_DESCRIPTORS[agentskit], preflight, agentskit, status_key=status_key)
     semantic_parity = harness_descriptor.capabilities == COMMON_HARNESS_CAPABILITIES
     return ExecutionPlan(
         run_id=run_id,
         protocol_version=protocol_version,
+        gate_mode=gate_mode,
         ade=ade_descriptor,
         harness=harness_descriptor,
         agentskit=agentskit_descriptor,
@@ -196,6 +203,8 @@ def _descriptor_from_preflight(
     descriptor: ComponentDescriptor,
     preflight: Mapping[str, Any] | None,
     key: str,
+    *,
+    status_key: str = "status",
 ) -> ComponentDescriptor:
     """Bind the immutable plan to the exact readiness snapshot used by the gate."""
 
@@ -207,7 +216,7 @@ def _descriptor_from_preflight(
     component = document.get(key, {})
     if not isinstance(component, Mapping):
         return descriptor
-    status = component.get("status")
+    status = component.get(status_key, component.get("status"))
     if not isinstance(status, str):
         status = descriptor.implementation_status
     version = component.get("version")

@@ -11,12 +11,17 @@ results and must not be included as benchmark performance observations.
 
 ## Collected-run evidence
 
-After the complete v1.1 gate passes, the controller creates one directory per
+After the selected v1.1 gate passes, the controller creates one directory per
 run under `runs/<run_id>/`. The immutable `manifest.json` binds the run to the
 protocol, condition, task-manifest SHA-256, model/component snapshots, seed,
 environment, budgets, and terminal state. `ledger.jsonl` is append-only and
 records every in-scope SDLC action with stage, actor, tool, status, duration,
 time category, artifact references, and redacted payload hash.
+
+Technical-pilot bundles are preregistered pipeline validations. Their manifests
+set `gate_mode: technical-pilot` and `analysis_eligible: false`; the aggregator
+reports them as excluded and never mixes them with official observations. The
+official collection still requires the complete 18-condition readiness gate.
 
 The public ledger never contains credentials, raw prompts, model responses,
 unredacted tool arguments, or private hidden-test data. Those remain in the
@@ -24,11 +29,10 @@ private audit store until the release policy permits publication.
 
 ## Current status
 
-The repository currently contains no collected run bundles. Therefore there is
-no fabricated action ledger and no performance result. The bundle writer and
-validator are ready, and the writer intentionally creates nothing while the
-18-condition gate is blocked. Running the preparation command is the first
-observable collection event only after readiness is verified.
+The repository currently contains no official collected run bundles. Therefore
+there is no fabricated performance result. Technical-pilot evidence may be
+created for explicitly ready conditions without changing the official 18/18
+gate or entering the benchmark analysis.
 
 Use `controller/scripts/prepare_run_bundle.py` to create a bound bundle and
 `controller/scripts/validate_run_bundle.py` to verify its public integrity.

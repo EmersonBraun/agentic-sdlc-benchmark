@@ -4,17 +4,18 @@
   "title": "Processed Benchmark Results v1.1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "protocol_version", "status", "summary", "metrics", "by_condition", "records", "invalid_runs"],
+  "required": ["schema_version", "protocol_version", "status", "summary", "metrics", "by_condition", "records", "invalid_runs", "excluded_runs"],
   "properties": {
     "schema_version": {"const": "analysis-results-v1.1"},
     "protocol_version": {"const": "v1.1"},
     "status": {"enum": ["no-results", "partial", "complete"]},
     "generated_at": {"type": "string"},
     "source": {"type": "object"},
-    "summary": {"type": "object", "required": ["runs", "evaluated_runs", "quality_pass_count", "invalid_runs"]},
+    "summary": {"type": "object", "required": ["runs", "evaluated_runs", "quality_pass_count", "invalid_runs", "excluded_runs"]},
     "metrics": {"type": "object"},
     "by_condition": {"type": "array"},
     "records": {"type": "array"},
-    "invalid_runs": {"type": "array"}
+    "invalid_runs": {"type": "array"},
+    "excluded_runs": {"type": "array"}
   }
 }

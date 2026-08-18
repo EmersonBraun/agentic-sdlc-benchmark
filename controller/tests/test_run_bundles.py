@@ -78,6 +78,8 @@ class RunBundleWriterTests(unittest.TestCase):
                 component_versions={"protocol": "v1.1"},
             )
             self.assertEqual(bundle.manifest["protocol_version"], "v1.1")
+            self.assertEqual(bundle.manifest["gate_mode"], "official-collection")
+            self.assertTrue(bundle.manifest["analysis_eligible"])
             self.assertEqual(len(bundle.manifest["task_manifest_sha256"]), 64)
             self.assertEqual(bundle.manifest["terminal_state"], "NOT_APPLICABLE")
             self.assertTrue((bundle.directory / "manifest.json").is_file())
@@ -86,6 +88,39 @@ class RunBundleWriterTests(unittest.TestCase):
             self.assertTrue((bundle.directory / "ledger.jsonl").is_file())
             self.assertEqual((bundle.directory / "ledger.jsonl").read_text(encoding="utf-8"), "")
             self.assertEqual(bundle.condition.plan.protocol_version, "v1.1")
+
+    def test_technical_bundle_is_explicitly_analysis_ineligible(self) -> None:
+        root = Path(__file__).resolve().parents[2]
+        preflight = json.loads((root / "adapters" / "preflight-v1.1.json").read_text(encoding="utf-8"))
+        with tempfile.TemporaryDirectory() as directory:
+            temporary = Path(directory)
+            tasks = temporary / "tasks"
+            tasks.mkdir()
+            (tasks / "pilot_greenfield_service_readiness.manifest.json").write_text(json.dumps({
+                "task_id": "pilot_greenfield_service_readiness",
+                "product_id": "greenfield",
+                "phase": "pilot",
+            }), encoding="utf-8")
+            bundle = RunBundleWriter(
+                preflight,
+                temporary / "runs",
+                tasks,
+                gate_mode="technical-pilot",
+            ).create(
+                run_id="run_technical-bundle",
+                task_id="pilot_greenfield_service_readiness",
+                product_id="greenfield",
+                ade="compozy",
+                harness="reference",
+                agentskit="off",
+                replicate=1,
+                randomization_seed=7,
+                base_commit="a" * 40,
+                model_snapshots={"planner": "gpt-5.4"},
+                component_versions={"protocol": "v1.1"},
+            )
+            self.assertEqual(bundle.manifest["gate_mode"], "technical-pilot")
+            self.assertFalse(bundle.manifest["analysis_eligible"])
 
     def test_finalize_records_terminal_state_and_rejects_second_close(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

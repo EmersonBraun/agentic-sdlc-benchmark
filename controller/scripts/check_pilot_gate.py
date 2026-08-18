@@ -13,13 +13,17 @@ from benchmark_controller.pilot import evaluate_pilot_gate
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--preflight", type=Path, required=True)
+    parser.add_argument(
+        "--gate-mode",
+        choices=("technical-pilot", "official-collection"),
+        default="official-collection",
+    )
     args = parser.parse_args()
     preflight = json.loads(args.preflight.read_text(encoding="utf-8"))
-    report = evaluate_pilot_gate(preflight)
+    report = evaluate_pilot_gate(preflight, gate_mode=args.gate_mode)
     print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
     return 0 if report.can_start else 1
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

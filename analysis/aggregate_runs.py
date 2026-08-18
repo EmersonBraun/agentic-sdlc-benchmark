@@ -124,6 +124,8 @@ def _run_record(directory: Path, baselines: dict[str, float]) -> dict[str, Any]:
         "task_id": manifest.get("task_id"),
         "product_id": manifest.get("product_id"),
         "protocol_version": manifest.get("protocol_version"),
+        "gate_mode": manifest.get("gate_mode", "official-collection"),
+        "analysis_eligible": manifest.get("analysis_eligible", True),
         "condition_id": manifest.get("condition_id"),
         "replicate": manifest.get("replicate"),
         "terminal_state": manifest.get("terminal_state"),
@@ -149,12 +151,16 @@ def aggregate(*, runs_root: Path, tasks_root: Path, protocol_version: str, seed:
     baselines = _load_baselines(tasks_root)
     records: list[dict[str, Any]] = []
     invalid_runs: list[dict[str, str]] = []
+    excluded_runs: list[dict[str, str]] = []
     if runs_root.exists():
         for manifest_path in sorted(runs_root.glob("*/manifest.json")):
             try:
                 record = _run_record(manifest_path.parent, baselines)
                 if record["protocol_version"] != protocol_version:
                     invalid_runs.append({"path": str(manifest_path), "reason": "protocol_version_mismatch"})
+                    continue
+                if record["analysis_eligible"] is not True:
+                    excluded_runs.append({"path": str(manifest_path), "reason": "technical_pilot"})
                     continue
                 records.append(record)
             except (OSError, ValueError, json.JSONDecodeError) as exc:
@@ -188,6 +194,7 @@ def aggregate(*, runs_root: Path, tasks_root: Path, protocol_version: str, seed:
             "evaluated_runs": len(evaluated),
             "quality_pass_count": quality_pass_count,
             "invalid_runs": len(invalid_runs),
+            "excluded_runs": len(excluded_runs),
         },
         "metrics": {
             "effective_work_hours": _metric(records, "effective_work_hours", seed=seed),
@@ -197,6 +204,7 @@ def aggregate(*, runs_root: Path, tasks_root: Path, protocol_version: str, seed:
         "by_condition": condition_reports,
         "records": records,
         "invalid_runs": invalid_runs,
+        "excluded_runs": excluded_runs,
     }
 
 
