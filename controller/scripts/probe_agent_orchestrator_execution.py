@@ -64,6 +64,10 @@ def _command_record(code: int, output: str) -> dict[str, Any]:
     return {"returncode": code, "output_sha256": sha256_text(output)}
 
 
+def _is_terminated(item: dict[str, Any]) -> bool:
+    return item.get("isTerminated") is True
+
+
 def _tree_sha256(root: Path) -> str:
     digest = hashlib.sha256()
     for path in sorted(root.rglob("*")):
@@ -214,7 +218,7 @@ def main() -> int:
             )
             result["commands"]["post_kill_observation"] = _command_record(code, output)
             terminated_items = [item for item in _sessions(output) if item.get("id") == session_id]
-            if code or len(terminated_items) != 1 or not terminated_items[0].get("isTerminated"):
+            if code or len(terminated_items) != 1 or not _is_terminated(terminated_items[0]):
                 raise RuntimeError("session termination was not independently observed")
             observer.observe(terminated_items[0])
         except Exception as exc:
@@ -235,11 +239,11 @@ def main() -> int:
             else:
                 result["cleanup"]["session_schema_valid"] = True
                 result["cleanup"]["active_session_leak_count"] = sum(
-                    not bool(item.get("isTerminated")) for item in cleanup_sessions
+                    not _is_terminated(item) for item in cleanup_sessions
                 )
                 target_sessions = [item for item in cleanup_sessions if item.get("id") == session_id]
                 result["cleanup"]["target_session_terminated"] = (
-                    len(target_sessions) == 1 and bool(target_sessions[0].get("isTerminated"))
+                    len(target_sessions) == 1 and _is_terminated(target_sessions[0])
                 )
             code, output = _run("project", "rm", project_id, "-y", "--json")
             result["cleanup"]["project_remove"] = _command_record(code, output)

@@ -5,11 +5,11 @@
     "fixture_destroyed": true,
     "passed": true,
     "project_remove": {
-      "output_sha256": "921d2c63fb6948c80c114f0fc31789a7a66a6de0cabed238ce3ceb985ef99a54",
+      "output_sha256": "4234ec20f4a8aba84f5bc4fc2aeb33caed3ede882d2fd49732ac1aa7f89a41b6",
       "returncode": 0
     },
     "session_list": {
-      "output_sha256": "4bee6eb8bb334655d96d8bbfb1fde2ee3ea510e8d299a969ce6e56d6486ef64f",
+      "output_sha256": "08b5cf17a4e07510475d94940b49a6f7b536ba014f44f84f0a6006bca21d6978",
       "returncode": 0
     },
     "session_schema_valid": true,
@@ -17,23 +17,23 @@
   },
   "commands": {
     "kill": {
-      "output_sha256": "1045082b8f01a3680dd2157edd89834eb051fe1631c37aaabbec30f4bd9dc9b9",
+      "output_sha256": "cbbacd1c7a2fe100e4445922fbbd3370d9640d81b6002e4a0ba1c6089d92dc33",
       "returncode": 0
     },
     "post_kill_observation": {
-      "output_sha256": "4bee6eb8bb334655d96d8bbfb1fde2ee3ea510e8d299a969ce6e56d6486ef64f",
+      "output_sha256": "08b5cf17a4e07510475d94940b49a6f7b536ba014f44f84f0a6006bca21d6978",
       "returncode": 0
     },
     "project_add": {
-      "output_sha256": "cedff097e2277ed9471c46827c1d710d7cbcebb71929277451060919aa3f81d5",
+      "output_sha256": "4f92041a2f527e43deb8f9d6a32a522ab2f00a535fc3799722925c17f3da69ee",
       "returncode": 0
     },
     "project_config": {
-      "output_sha256": "280068b85ce3f4a4c9db14b1374a0510d0b7abaf2140ec41a7b36ab2da7e4a29",
+      "output_sha256": "95f3f6b2f8a48430c1444643f21bab9cb21d59e0fb041beec8fca3d1e2f86bab",
       "returncode": 0
     },
     "spawn": {
-      "output_sha256": "801d994b9c7218ee8a79b59ae3d3a6d91c4d5ec792db133e93d3330a426d4eee",
+      "output_sha256": "718b4ddefee620bb0c4bd97877aa05d0bf906067c51643e849c6d7c34deb0d9c",
       "returncode": 0
     }
   },
@@ -53,9 +53,9 @@
       "openai"
     ],
     "identity_observed": true,
-    "native_rollout_sha256": "3f5d8afd37074631f27b410580466fc4d507ec1cdb80c7e32b00dc5d356268ed"
+    "native_rollout_sha256": "ebc608abbc67b8e848057f16c6c43f42cd4148d165f385551e327837c160feb5"
   },
-  "observed_at": "2026-08-18T16:27:32.156723+00:00",
+  "observed_at": "2026-08-18T16:28:58.894314+00:00",
   "operator": "local-primary-operator",
   "permission_configuration_observed": true,
   "probe_command": [
@@ -64,13 +64,13 @@
     "controller/scripts/probe_agent_orchestrator_execution.py",
     "--confirm"
   ],
-  "probe_sha256": "2b2ca7d21796ea93b7c88994802fcc52bca58de855d785a08ad0dc792e4b4712",
+  "probe_sha256": "983d125177c579d737fd59d6d344bd8adaa585f63b0d8f42bef247b978066ae5",
   "provider_evidence": {
     "assistant_message_count": 1,
     "assistant_reply_sha256": "17fee59ddfe89443a0b73c0548f25656e4ffbf756806d9989f023bf3033b646c",
     "expected_reply_observed": true,
-    "input_tokens_observed": 20253,
-    "output_tokens_observed": 50,
+    "input_tokens_observed": 20255,
+    "output_tokens_observed": 43,
     "provider_event_sequence": [
       "turn.started",
       "message.completed",
@@ -89,7 +89,7 @@
   "schema_version": "agent-orchestrator-execution-attestation-v1.1",
   "session": {
     "model_execution_observed": true,
-    "session_id_sha256": "4df9ef4258ee317026ad33025ba055f153be0c3a1cdef6ae0207a51691844037"
+    "session_id_sha256": "90fd4ec2e99ee018fd003dee31b84273fc2cbd52cccaf30120ae7243249ea2ad"
   },
   "status": "passed",
   "version_source_sha256": "7cad5817d25ce4fafd69b897aa1fe806ef016f35fa1b97085f30d55dc2a56c29",
@@ -97,8 +97,8 @@
     "clean": true,
     "complete_tree_matches_fixture": true,
     "head_matches_fixture": true,
-    "path_sha256": "60cd3259f9f869c3935c53174c419ac76c4134793fe28d7387981615f3c9abfd",
+    "path_sha256": "1ffc9de7323f64643726cef1001cab89773701955104b261baaa13a76c69e372",
     "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
-  "workspace_commit_sha256": "3a358fd5157075120756ecf6022c27f3fbf86f69c01fc1c0222d63d1a21f9e71"
+  "workspace_commit_sha256": "5a7763f87a8e4f21fe814d6ad04b3eaad6f301c9568e2c862de68c4229def16a"
 }
