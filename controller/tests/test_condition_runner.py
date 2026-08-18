@@ -395,6 +395,26 @@ class GitWorktreeProviderTests(unittest.TestCase):
             provider.release(lease)
             self.assertFalse(lease.path.exists())
 
+    def test_rejects_a_dirty_persisted_worktree(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository = root / "repository"
+            repository.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=repository, check=True)
+            subprocess.run(["git", "config", "user.email", "benchmark@example.invalid"], cwd=repository, check=True)
+            subprocess.run(["git", "config", "user.name", "Benchmark"], cwd=repository, check=True)
+            (repository / "README.md").write_text("fixture\n")
+            subprocess.run(["git", "add", "README.md"], cwd=repository, check=True)
+            subprocess.run(["git", "commit", "-qm", "fixture"], cwd=repository, check=True)
+            commit = subprocess.run(
+                ["git", "rev-parse", "HEAD"], cwd=repository, check=True, capture_output=True, text=True
+            ).stdout.strip()
+            provider = GitWorktreeProvider(repository, root / "worktrees")
+            lease = provider.acquire(run_id="run_fixture", base_commit=commit)
+            (lease.path / "dirty.txt").write_text("dirty\n")
+            with self.assertRaisesRegex(RuntimeError, "cleanliness"):
+                provider.acquire(run_id="run_fixture", base_commit=commit)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -77,10 +77,7 @@ class GitWorktreeProvider:
             raise ValueError("worktree path escapes the configured root")
         self.worktree_root.mkdir(parents=True, exist_ok=True)
         if path.is_dir():
-            observed_commit = self._git(("-C", str(path), "rev-parse", "HEAD"))
-            observed_branch = self._git(("-C", str(path), "branch", "--show-current"))
-            if observed_commit != base_commit or observed_branch != branch:
-                raise RuntimeError("existing worktree identity does not match the run")
+            self._verify_worktree(path=path, branch=branch, base_commit=base_commit)
             return WorktreeLease(path=path, branch=branch, base_commit=base_commit)
         completed = subprocess.run(
             ["git", "worktree", "add", "-b", branch, str(path), base_commit],
@@ -91,6 +88,7 @@ class GitWorktreeProvider:
         )
         if completed.returncode != 0:
             raise RuntimeError("git worktree creation failed")
+        self._verify_worktree(path=path, branch=branch, base_commit=base_commit)
         return WorktreeLease(path=path, branch=branch, base_commit=base_commit)
 
     def release(self, lease: WorktreeLease) -> None:
@@ -120,6 +118,13 @@ class GitWorktreeProvider:
             raise RuntimeError("existing worktree could not be inspected")
         return completed.stdout.strip()
 
+    def _verify_worktree(self, *, path: Path, branch: str, base_commit: str) -> None:
+        observed_commit = self._git(("-C", str(path), "rev-parse", "HEAD"))
+        observed_branch = self._git(("-C", str(path), "branch", "--show-current"))
+        status = self._git(("-C", str(path), "status", "--porcelain", "--untracked-files=all"))
+        if observed_commit != base_commit or observed_branch != branch or status:
+            raise RuntimeError("worktree identity or cleanliness does not match the run")
+
 
 @dataclass(frozen=True)
 class StepContext:
@@ -133,6 +138,8 @@ class StepContext:
     deadline_epoch_ms: float | None
     accounting_tool: str
     worktree_mode: str = "controller-isolated-native-delegation"
+    handoff_path: Path | None = None
+    agentskit_context_path: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -201,6 +208,9 @@ class ComposedConditionRunner:
     """Run continuously until a measured terminal state; never resume partial runs."""
 
     state_filename = "condition-runner-state.json"
+    state_schema_version = "condition-runner-state-v1.1"
+    runner_tool = "condition-runner-v1.1"
+    accepts_v12 = False
 
     def __init__(
         self,
@@ -230,7 +240,7 @@ class ComposedConditionRunner:
         self.sleeper = sleeper
 
     def execute(self, assignment: MatrixAssignment, bundle: PreparedRunBundle) -> ExecutionOutcome:
-        if bundle.manifest.get("protocol_version") == "v1.2":
+        if bundle.manifest.get("protocol_version") == "v1.2" and not self.accepts_v12:
             raise RuntimeError("v1.2 requires its native ADE runner; the v1.1 harness runner is prohibited")
         self._validate_manifest_identity(assignment, bundle)
         state_path = bundle.directory / self.state_filename
@@ -280,7 +290,7 @@ class ComposedConditionRunner:
                 duration_ms=0,
                 status="completed",
                 payload={"branch": lease.branch, "mode": "controller-isolated-native-delegation"},
-                tool="condition-runner-v1.1",
+                tool=self.runner_tool,
             )
             state["worktree_event_recorded"] = True
             self._write_state(state_path, state)
@@ -396,7 +406,7 @@ class ComposedConditionRunner:
                 ).hexdigest(),
                 "verifier": type(self.verifier).__name__,
             },
-            tool="condition-runner-v1.1",
+            tool=self.runner_tool,
         )
         return decision
 
@@ -417,7 +427,7 @@ class ComposedConditionRunner:
                 duration_ms=0,
                 status="completed",
                 payload={"branch": lease.branch},
-                tool="condition-runner-v1.1",
+                tool=self.runner_tool,
             )
         state["worktree_release_event_recorded"] = True
         state["worktree_released"] = True
@@ -448,7 +458,7 @@ class ComposedConditionRunner:
                 duration_ms=0,
                 status="started",
                 payload={"step": step.name, "attempt": attempt, "condition_id": assignment.condition_id},
-                tool=f"condition-runner:{assignment.ade}:{assignment.harness}:{assignment.agentskit}",
+                tool=self._condition_tool(assignment),
             )
             try:
                 started = time.monotonic_ns()
@@ -502,7 +512,7 @@ class ComposedConditionRunner:
                         "backend_wall_clock_ms": round(duration_ms, 3),
                         "metadata": dict(result.metadata or {}),
                     },
-                    tool=f"condition-runner:{assignment.ade}:{assignment.harness}:{assignment.agentskit}",
+                    tool=self._condition_tool(assignment),
                     artifact_refs=[artifact["path"] for artifact in result.artifacts],
                 )
                 limit = self._limit_outcome(bundle, state)
@@ -518,7 +528,7 @@ class ComposedConditionRunner:
                     duration_ms=0,
                     status="completed",
                     payload={"step": step.name, "attempt": attempt, "reason": result.reason},
-                    tool="condition-runner-v1.1",
+                    tool=self.runner_tool,
                 )
                 limit = self._limit_outcome(bundle, state)
                 if limit is not None:
@@ -535,7 +545,7 @@ class ComposedConditionRunner:
                     duration_ms=waited_ms,
                     status="completed",
                     payload={"attempt": attempt, "scheduled_seconds": delay},
-                    tool="condition-runner-v1.1",
+                    tool=self.runner_tool,
                 )
                 limit = self._limit_outcome(bundle, state)
                 if limit is not None:
@@ -559,7 +569,7 @@ class ComposedConditionRunner:
                 duration_ms=0,
                 status="blocked" if terminal == "HUMAN_REQUIRED" else "failed",
                 payload={**failure, "terminal_state": terminal},
-                tool="condition-runner-v1.1",
+                tool=self.runner_tool,
             )
             return ExecutionOutcome(terminal, tuple(state.get("artifacts", [])), failure)
         raise AssertionError("unreachable retry loop")
@@ -767,14 +777,10 @@ class ComposedConditionRunner:
         if path.exists():
             state = json.loads(path.read_text(encoding="utf-8"))
             if (
-                state.get("schema_version") != "condition-runner-state-v1.1"
+                state.get("schema_version") != self.state_schema_version
                 or state.get("run_id") != assignment.run_id
                 or state.get("condition_id") != assignment.condition_id
-                or state.get("factors") != {
-                    "ade": assignment.ade,
-                    "harness": assignment.harness,
-                    "agentskit": assignment.agentskit,
-                }
+                or state.get("factors") != self._factors(assignment)
                 or state.get("task_manifest_sha256") != bundle.manifest.get("task_manifest_sha256")
                 or bundle.manifest.get("condition_id") != assignment.condition_id
             ):
@@ -784,14 +790,10 @@ class ComposedConditionRunner:
                 raise RuntimeError("condition runner base commit mismatch")
             return state
         state = {
-            "schema_version": "condition-runner-state-v1.1",
+            "schema_version": self.state_schema_version,
             "run_id": assignment.run_id,
             "condition_id": assignment.condition_id,
-            "factors": {
-                "ade": assignment.ade,
-                "harness": assignment.harness,
-                "agentskit": assignment.agentskit,
-            },
+            "factors": self._factors(assignment),
             "task_manifest_sha256": bundle.manifest.get("task_manifest_sha256"),
             "worktree": None,
             "worktree_event_recorded": False,
@@ -807,6 +809,16 @@ class ComposedConditionRunner:
         }
         self._write_state(path, state)
         return state
+
+    def _factors(self, assignment: MatrixAssignment) -> dict[str, Any]:
+        return {
+            "ade": assignment.ade,
+            "harness": assignment.harness,
+            "agentskit": assignment.agentskit,
+        }
+
+    def _condition_tool(self, assignment: MatrixAssignment) -> str:
+        return f"condition-runner:{assignment.ade}:{assignment.harness}:{assignment.agentskit}"
 
     @staticmethod
     def _lease(state: Mapping[str, Any], *, require_path: bool = True) -> WorktreeLease | None:

@@ -69,3 +69,17 @@ Codex CLI planning/orchestration and Grok CLI execution are fixed controlled
 roles, and their native agent loops may be used. Preserve v1.0/v1.1 as
 historical protocols and never pool their observations with v1.2 as though the
 factor structure were unchanged.
+
+## D-016 — v1.2 execution checkpoints and handoffs
+
+Reuse the controller-owned condition state machine for v1.2, with a distinct
+state schema and no independent harness factor. Checkpoints support bounded,
+idempotent retries inside one uninterrupted run and idempotent terminal
+cleanup. A process-interrupted measurement is never resumed: it becomes
+`INVALID_MEASUREMENT`, and a replacement receives a new run ID.
+
+Codex-to-Grok delegation must cross an integrity-bound handoff file inside the
+frozen run worktree. AgentsKit ON must materialize its public component context
+inside that same worktree; OFF must prove that no such context or event exists.
+Hashes alone are public evidence, but the receiving role must acknowledge the
+exact handoff/context digest before its step can complete.
