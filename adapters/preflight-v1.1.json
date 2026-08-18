@@ -59,7 +59,7 @@
       "append_only_ledger": "verified",
       "no_fallback_resolution": "verified"
     },
-    "decision": "The preregistered Compozy × Reference Harness technical pipeline passed with AgentsKit OFF and ON. The ON run used only public AgentsKit components, emitted six redacted component actions, and passed isolation and cleanup checks. Both outputs remain excluded from official analysis; one technical pair supports wiring validation only and does not relax the 18/18 collection gate or support a performance claim."
+    "decision": "The preregistered Compozy × Reference Harness technical pipeline passed with AgentsKit OFF and ON. The ON run used only public AgentsKit contracts, emitted six redacted benchmark-side component-action records, and passed isolation and cleanup checks. Native external-component runtimes were not executed. Both outputs remain excluded from official analysis; one technical pair supports wiring validation only and does not relax the 18/18 collection gate or support a performance claim."
   },
   "ade": {
     "orca": {

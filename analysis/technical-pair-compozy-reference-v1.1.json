@@ -27,10 +27,11 @@
       "cleanup_verified": true,
       "public_agentskit_only": true,
       "agentskit_os_used": false,
-      "component_actions": 6,
+      "component_action_records": 6,
+      "native_external_components_executed": false,
       "manifest_sha256": "c69190945dc2af8250af5cb3c286241d78ba1724d32c7b0fe4d59a360c7a2ce1",
       "attestation_sha256": "5f43ca7a3125f1e484ee653297f950ebab2719929bed3cc87d8a0d0af98f2556"
     }
   },
-  "interpretation": "This single technical pair validates execution, isolation, cleanup, public AgentsKit wiring, and ON/OFF separation. It is excluded from official analysis and supports no quality, speed, cost, or causal-effect claim."
+  "interpretation": "This single technical pair validates execution, isolation, cleanup, public AgentsKit contract wiring, and ON/OFF separation. The action records are benchmark-side bridge evidence, not native execution of external component repositories. It is excluded from official analysis and supports no quality, speed, cost, or causal-effect claim."
 }
