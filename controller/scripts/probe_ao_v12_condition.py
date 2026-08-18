@@ -53,7 +53,12 @@ def _spawn_and_observe(
     workspace_value = payload.get("workspacePath") or payload.get("workspace_path")
     workspace = Path(str(workspace_value)) if workspace_value else Path("/__ao_workspace_missing__")
     if not workspace_value or not workspace.is_dir():
-        workspace = Path.home() / ".ao/data/worktrees" / project / session_id
+        worktrees = Path.home() / ".ao/data/worktrees" / project
+        workspace = (
+            worktrees / "orchestrator" / f"{project}-orchestrator"
+            if kind == "orchestrator"
+            else worktrees / session_id
+        )
     status = _run("git", "-C", str(workspace), "status", "--porcelain", "--untracked-files=all")
     changed_paths = sorted(line[3:] for line in status.stdout.splitlines() if len(line) > 3)
     evidence = {
