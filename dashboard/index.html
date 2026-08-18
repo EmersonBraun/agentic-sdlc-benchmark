@@ -13,6 +13,7 @@
       <a class="wordmark" href="./">AGENTIC SDLC <span>BENCHMARK</span></a>
       <nav aria-label="Primary navigation">
         <a href="#readiness">Readiness</a>
+        <a href="#blockers">Blockers</a>
         <a href="#conditions">Conditions</a>
         <a href="#method">Method</a>
         <a href="../README.md">Repository</a>
@@ -64,10 +65,28 @@
         </div>
       </section>
 
+      <section id="blockers" class="shell section-block" aria-labelledby="blockers-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">02 / Operations</p>
+            <h2 id="blockers-title">What prevents collection now</h2>
+          </div>
+          <p class="section-caption">Every blocker has an owner, evidence source, next action, and deterministic recheck. Credentials are never published.</p>
+        </div>
+        <div class="blocker-summary" aria-live="polite">
+          <span><strong id="upstream-count">0</strong> upstream</span>
+          <span><strong id="operator-count">0</strong> operator</span>
+          <span><strong id="protocol-count">0</strong> protocol</span>
+          <span><strong id="technical-ready-count">0</strong> technical conditions ready</span>
+        </div>
+        <div id="blocker-list" class="blocker-list"></div>
+        <p id="blocker-empty" class="empty-state" hidden>All operational gates are closed. Official collection can start.</p>
+      </section>
+
       <section id="conditions" class="shell section-block" aria-labelledby="conditions-title">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">02 / Matrix</p>
+            <p class="eyebrow">03 / Matrix</p>
             <h2 id="conditions-title">The 18-condition design</h2>
           </div>
           <div class="matrix-controls">
@@ -101,7 +120,7 @@
       <section id="results" class="shell section-block" aria-labelledby="results-title">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">03 / Outcomes</p>
+            <p class="eyebrow">04 / Outcomes</p>
             <h2 id="results-title">Measured results</h2>
           </div>
           <p id="results-caption" class="section-caption">No performance number is published before a valid run bundle and evaluator record exist.</p>
@@ -113,7 +132,7 @@
       <section id="method" class="shell section-block method-block" aria-labelledby="method-title">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">04 / Measurement</p>
+            <p class="eyebrow">05 / Measurement</p>
             <h2 id="method-title">What the study counts</h2>
           </div>
           <a class="source-link" href="../docs/evaluation-methodology.md">Evaluation methodology <span aria-hidden="true">↗</span></a>

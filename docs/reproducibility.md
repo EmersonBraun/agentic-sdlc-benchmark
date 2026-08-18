@@ -21,3 +21,22 @@ python3 analysis/aggregate_runs.py --runs-root runs --tasks-root tasks/public --
 The repository runs the same checks in `.github/workflows/validate.yml`. The
 Pages workflow publishes only the dashboard and its public evidence sources;
 private paths are excluded by repository policy and `.gitignore`.
+
+## Execution-readiness gate
+
+The committed [`execution-readiness-v1.1.json`](../adapters/execution-readiness-v1.1.json)
+is generated deterministically from the frozen preflight. It identifies each
+blocking component, its owner (`operator`, `upstream`, or `protocol`), the
+public evidence, and the exact recheck command. CI rejects drift between the
+generated report and the committed dashboard source.
+
+```bash
+PYTHONPATH=controller/src python3 controller/scripts/check_execution_readiness.py \
+  --preflight adapters/preflight-v1.1.json
+```
+
+Exit status `0` means all 18 official conditions may start. Exit status `1`
+means collection remains closed; excluded technical pilots may run only when
+explicitly allowed by the preflight. Provider secrets must be supplied through
+the local execution environment and must never enter ledgers, attestations,
+commits, or published logs.

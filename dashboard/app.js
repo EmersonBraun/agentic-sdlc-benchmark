@@ -2,6 +2,7 @@ const SOURCES = {
   preflight: "../adapters/preflight-v1.1.json",
   readiness: "../adapters/condition-readiness-v1.1.json",
   results: "../analysis/processed-results-v1.1.json",
+  execution: "../adapters/execution-readiness-v1.1.json",
 };
 
 const fallback = {
@@ -22,6 +23,7 @@ const fallback = {
   },
   readiness: { protocol_version: "v1.1", ready_conditions: 0, blocked_conditions: 18, conditions: [] },
   results: { status: "no-results", summary: { runs: 0, evaluated_runs: 0, quality_pass_count: 0, excluded_runs: 0 }, metrics: {} },
+  execution: { blocker_summary: { operator: 1, upstream: 3, protocol: 2 }, blockers: [], technical_conditions_ready: [] },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -120,12 +122,39 @@ function renderResults(results) {
     : "Results are generated from append-only ledgers and versioned evaluator records."
 }
 
-const [preflight, report, results] = await Promise.all([
+function renderExecutionReadiness(execution) {
+  const summary = execution.blocker_summary || {};
+  $("#upstream-count").textContent = summary.upstream ?? 0;
+  $("#operator-count").textContent = summary.operator ?? 0;
+  $("#protocol-count").textContent = summary.protocol ?? 0;
+  $("#technical-ready-count").textContent = execution.technical_conditions_ready?.length ?? 0;
+  const blockers = execution.blockers || [];
+  $("#blocker-empty").hidden = blockers.length > 0;
+  $("#blocker-list").innerHTML = blockers.map((blocker) => `
+    <article class="blocker-card">
+      <div class="blocker-card-topline">
+        <span>${label(blocker.component.replace(":", " / "))}</span>
+        <span class="owner owner-${blocker.owner}">${blocker.owner}</span>
+      </div>
+      <h3>${label(blocker.blocker_id)}</h3>
+      <p>${blocker.reason}</p>
+      <details>
+        <summary>Recovery evidence</summary>
+        <p>${blocker.next_action}</p>
+        <code>${blocker.recheck_command}</code>
+        <a class="source-link" href="../${blocker.evidence_ref}">Open evidence <span aria-hidden="true">↗</span></a>
+      </details>
+    </article>`).join("");
+}
+
+const [preflight, report, results, execution] = await Promise.all([
   loadJson(SOURCES.preflight, "preflight"),
   loadJson(SOURCES.readiness, "readiness"),
   loadJson(SOURCES.results, "results"),
+  loadJson(SOURCES.execution, "execution"),
 ]);
 
 renderReadiness(preflight, report);
 renderResults(results);
+renderExecutionReadiness(execution);
 $("#ade-filter").addEventListener("change", (event) => renderConditions(report, event.target.value));

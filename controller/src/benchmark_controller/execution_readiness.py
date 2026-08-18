@@ -1,0 +1,129 @@
+"""Operational readiness report for resuming the frozen v1.1 study."""
+
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+from typing import Any, Mapping
+
+from .readiness import READY_STATUSES
+
+
+@dataclass(frozen=True)
+class ExecutionBlocker:
+    blocker_id: str
+    component: str
+    owner: str
+    reason: str
+    evidence_ref: str
+    next_action: str
+    recheck_command: str
+
+
+@dataclass(frozen=True)
+class ExecutionReadinessReport:
+    schema_version: str
+    protocol_version: str
+    can_start_official_collection: bool
+    official_conditions_ready: int
+    official_conditions_total: int
+    technical_conditions_ready: tuple[str, ...]
+    blockers: tuple[ExecutionBlocker, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": self.schema_version,
+            "protocol_version": self.protocol_version,
+            "can_start_official_collection": self.can_start_official_collection,
+            "official_conditions_ready": self.official_conditions_ready,
+            "official_conditions_total": self.official_conditions_total,
+            "technical_conditions_ready": list(self.technical_conditions_ready),
+            "blocker_summary": {
+                owner: sum(blocker.owner == owner for blocker in self.blockers)
+                for owner in ("operator", "upstream", "protocol")
+            },
+            "blockers": [asdict(blocker) for blocker in self.blockers],
+        }
+
+
+BLOCKER_SPECS: dict[str, ExecutionBlocker] = {
+    "ade:orca": ExecutionBlocker(
+        "orca-dispatch-capability", "ade:orca", "upstream",
+        "gpt-5.4 executes, but authoritative worker_done is rejected with dispatch_capability_invalid.",
+        "adapters/orca-v1.1-lifecycle-probe-attestation-4.json",
+        "Install an ORCA runtime that supplies a valid Dispatch capability, then require one accepted worker_done and complete release.",
+        "orca status --json",
+    ),
+    "ade:agent-orchestrator": ExecutionBlocker(
+        "ao-observability", "ade:agent-orchestrator", "upstream",
+        "The public CLI starts and cleans sessions but exposes neither model output nor a native event stream.",
+        "adapters/agent-orchestrator-v1.1-session-probe-attestation.json",
+        "Recheck a release that exposes independently observable model execution and lifecycle events.",
+        "PYTHONPATH=controller/src python3 controller/scripts/probe_agent_orchestrator_lifecycle.py",
+    ),
+    "ade:compozy": ExecutionBlocker(
+        "compozy-global-parity", "ade:compozy", "protocol",
+        "The technical ON/OFF pair passes, but official cross-factor semantic parity is not complete.",
+        "analysis/technical-pair-compozy-reference-v1.1.json",
+        "Keep Compozy technical evidence frozen and promote it only after every other factor passes the same parity invariants.",
+        "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection",
+    ),
+    "harness:openhands-sdk": ExecutionBlocker(
+        "openhands-dependency-graph", "harness:openhands-sdk", "upstream",
+        "The latest approved SDK dependency graph does not resolve on pinned Python without overrides.",
+        "adapters/openhands-resolver-attestation-v1.0.json",
+        "Re-run the normal resolver when a compatible OpenHands release is published; do not use dependency overrides.",
+        "docker run --rm python:3.12.10-slim python -m pip install --dry-run --no-cache-dir openhands-sdk==1.42.1 openhands-tools==1.42.1 openhands-workspace==1.42.1",
+    ),
+    "harness:mini-swe-agent": ExecutionBlocker(
+        "mini-swe-model-credential", "harness:mini-swe-agent", "operator",
+        "The isolated runtime passes, but no non-production provider credential is available for task execution.",
+        "adapters/mini-swe-v1.1-preflight-attestation.json",
+        "Configure a non-production XAI_API_KEY in the execution environment without committing or publishing it.",
+        "test -n \"$XAI_API_KEY\"",
+    ),
+    "harness:reference": ExecutionBlocker(
+        "reference-harness-contract", "harness:reference", "protocol",
+        "The neutral reference harness is missing or no longer contract-ready.",
+        "adapters/preflight-v1.1.json",
+        "Restore and validate the frozen reference-harness contract before collecting official runs.",
+        "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection",
+    ),
+    "agentskit:off": ExecutionBlocker(
+        "agentskit-off-control", "agentskit:off", "protocol",
+        "The neutral AgentsKit OFF control is missing or no longer contract-ready.",
+        "adapters/agentskit-v1.1-preflight-attestation.json",
+        "Restore the frozen OFF control before collecting any matched AgentsKit ON condition.",
+        "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection",
+    ),
+    "agentskit:on": ExecutionBlocker(
+        "agentskit-official-replication", "agentskit:on", "protocol",
+        "Native public components pass one excluded technical condition, not the preregistered official replication gate.",
+        "adapters/agentskit-v1.1-preflight-attestation.json",
+        "Run AgentsKit ON only after each paired ADE/harness condition is officially ready; preserve matched OFF controls.",
+        "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection",
+    ),
+}
+
+
+def evaluate_execution_readiness(preflight: Mapping[str, Any]) -> ExecutionReadinessReport:
+    if preflight.get("protocol_version") != "v1.1":
+        raise ValueError("Execution readiness requires protocol v1.1")
+
+    blockers: list[ExecutionBlocker] = []
+    for component, spec in BLOCKER_SPECS.items():
+        factor, key = component.split(":", 1)
+        document = preflight.get(factor, {}).get(key, {})
+        if not isinstance(document, Mapping) or document.get("status") not in READY_STATUSES:
+            blockers.append(spec)
+
+    technical = preflight.get("technical_pilot", {}).get("allowed_conditions", [])
+    technical_ready = tuple(sorted(str(value) for value in technical)) if isinstance(technical, list) else ()
+    return ExecutionReadinessReport(
+        schema_version="execution-readiness-v1.1",
+        protocol_version="v1.1",
+        can_start_official_collection=not blockers,
+        official_conditions_ready=18 if not blockers else 0,
+        official_conditions_total=18,
+        technical_conditions_ready=technical_ready,
+        blockers=tuple(blockers),
+    )
