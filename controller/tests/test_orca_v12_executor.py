@@ -1,6 +1,7 @@
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 
@@ -38,8 +39,17 @@ class Transport:
                 "capability_hash": "cap", "capability_revoked_at": "now",
             }}}
         elif argv[:2] == ("orchestration", "check") and "--ack" not in argv:
+            sentinel = "V12_ORCA_" + hashlib.sha256(
+                f"{self.run_id}:{self.step}".encode()
+            ).hexdigest()[:20].upper()
+            payload_output = json.dumps({"handoff_payload": {
+                "requirements": "resolved", "implementation_plan": ["build"],
+                "acceptance_criteria": ["passes"],
+            }})
             value = {"ok": True, "result": {
                 "deliveryId": "delivery", "messages": [{
+                    "subject": "completed",
+                    "body": payload_output + "\n" + sentinel,
                     "type": "worker_done", "payload": json.dumps({
                         "taskId": "task_stage", "dispatchId": "dispatch_stage", "outcome": "succeeded",
                     }),
@@ -54,7 +64,7 @@ class Transport:
                 "acceptance_criteria": ["passes"],
             }})
             value = {"ok": True, "result": {"terminal": {
-                "tail": ["gpt-5.4", payload, sentinel],
+                "tail": ["model: gpt-5.4", payload, sentinel],
             }}}
         elif argv[:2] == ("terminal", "show"):
             value = {"ok": True, "result": {"terminal": {"connected": False}}}
@@ -125,3 +135,59 @@ class OrcaV12ExecutorTests(unittest.TestCase):
             transport=Transport("run", "x"), evaluator=evaluator, stable_idle_seconds=0,
         ).close()
         self.assertTrue(evaluator.closed)
+
+    def test_missing_durable_output_fails_without_retrying_mutations(self):
+        class EmptyDelivery(Transport):
+            def run_json(self, argv, *, timeout_seconds):
+                result = super().run_json(argv, timeout_seconds=timeout_seconds)
+                if argv[:2] == ("orchestration", "check") and "--ack" not in argv:
+                    value = dict(result.value)
+                    nested = dict(value["result"])
+                    nested["messages"] = [dict(nested["messages"][0], body="")]
+                    value["result"] = nested
+                    return OrcaCommandResult(value, result.duration_ms)
+                return result
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            transport = EmptyDelivery("run_orca-test", "decomposition")
+            executor = OrcaV12RoleExecutor(transport=transport, stable_idle_seconds=0)
+            result = executor.execute(self.request(root))
+            self.assertEqual(result.status, "failed")
+            self.assertEqual(result.reason, "post-dispatch-evidence-invalid")
+
+    def test_mutating_stage_rejects_dirty_worktree_before_orca_side_effects(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            subprocess.run(("git", "init", "-q", str(root)), check=True)
+            (root / "dirty.txt").write_text("partial")
+            transport = Transport("run_orca-test", "implementation")
+            request = self.request(root)
+            request = request.__class__(**{
+                **request.__dict__, "step": "implementation", "role": "implementation_lead",
+                "provider": "grok-cli", "model": "grok-4.5",
+            })
+            result = OrcaV12RoleExecutor(transport=transport, stable_idle_seconds=0).execute(request)
+            self.assertEqual(result.status, "retry")
+            self.assertFalse(any(call[:2] == ("orchestration", "task-create") for call in transport.calls))
+
+    def test_truncated_terminal_capture_is_rejected_after_dispatch(self):
+        class TruncatedCapture(Transport):
+            def run_json(self, argv, *, timeout_seconds):
+                result = super().run_json(argv, timeout_seconds=timeout_seconds)
+                if argv[:2] == ("terminal", "read"):
+                    value = dict(result.value)
+                    nested = dict(value["result"])
+                    nested["terminal"] = dict(nested["terminal"], truncated=True)
+                    value["result"] = nested
+                    return OrcaCommandResult(value, result.duration_ms)
+                return result
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            transport = TruncatedCapture("run_orca-test", "decomposition")
+            result = OrcaV12RoleExecutor(transport=transport, stable_idle_seconds=0).execute(
+                self.request(root)
+            )
+            self.assertEqual(result.status, "failed")
+            self.assertEqual(result.reason, "post-dispatch-evidence-invalid")

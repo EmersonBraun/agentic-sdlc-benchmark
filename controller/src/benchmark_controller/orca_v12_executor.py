@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import subprocess
 import time
 from dataclasses import dataclass
@@ -15,6 +16,7 @@ from .v12_native_backend import NativeStepExecution, NativeStepRequest, V12RoleE
 
 EXPECTED_ORCA_VERSION = "1.4.184"
 PLANNER_STEPS = {"requirements", "planning", "decomposition", "documentation", "merge"}
+MUTATING_STEPS = {"implementation", "local-testing", "pull-request", "ci-qa", "documentation", "merge"}
 
 
 @dataclass(frozen=True)
@@ -70,6 +72,7 @@ class OrcaV12RoleExecutor:
         self.stable_idle_seconds = stable_idle_seconds
         self._runs: dict[str, _Run] = {}
         self._workers: dict[tuple[str, str], str] = {}
+        self._orphaned_terminals: set[str] = set()
         self._cache: dict[tuple[str, str], NativeStepExecution] = {}
         self._preflight_checked = False
 
@@ -89,19 +92,25 @@ class OrcaV12RoleExecutor:
         external_wait_ms = 0.0
         effective_started: int | None = None
         polling_ms = 0.0
+        dispatch_started = False
+        starting_head: str | None = None
         try:
             overhead_ms += self._preflight(request)
             run, created_ms = self._run(request)
             overhead_ms += created_ms
+            overhead_ms += self._validate_clean_worktree(request)
+            if request.step == "implementation":
+                starting_head, head_ms = self._git_head(request)
+                overhead_ms += head_ms
             prompt, sentinel = self._prompt(request)
             task_id, task_ms = self._create_task(run, request, prompt)
             overhead_ms += task_ms
             worker, worker_ms = self._create_ready_worker(run, request)
             overhead_ms += worker_ms
             self._workers[key] = worker
-            dispatch_id, dispatch_ms = self._dispatch(run, task_id, worker, request)
-            overhead_ms += dispatch_ms
             effective_started = time.monotonic_ns()
+            dispatch_started = True
+            dispatch_id, _ = self._dispatch(run, task_id, worker, request)
             dispatch, polling_ms = self._await_dispatch(task_id, worker, request)
             effective_ms = max(0, self._elapsed(effective_started) - polling_ms)
             effective_started = None
@@ -112,15 +121,19 @@ class OrcaV12RoleExecutor:
                 "terminal", "wait", "--terminal", worker, "--for", "tui-idle",
                 "--timeout-ms", str(int(self._timeout(request, 60) * 1000)), "--json",
             ), timeout_seconds=self._timeout(request, 65))
-            effective_ms += output_wait.duration_ms
+            overhead_ms += output_wait.duration_ms
             capture, capture_ms = self._read_terminal(worker, request)
             overhead_ms += capture_ms
-            capture += "\n" + "\n".join(
-                str(delivery.get(key, "")) for key in ("subject", "body")
-            )
-            self._verify(request, dispatch, delivery, capture, sentinel)
-            metadata = self._metadata(request, dispatch, capture, sentinel)
+            durable_output = "\n".join(str(delivery.get(key, "")) for key in ("subject", "body"))
+            self._verify(request, dispatch, delivery, capture, durable_output, sentinel)
+            metadata = self._metadata(request, dispatch, durable_output, sentinel)
             overhead_ms += self._validate_merge_binding(request, metadata)
+            overhead_ms += self._validate_clean_worktree(request)
+            if starting_head is not None:
+                ending_head, head_ms = self._git_head(request)
+                overhead_ms += head_ms
+                if ending_head == starting_head:
+                    raise RuntimeError("ORCA implementation produced no committed product delta")
             if self._remaining(request) <= 0:
                 raise subprocess.TimeoutExpired("orca", 0)
             overhead_ms += self._close_worker(key, request)
@@ -137,15 +150,21 @@ class OrcaV12RoleExecutor:
                 effective_ms += max(0, self._elapsed(effective_started) - polling_ms)
                 overhead_ms += polling_ms
             result = self._outcome(
-                request, "timeout", "controller-deadline-exceeded",
+                request, "failed" if dispatch_started else "timeout",
+                "post-dispatch-evidence-incomplete" if dispatch_started else "controller-deadline-exceeded",
                 effective_work_ms=effective_ms, external_wait_ms=external_wait_ms,
                 orchestration_overhead_ms=overhead_ms,
             )
-            self._discard_worker(key)
+            self._discard_worker(key, request)
         except RuntimeError as exc:
-            self._discard_worker(key)
+            if effective_started is not None:
+                effective_ms += max(0, self._elapsed(effective_started) - polling_ms)
+                overhead_ms += polling_ms
+            self._discard_worker(key, request)
             result = self._outcome(
-                request, "retry", self._reason(exc), effective_work_ms=effective_ms,
+                request, "failed" if dispatch_started else "retry",
+                "post-dispatch-evidence-invalid" if dispatch_started else self._reason(exc),
+                effective_work_ms=effective_ms,
                 external_wait_ms=external_wait_ms, orchestration_overhead_ms=overhead_ms,
             )
         if result.status == "completed":
@@ -157,6 +176,12 @@ class OrcaV12RoleExecutor:
         for key in tuple(self._workers):
             try:
                 self._close_worker_unbounded(key)
+            except Exception:
+                failed = True
+        for worker in tuple(self._orphaned_terminals):
+            try:
+                self._close_terminal(worker)
+                self._orphaned_terminals.discard(worker)
             except Exception:
                 failed = True
         for run_id, run in tuple(self._runs.items()):
@@ -201,6 +226,7 @@ class OrcaV12RoleExecutor:
         handle = self._nested(coordinator.value, "result", "terminal", "handle")
         if not isinstance(handle, str):
             raise RuntimeError("ORCA coordinator identity missing")
+        self._orphaned_terminals.add(handle)
         try:
             created = self.transport.run_json((
                 "orchestration", "run-create", "--objective", f"v1.2 {request.condition_id}",
@@ -210,10 +236,15 @@ class OrcaV12RoleExecutor:
             if not isinstance(run_id, str):
                 raise RuntimeError("ORCA Run identity missing")
         except Exception:
-            self._close_terminal(handle)
+            try:
+                self._close_terminal(handle)
+                self._orphaned_terminals.discard(handle)
+            except Exception:
+                pass
             raise
         run = _Run(run_id, handle, request.worktree.resolve())
         self._runs[request.run_id] = run
+        self._orphaned_terminals.discard(handle)
         return run, coordinator.duration_ms + created.duration_ms
 
     def _create_task(self, run: _Run, request: NativeStepRequest, prompt: str) -> tuple[str, float]:
@@ -319,7 +350,10 @@ class OrcaV12RoleExecutor:
                 ):
                     matched = message
                     match_count += 1
-        if matched is None or match_count != 1 or not isinstance(delivery_id, str):
+        if (
+            matched is None or match_count != 1 or not isinstance(delivery_id, str)
+            or not isinstance(messages, list) or len(messages) != 1
+        ):
             raise RuntimeError("ORCA worker_done delivery missing")
         ack = self.transport.run_json((
             "orchestration", "check", "--run", run.run_id, "--terminal", run.coordinator,
@@ -334,6 +368,8 @@ class OrcaV12RoleExecutor:
         terminal = self._nested(result.value, "result", "terminal")
         text = ""
         if isinstance(terminal, Mapping):
+            if terminal.get("limited") is True or terminal.get("truncated") is True:
+                raise RuntimeError("ORCA terminal output was truncated")
             for key in ("output", "text", "content", "lines", "tail"):
                 value = terminal.get(key)
                 if isinstance(value, str):
@@ -346,11 +382,15 @@ class OrcaV12RoleExecutor:
 
     def _verify(
         self, request: NativeStepRequest, dispatch: Mapping[str, Any],
-        delivery: Mapping[str, Any], capture: str, sentinel: str,
+        delivery: Mapping[str, Any], capture: str, durable_output: str, sentinel: str,
     ) -> None:
-        expected_models = ("gpt-5.4",) if request.step in PLANNER_STEPS else ("grok-4.5", "grok 4.5")
-        if sentinel not in capture or not any(model in capture.lower() for model in expected_models):
+        model_pattern = r"model:\s*gpt-5\.4" if request.step in PLANNER_STEPS else r"grok\s+4\.5"
+        if sentinel not in durable_output or re.search(model_pattern, capture, re.IGNORECASE) is None:
             raise RuntimeError("ORCA model identity or completion sentinel missing")
+        if request.step == "decomposition":
+            self._extract_json(durable_output, "handoff_payload")
+        if request.step in {"review", "merge"}:
+            self._extract_json(durable_output, "completion_proof")
         if not all((
             dispatch.get("failure_count") == 0,
             isinstance(dispatch.get("capability_hash"), str),
@@ -360,7 +400,7 @@ class OrcaV12RoleExecutor:
             raise RuntimeError("ORCA settlement invariants failed")
 
     def _metadata(
-        self, request: NativeStepRequest, dispatch: Mapping[str, Any], capture: str, sentinel: str,
+        self, request: NativeStepRequest, dispatch: Mapping[str, Any], durable_output: str, sentinel: str,
     ) -> dict[str, Any]:
         metadata: dict[str, Any] = {
             "sentinel_sha256": hashlib.sha256(sentinel.encode()).hexdigest(),
@@ -370,9 +410,9 @@ class OrcaV12RoleExecutor:
             "usage_observation": {"token_breakdown_observed": False, "zero_tokens_mean_unavailable": True},
         }
         if request.step == "decomposition":
-            metadata["handoff_payload"] = self._extract_json(capture, "handoff_payload")["handoff_payload"]
+            metadata["handoff_payload"] = self._extract_json(durable_output, "handoff_payload")["handoff_payload"]
         if request.step in {"review", "merge"}:
-            proof = self._extract_json(capture, "completion_proof").get("completion_proof")
+            proof = self._extract_json(durable_output, "completion_proof").get("completion_proof")
             if not isinstance(proof, Mapping):
                 raise RuntimeError("ORCA completion proof missing")
             metadata["completion_proof"] = dict(proof)
@@ -382,21 +422,21 @@ class OrcaV12RoleExecutor:
         ):
             if path:
                 digest = hashlib.sha256(path.read_bytes()).hexdigest()
-                if digest not in capture:
+                if digest not in durable_output:
                     raise RuntimeError(f"ORCA worker did not acknowledge {label} digest")
                 metadata[key] = digest
         if request.agentskit_context_path:
             metadata["agentskit_components_observed"] = ["doc-bridge", "playbook", "code-review"]
         return metadata
 
-    @staticmethod
-    def _validate_merge_binding(request: NativeStepRequest, metadata: Mapping[str, Any]) -> float:
+    @classmethod
+    def _validate_merge_binding(cls, request: NativeStepRequest, metadata: Mapping[str, Any]) -> float:
         if request.step != "merge":
             return 0
         started = time.monotonic_ns()
         completed = subprocess.run(
             ("git", "-C", str(request.worktree), "rev-parse", "HEAD"),
-            capture_output=True, text=True, check=False, timeout=10,
+            capture_output=True, text=True, check=False, timeout=cls._timeout(request, 10),
         )
         duration = (time.monotonic_ns() - started) / 1_000_000
         proof = metadata.get("completion_proof")
@@ -416,13 +456,20 @@ class OrcaV12RoleExecutor:
         self._close_terminal(worker)
         self._workers.pop(key, None)
 
-    def _discard_worker(self, key: tuple[str, str]) -> None:
+    def _discard_worker(
+        self, key: tuple[str, str], request: NativeStepRequest | None = None,
+    ) -> None:
         if key not in self._workers:
             return
         try:
-            self._close_worker_unbounded(key)
+            if request is None:
+                self._close_worker_unbounded(key)
+            else:
+                self._close_worker(key, request)
         except Exception:
-            pass
+            worker = self._workers.pop(key, None)
+            if worker:
+                self._orphaned_terminals.add(worker)
 
     def _close_terminal(self, handle: str, request: NativeStepRequest | None = None) -> float:
         timeout = self._timeout(request, 30) if request else 30
@@ -454,6 +501,8 @@ class OrcaV12RoleExecutor:
         task = request.task_path.read_text(encoding="utf-8")
         handoff = request.handoff_path.read_text(encoding="utf-8") if request.handoff_path else ""
         factor = request.agentskit_context_path.read_text(encoding="utf-8") if request.agentskit_context_path else ""
+        handoff_digest = hashlib.sha256(request.handoff_path.read_bytes()).hexdigest() if request.handoff_path else ""
+        factor_digest = hashlib.sha256(request.agentskit_context_path.read_bytes()).hexdigest() if request.agentskit_context_path else ""
         rules = (
             f"Execute SDLC stage {request.step} only in the current ORCA worktree. "
             f"Before calling worker_done, print the complete requested output ending with {sentinel}; "
@@ -484,7 +533,38 @@ class OrcaV12RoleExecutor:
                 "product_quality_score, and exact 40-character merge_commit, using only gates: "
                 + ", ".join(sorted(REQUIRED_QUALITY_GATES)) + "."
             )
-        return "\n\n".join((rules, "TASK:\n" + task, "HANDOFF:\n" + handoff, "AGENTSKIT:\n" + factor)), sentinel
+        return "\n\n".join((
+            rules, "TASK:\n" + task,
+            "HANDOFF_SHA256:" + handoff_digest + "\nHANDOFF:\n" + handoff,
+            "AGENTSKIT_SHA256:" + factor_digest + "\nAGENTSKIT:\n" + factor,
+        )), sentinel
+
+    @classmethod
+    def _validate_clean_worktree(cls, request: NativeStepRequest) -> float:
+        if request.step not in MUTATING_STEPS:
+            return 0
+        started = time.monotonic_ns()
+        completed = subprocess.run(
+            ("git", "-C", str(request.worktree), "status", "--porcelain"),
+            capture_output=True, text=True, check=False, timeout=cls._timeout(request, 10),
+        )
+        duration = (time.monotonic_ns() - started) / 1_000_000
+        if completed.returncode != 0 or completed.stdout.strip():
+            raise RuntimeError("ORCA worker left the measured worktree dirty")
+        return duration
+
+    @classmethod
+    def _git_head(cls, request: NativeStepRequest) -> tuple[str, float]:
+        started = time.monotonic_ns()
+        completed = subprocess.run(
+            ("git", "-C", str(request.worktree), "rev-parse", "HEAD"),
+            capture_output=True, text=True, check=False, timeout=cls._timeout(request, 10),
+        )
+        duration = (time.monotonic_ns() - started) / 1_000_000
+        head = completed.stdout.strip()
+        if completed.returncode != 0 or len(head) != 40:
+            raise RuntimeError("ORCA measured product HEAD is unavailable")
+        return head, duration
 
     @staticmethod
     def _extract_json(text: str, key: str) -> Mapping[str, Any]:
