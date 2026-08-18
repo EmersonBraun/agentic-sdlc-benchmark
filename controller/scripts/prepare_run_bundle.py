@@ -31,7 +31,7 @@ def main() -> int:
     parser.add_argument("--task-id", required=True)
     parser.add_argument("--product", dest="product_id", required=True)
     parser.add_argument("--ade", required=True)
-    parser.add_argument("--harness", required=True)
+    parser.add_argument("--harness", help="Required by v1.0/v1.1; prohibited by v1.2")
     parser.add_argument("--agentskit", choices=("off", "on"), required=True)
     parser.add_argument(
         "--gate-mode",

@@ -230,6 +230,8 @@ class ComposedConditionRunner:
         self.sleeper = sleeper
 
     def execute(self, assignment: MatrixAssignment, bundle: PreparedRunBundle) -> ExecutionOutcome:
+        if bundle.manifest.get("protocol_version") == "v1.2":
+            raise RuntimeError("v1.2 requires its native ADE runner; the v1.1 harness runner is prohibited")
         self._validate_manifest_identity(assignment, bundle)
         state_path = bundle.directory / self.state_filename
         state_existed = state_path.exists()

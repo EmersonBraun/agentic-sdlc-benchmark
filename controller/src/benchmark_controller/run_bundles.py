@@ -13,6 +13,7 @@ from typing import Any, Mapping
 from .ledger import Ledger
 from .pilot import GateMode
 from .pilot_executor import ConditionedPilotExecutor, PreparedCondition
+from .v12_execution import ConditionedV12PilotExecutor, PreparedV12Condition
 
 
 _COMMIT = re.compile(r"^[a-f0-9]{40}$")
@@ -40,7 +41,7 @@ class PreparedRunBundle:
     directory: Path
     manifest: dict[str, Any]
     ledger: Ledger
-    condition: PreparedCondition
+    condition: PreparedCondition | PreparedV12Condition
 
 
 class RunBundleWriter:
@@ -66,7 +67,7 @@ class RunBundleWriter:
         task_id: str,
         product_id: str,
         ade: str,
-        harness: str,
+        harness: str | None,
         agentskit: str,
         replicate: int,
         randomization_seed: int,
@@ -82,12 +83,23 @@ class RunBundleWriter:
         blocked or invalid preparation therefore leaves no partial run behind.
         """
 
-        prepared = ConditionedPilotExecutor(self._preflight, gate_mode=self._gate_mode).prepare_condition(
-            run_id=run_id,
-            ade=ade,
-            harness=harness,
-            agentskit=agentskit,
-        )
+        if self._preflight.get("protocol_version") == "v1.2":
+            if harness is not None:
+                raise RunBundleError("Protocol v1.2 does not accept an independent harness factor")
+            prepared = ConditionedV12PilotExecutor(
+                self._preflight, gate_mode=self._gate_mode
+            ).prepare_condition(run_id=run_id, ade=ade, agentskit=agentskit)
+            required_models = {
+                binding.role: binding.model for binding in prepared.plan.role_bindings
+            }
+            if dict(model_snapshots) != required_models:
+                raise RunBundleError("v1.2 model snapshots do not match the frozen role topology")
+        else:
+            if harness is None:
+                raise RunBundleError("Protocol v1.0/v1.1 requires a harness factor")
+            prepared = ConditionedPilotExecutor(
+                self._preflight, gate_mode=self._gate_mode
+            ).prepare_condition(run_id=run_id, ade=ade, harness=harness, agentskit=agentskit)
         if not isinstance(task_id, str) or not task_id.startswith(("pilot_", "main_", "holdout_")):
             raise RunBundleError(f"Invalid task identifier: {task_id!r}")
         if product_id not in {"greenfield", "umami"}:
@@ -123,7 +135,7 @@ class RunBundleWriter:
             raise RunBundleError(f"Run bundle already exists: {run_id}")
 
         manifest = {
-            "schema_version": "1.1",
+            "schema_version": "1.2" if prepared.plan.protocol_version == "v1.2" else "1.1",
             "protocol_version": prepared.plan.protocol_version,
             "gate_mode": self._gate_mode,
             "analysis_eligible": self._gate_mode == "official-collection",
@@ -131,7 +143,7 @@ class RunBundleWriter:
             "task_id": task_id,
             "task_manifest_sha256": task_manifest_sha256,
             "product_id": product_id,
-            "condition_id": f"{ade}__{harness}__{agentskit}",
+            "condition_id": f"{ade}__{agentskit}" if prepared.plan.protocol_version == "v1.2" else f"{ade}__{harness}__{agentskit}",
             "replicate": replicate,
             "randomization_seed": randomization_seed,
             "base_commit": base_commit,
@@ -142,6 +154,8 @@ class RunBundleWriter:
             "terminal_state": "NOT_APPLICABLE",
             "artifacts": [],
         }
+        if prepared.plan.protocol_version == "v1.2":
+            manifest["execution_plan"] = prepared.plan.to_dict()
         directory.mkdir(parents=True)
         (directory / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         (directory / "artifact-index.json").write_text(
