@@ -1,0 +1,49 @@
+{
+  "ade": "orca",
+  "analysis_eligible": false,
+  "cleanup": {
+    "terminal_residual_count": 0,
+    "verified": true
+  },
+  "configured_model": "grok-4.5",
+  "ledger_sha256": "881ee8a0ef163ec6fd927cc358fb9771582620f058515859b9a30f897eb15181",
+  "observed_at": "2026-08-18T20:18:27.973664+00:00",
+  "orchestration": {
+    "capability_hash_present": true,
+    "capability_revoked": true,
+    "delivery_acknowledged": true,
+    "dispatch_id_sha256": "5f2182c6bc617d2f676c74d6a0c9f74ab21bebdf078c6f99a5abb65b8057cda5",
+    "dispatch_status": "completed",
+    "failure_count": 0,
+    "run_id_sha256": "6fc2e69764c5ccf2175d696ff50f312ec9116fd8f88a924247e73e88f4ac1113",
+    "task_id_sha256": "51e16e4d295c1ef919122ba87fdc550ec1c2bde91cf8d5b1f04ab30264b7e6bd",
+    "worker_done_accepted": true
+  },
+  "protocol_version": "v1.2",
+  "provider": "grok-cli",
+  "raw_content_persisted": false,
+  "reasoning_effort": "high",
+  "role": "executor_fixer",
+  "runtime": {
+    "graph_ready": true,
+    "ready": true,
+    "version": "1.4.184"
+  },
+  "schema_version": "orca-grok-v1.2-readiness-attestation",
+  "source_hashes": {
+    "grok_executable": "3dfa7f04fbb5427a8fbead286591543aaecb478b3a0ab222c4329eca1a3b2f86",
+    "orca_adapter": "b67c12c2403d4578faa796b28405558d8a97014ded318775d9b9bd93328c56ae",
+    "orca_executable": "df238edc6169a439a6310c83937f556303a20370dd6723230d82a73e1a6110f0",
+    "probe": "d3f3407a02f99991907fd091e759974372cf887d71f2e513e9adb5874f646c9b"
+  },
+  "status": "passed",
+  "transport": "orca-terminal-ready-capability-dispatch",
+  "versions": {
+    "grok": "grok 1.0.5 (5115b46bc909) [stable]",
+    "orca": "1.4.184"
+  },
+  "workspace": {
+    "clean": true,
+    "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
