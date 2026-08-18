@@ -88,7 +88,20 @@ class GitWorktreeProvider:
         )
         if completed.returncode != 0:
             raise RuntimeError("git worktree creation failed")
-        self._verify_worktree(path=path, branch=branch, base_commit=base_commit)
+        try:
+            self._verify_worktree(path=path, branch=branch, base_commit=base_commit)
+        except Exception:
+            removed = subprocess.run(
+                ["git", "worktree", "remove", "--force", str(path)],
+                cwd=self.repository, check=False, capture_output=True, text=True,
+            )
+            deleted = subprocess.run(
+                ["git", "branch", "-D", branch],
+                cwd=self.repository, check=False, capture_output=True, text=True,
+            )
+            if removed.returncode != 0 or deleted.returncode != 0:
+                raise RuntimeError("worktree verification and rollback failed")
+            raise
         return WorktreeLease(path=path, branch=branch, base_commit=base_commit)
 
     def release(self, lease: WorktreeLease) -> None:

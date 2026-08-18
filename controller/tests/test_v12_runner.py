@@ -217,6 +217,35 @@ class V12RunnerTests(unittest.TestCase):
             ))
             self.assertEqual(result.status, "invalid-measurement")
 
+    def test_delegate_cannot_mutate_handoff_after_precheck(self) -> None:
+        class MutatingDelegate(Delegate):
+            def execute_step(self, context):
+                result = super().execute_step(context)
+                if context.step.name == "implementation":
+                    context.handoff_path.write_text("mutated after precheck")
+                return result
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            worktree = root / "worktree"
+            worktree.mkdir()
+            current_bundle = bundle(root, "off")
+            backend = V12HandoffBackend(MutatingDelegate())
+            base = dict(
+                assignment=assignment("off"), bundle=current_bundle, attempt=1,
+                worktree=worktree, branch="benchmark/run", deadline_epoch_ms=None,
+                accounting_tool="test-accounting",
+            )
+            backend.execute_step(StepContext(
+                step=ConditionStep("decomposition", "decomposition", "planner"),
+                idempotency_key="decomposition-1", **base,
+            ))
+            result = backend.execute_step(StepContext(
+                step=ConditionStep("implementation", "implementation", "executor"),
+                idempotency_key="implementation-1", **base,
+            ))
+            self.assertEqual(result.status, "invalid-measurement")
+
     def test_collection_backend_uses_v12_runner(self) -> None:
         collection = V12NativeCollectionBackend(
             object(), lambda assignment, bundle: object(), lambda assignment, bundle: object(),

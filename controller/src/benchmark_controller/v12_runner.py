@@ -120,6 +120,14 @@ class V12HandoffBackend:
 
         ledger_before = context.bundle.ledger.path.read_text() if context.bundle.ledger.path.exists() else ""
         result = self.delegate.execute_step(enriched)
+        if context.assignment.agentskit == "on" and (
+            not factor_path.is_file() or _sha(factor_path.read_bytes()) != self._factor_digest
+        ):
+            return StepResult("invalid-measurement", reason="agentskit-context-mutated-by-delegate")
+        if self._handoff_digest is not None and (
+            not handoff_path.is_file() or _sha(handoff_path.read_bytes()) != self._handoff_digest
+        ):
+            return StepResult("invalid-measurement", reason="planner-handoff-mutated-by-delegate")
         if context.assignment.agentskit == "off" and self._agentskit_events_added(context, ledger_before):
             return StepResult("invalid-measurement", reason="agentskit-off-ledger-contamination")
         if context.assignment.agentskit == "off" and (
