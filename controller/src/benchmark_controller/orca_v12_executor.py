@@ -92,6 +92,7 @@ class OrcaV12RoleExecutor:
         external_wait_ms = 0.0
         effective_started: int | None = None
         polling_ms = 0.0
+        polling_clock = [0.0]
         dispatch_started = False
         starting_head: str | None = None
         try:
@@ -108,10 +109,13 @@ class OrcaV12RoleExecutor:
             worker, worker_ms = self._create_ready_worker(run, request)
             overhead_ms += worker_ms
             self._workers[key] = worker
-            effective_started = time.monotonic_ns()
+            capture_cursor, cursor_ms = self._capture_cursor(worker, request)
+            overhead_ms += cursor_ms
             dispatch_started = True
-            dispatch_id, _ = self._dispatch(run, task_id, worker, request)
-            dispatch, polling_ms = self._await_dispatch(task_id, worker, request)
+            dispatch_id, dispatch_ms = self._dispatch(run, task_id, worker, request)
+            overhead_ms += dispatch_ms
+            effective_started = time.monotonic_ns()
+            dispatch, polling_ms = self._await_dispatch(task_id, worker, request, polling_clock)
             effective_ms = max(0, self._elapsed(effective_started) - polling_ms)
             effective_started = None
             overhead_ms += polling_ms
@@ -122,7 +126,7 @@ class OrcaV12RoleExecutor:
                 "--timeout-ms", str(int(self._timeout(request, 60) * 1000)), "--json",
             ), timeout_seconds=self._timeout(request, 65))
             overhead_ms += output_wait.duration_ms
-            capture, capture_ms = self._read_terminal(worker, request)
+            capture, capture_ms = self._read_terminal(worker, capture_cursor, request)
             overhead_ms += capture_ms
             durable_output = "\n".join(str(delivery.get(key, "")) for key in ("subject", "body"))
             self._verify(request, dispatch, delivery, capture, durable_output, sentinel)
@@ -146,6 +150,7 @@ class OrcaV12RoleExecutor:
                 metadata=metadata, completion_proof=metadata.get("completion_proof"),
             )
         except subprocess.TimeoutExpired:
+            polling_ms = polling_clock[0]
             if effective_started is not None:
                 effective_ms += max(0, self._elapsed(effective_started) - polling_ms)
                 overhead_ms += polling_ms
@@ -157,6 +162,7 @@ class OrcaV12RoleExecutor:
             )
             self._discard_worker(key, request)
         except RuntimeError as exc:
+            polling_ms = polling_clock[0]
             if effective_started is not None:
                 effective_ms += max(0, self._elapsed(effective_started) - polling_ms)
                 overhead_ms += polling_ms
@@ -303,6 +309,7 @@ class OrcaV12RoleExecutor:
 
     def _await_dispatch(
         self, task_id: str, worker: str, request: NativeStepRequest,
+        polling_clock: list[float],
     ) -> tuple[Mapping[str, Any], float]:
         command_ms = 0.0
         while self._remaining(request) > 0:
@@ -310,6 +317,7 @@ class OrcaV12RoleExecutor:
                 "orchestration", "dispatch-show", "--task", task_id, "--json",
             ), timeout_seconds=self._timeout(request, 15))
             command_ms += shown.duration_ms
+            polling_clock[0] = command_ms
             dispatch = self._nested(shown.value, "result", "dispatch")
             if isinstance(dispatch, Mapping) and dispatch.get("status") in {"completed", "failed"}:
                 if dispatch.get("status") != "completed":
@@ -319,6 +327,7 @@ class OrcaV12RoleExecutor:
                 "terminal", "show", "--terminal", worker, "--json",
             ), timeout_seconds=self._timeout(request, 15))
             command_ms += terminal.duration_ms
+            polling_clock[0] = command_ms
             if self._nested(terminal.value, "result", "terminal", "connected") is False:
                 raise RuntimeError("ORCA worker disconnected")
             time.sleep(min(0.5, self._remaining(request)))
@@ -329,7 +338,7 @@ class OrcaV12RoleExecutor:
     ) -> tuple[Mapping[str, Any], float]:
         checked = self.transport.run_json((
             "orchestration", "check", "--run", run.run_id, "--terminal", run.coordinator,
-            "--json",
+            "--types", "worker_done", "--json",
         ), timeout_seconds=self._timeout(request, 30))
         messages = self._nested(checked.value, "result", "messages")
         delivery_id = self._nested(checked.value, "result", "deliveryId")
@@ -361,24 +370,54 @@ class OrcaV12RoleExecutor:
         ), timeout_seconds=self._timeout(request, 30))
         return matched, checked.duration_ms + ack.duration_ms
 
-    def _read_terminal(self, worker: str, request: NativeStepRequest) -> tuple[str, float]:
+    def _capture_cursor(self, worker: str, request: NativeStepRequest) -> tuple[int, float]:
         result = self.transport.run_json((
-            "terminal", "read", "--terminal", worker, "--limit", "1000", "--json",
+            "terminal", "read", "--terminal", worker, "--limit", "1", "--json",
         ), timeout_seconds=self._timeout(request, 30))
         terminal = self._nested(result.value, "result", "terminal")
-        text = ""
-        if isinstance(terminal, Mapping):
-            if terminal.get("limited") is True or terminal.get("truncated") is True:
+        raw_cursor = terminal.get("nextCursor") if isinstance(terminal, Mapping) else None
+        try:
+            cursor = int(str(raw_cursor))
+        except (TypeError, ValueError):
+            raise RuntimeError("ORCA terminal cursor missing")
+        return cursor, result.duration_ms
+
+    def _read_terminal(
+        self, worker: str, cursor: int, request: NativeStepRequest,
+    ) -> tuple[str, float]:
+        chunks: list[str] = []
+        duration = 0.0
+        while True:
+            result = self.transport.run_json((
+                "terminal", "read", "--terminal", worker, "--cursor", str(cursor),
+                "--limit", "1000", "--json",
+            ), timeout_seconds=self._timeout(request, 30))
+            duration += result.duration_ms
+            terminal = self._nested(result.value, "result", "terminal")
+            if not isinstance(terminal, Mapping) or terminal.get("truncated") is True:
                 raise RuntimeError("ORCA terminal output was truncated")
             for key in ("output", "text", "content", "lines", "tail"):
                 value = terminal.get(key)
                 if isinstance(value, str):
-                    text += value
+                    chunks.append(value)
                 elif isinstance(value, list):
-                    text += "\n".join(str(item.get("text", item)) if isinstance(item, Mapping) else str(item) for item in value)
+                    chunks.append("\n".join(
+                        str(item.get("text", item)) if isinstance(item, Mapping) else str(item)
+                        for item in value
+                    ))
+            try:
+                next_cursor = int(str(terminal.get("nextCursor")))
+            except (TypeError, ValueError):
+                next_cursor = None
+            if terminal.get("limited") is not True:
+                break
+            if not isinstance(next_cursor, int) or next_cursor <= cursor:
+                raise RuntimeError("ORCA terminal pagination did not advance")
+            cursor = next_cursor
+        text = "\n".join(chunks)
         if not text:
-            text = json.dumps(result.value, sort_keys=True)
-        return text, result.duration_ms
+            raise RuntimeError("ORCA terminal output missing")
+        return text, duration
 
     def _verify(
         self, request: NativeStepRequest, dispatch: Mapping[str, Any],

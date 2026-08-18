@@ -64,7 +64,7 @@ class Transport:
                 "acceptance_criteria": ["passes"],
             }})
             value = {"ok": True, "result": {"terminal": {
-                "tail": ["model: gpt-5.4", payload, sentinel],
+                "tail": ["model: gpt-5.4", payload, sentinel], "nextCursor": 42,
             }}}
         elif argv[:2] == ("terminal", "show"):
             value = {"ok": True, "result": {"terminal": {"connected": False}}}
@@ -175,7 +175,7 @@ class OrcaV12ExecutorTests(unittest.TestCase):
         class TruncatedCapture(Transport):
             def run_json(self, argv, *, timeout_seconds):
                 result = super().run_json(argv, timeout_seconds=timeout_seconds)
-                if argv[:2] == ("terminal", "read"):
+                if argv[:2] == ("terminal", "read") and "--cursor" in argv:
                     value = dict(result.value)
                     nested = dict(value["result"])
                     nested["terminal"] = dict(nested["terminal"], truncated=True)
