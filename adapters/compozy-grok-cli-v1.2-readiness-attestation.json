@@ -1,0 +1,113 @@
+{
+  "analysis_eligible": false,
+  "cleanup": {
+    "active_session_residual": false,
+    "new_grok_process_residual_count": 0,
+    "stop_returncode": 0
+  },
+  "commands": {
+    "config_show": {
+      "argv_sha256": "c9e61d0a069c8e8ad9d99cc51ff7786db3fcbba9901ac0001bf065faeea4a49f",
+      "duration_ms": 346.966,
+      "output_sha256": "5c988e978a6e6af08c89f959833988452eaa8c00ee84b87e0a48f438a42ee00d",
+      "returncode": 0
+    },
+    "grok_version": {
+      "output_sha256": "8d21e37ac44a7c832d1be0ba517a6c47518ca703ba49cd868329e2652b55cef6",
+      "returncode": 0
+    },
+    "session_events": {
+      "argv_sha256": "e231c5d36e1447254a1354299c5965c45ff2227250a1dacf5436393922a0fe09",
+      "duration_ms": 120.01,
+      "output_sha256": "4218d1b526b8a50a011818c2a7056ec2ba7a789a06a7e81feec10dc24f11b699",
+      "returncode": 0
+    },
+    "session_list": {
+      "argv_sha256": "50db8230c69cb468b7a35fe152e6ddf1780f4c87daf468c1dd16a240a2d018ec",
+      "duration_ms": 120.52,
+      "output_sha256": "bcc729f345b4000df4d1aa59b8f266acf69254db8fb4787da1815761a8bfad96",
+      "returncode": 0
+    },
+    "session_new": {
+      "argv_sha256": "6fbcd79c6aab6e0bf42ab6fec93467460cf0aa1b6358d1811bb311435c3c8527",
+      "duration_ms": 194.97,
+      "output_sha256": "df4b5ad042e965baa14ccd6f92798823a64e25ca5ef6ebbfaad1d722f0fb3577",
+      "returncode": 0
+    },
+    "session_prompt": {
+      "argv_sha256": "6cd72588e0ec2232e45d3044521f8954c24cf13ec496ff9421d3cc1355bda1a3",
+      "duration_ms": 5919.418,
+      "output_sha256": "0cb898ef65521fd6baef37c944294df578075b8f16207281ec2f893217fdeb24",
+      "returncode": 0
+    },
+    "session_stop": {
+      "output_sha256": "163903bbc68444115d424cee60bf85afec7cb3f25905a9755c8ca3a41d662cf8",
+      "returncode": 0
+    }
+  },
+  "execution": {
+    "done_observed": true,
+    "event_count": 11,
+    "event_types": {
+      "agent_message": 4,
+      "available_commands_update": 1,
+      "done": 1,
+      "hook.dispatch.complete": 1,
+      "hook.dispatch.start": 1,
+      "thought": 2,
+      "user_message": 1
+    },
+    "providers": [
+      "grok-cli"
+    ],
+    "sentinel_observed": true
+  },
+  "limitations": [
+    "Grok ACP does not advertise a mutable model option; model and reasoning are pinned as process arguments.",
+    "The probe verifies that Compozy binds no credential slots, not the complete child-process environment.",
+    "Stopped Compozy session history is retained locally and excluded from the public attestation."
+  ],
+  "observed_at": "2026-08-18T19:53:42.566020+00:00",
+  "probe_version": "v1.2",
+  "provider": {
+    "api_credential_absence_observed": false,
+    "auth_mode": "native_cli",
+    "command_sha256": "315a3980f517cdfa9a00d890e1aaed97e5de8291aa573d760a818cbc7192dc71",
+    "compozy_bound_credential_slots": 0,
+    "configured_model_argument": "grok-4.5",
+    "configured_reasoning_argument": "low",
+    "executable_basename": "grok-1.0.5-macos-aarch64",
+    "executable_sha256": "3dfa7f04fbb5427a8fbead286591543aaecb478b3a0ab222c4329eca1a3b2f86",
+    "id": "grok-cli",
+    "runtime_reported_model_observed": false,
+    "transport": "acp-stdio",
+    "version": "grok 1.0.5 (5115b46bc909) [stable]",
+    "version_output_sha256": "8d21e37ac44a7c832d1be0ba517a6c47518ca703ba49cd868329e2652b55cef6"
+  },
+  "redaction": {
+    "local_stopped_session_history_retained": true,
+    "public_attestation_contains_raw_model_output": false,
+    "public_attestation_contains_raw_prompt": false,
+    "sentinel_sha256": "9c54f9c3357d78cee488a3050b897c781b3c34000eba99d73cee2e8e0c999407",
+    "session_id_sha256": "ffc5a426a4e04e4496747848c76c289e1b122a87bb816512e7e79ce992cf0d7a"
+  },
+  "schema_version": "compozy-grok-cli-readiness-v1.2",
+  "source_hashes": {
+    "adapters/compozy-grok-cli-provider-v1.2.toml": "1cc1de477565ecdb9555b64b2fa0e8e20387e523f0d4aa1ae12a33a56e1d1f07",
+    "controller/scripts/probe_compozy_grok_cli.py": "b8de53e6436a07fcb2a0bc2996b82430cde0068549ae7ed08d4d45b2db2239ee",
+    "controller/src/benchmark_controller/compozy_grok.py": "2a00d35b154d836a97218fc7314fa6d2b539ec2f7c784d58da8a40a2e6db9d00"
+  },
+  "status": "passed",
+  "workspace": {
+    "after_sha256": "cc115d903c874a434532f36514a2067c38a697658d857b860a6a519b95f60f8b",
+    "before_sha256": "cc115d903c874a434532f36514a2067c38a697658d857b860a6a519b95f60f8b",
+    "ignored_parts": [
+      ".compozy",
+      ".git",
+      ".next",
+      "__pycache__",
+      "node_modules"
+    ],
+    "unchanged": true
+  }
+}

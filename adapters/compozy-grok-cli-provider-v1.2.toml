@@ -1,0 +1,12 @@
+# Workspace overlay for the benchmark's Grok CLI execution role.
+# `grok` is intentionally not used as the provider id because Compozy reserves
+# that alias for its API-key-backed `xai` provider.
+[providers.grok-cli]
+command = "grok agent --model grok-4.5 --reasoning-effort low stdio"
+display_name = "Grok CLI"
+harness = "acp"
+auth_mode = "native_cli"
+env_policy = "filtered"
+home_policy = "operator"
+auth_login_command = "grok login"
+
