@@ -145,7 +145,7 @@
   },
   "harness": {
     "reference": {"installed": true, "status": "contract-ready", "technical_pilot_status": "contract-ready", "evidence": {"workspace_boundary": "contract-tested", "permission_parity": "contract-tested", "ledger_bridge": "live"}},
-    "openhands-sdk": {"installed": false, "status": "dependency-resolution-failed", "evidence": {"normal_resolver": "failed", "dependency_overrides": false}},
+    "openhands-sdk": {"installed": true, "status": "installed-ready", "technical_pilot_status": "installed-ready", "evidence": {"runtime": "pinned-uv-python3.12-container", "workspace_boundary": "read-only-native-local-workspace-passed", "permission_parity": "read-allowed-write-denied", "ledger_bridge": "four-redacted-events", "normal_resolver": "uv-passed", "dependency_overrides": false, "no_deps": false, "package_versions": "sdk-tools-workspace-agent-server-1.42.1", "container_cleanup": "passed", "image_cleanup": "passed", "attestation": "openhands-sdk-v1.1-readiness-attestation.json"}},
     "mini-swe-agent": {"installed": true, "status": "installed-ready", "technical_pilot_status": "installed-ready", "evidence": {"workspace_boundary": "passed", "permission_parity": "contract-tested", "ledger_bridge": "live", "model_auth": "native-cli-oauth", "policy_model": "grok-4.5", "api_credentials_used": false, "greenfield_task_parity": "passed", "brownfield_task_parity": "passed", "session_cleanup": "passed", "live_workspace_mode": "implemented"}}
   },
   "agentskit": {
@@ -170,6 +170,8 @@
     "compozy-v1.1-availability-probe-attestation-2.json",
     "compozy-v1.1-availability-probe-attestation-3.json",
     "openhands-resolver-attestation-v1.0.json",
+    "openhands-sdk-v1.1-readiness-attestation.json",
+    "openhands-sdk-v1.1-probe-ledger.jsonl",
     "mini-swe-attestation-v1.0.json",
     "mini-swe-v1.1-preflight-attestation.json",
     "mini-swe-cli-bridge-attestation-v1.1.json",

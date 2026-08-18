@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from benchmark_controller.ade_adapters import ADENotReadyError, build_ade_adapter
-from benchmark_controller.harness_adapters import HarnessNotReadyError, build_harness_adapter
+from benchmark_controller.harness_adapters import build_harness_adapter
 from benchmark_controller.ledger import Ledger
 from benchmark_controller.mini_swe import MiniSweAgentAdapter
 
@@ -25,20 +25,16 @@ class RuntimeAdapterRegistryTests(unittest.TestCase):
             )
             self.assertEqual(result.stdout.strip(), "ok")
 
-    def test_openhands_fails_closed_without_session(self) -> None:
+    def test_openhands_resolves_ready_pinned_container_bridge(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             ledger = Ledger(root / "ledger.jsonl", run_id="run_harness_blocked", task_id="pilot_smoke")
             harness = build_harness_adapter(
                 "openhands-sdk", root / "openhands-sdk", ledger, permission_mode="approve-all"
             )
-            with self.assertRaises(HarnessNotReadyError):
-                harness.run_command(
-                    ["python3", "--version"],
-                    stage_id="implementation",
-                    actor="executor",
-                    access="read",
-                )
+            harness.assert_ready()
+            self.assertIn("sha256:", harness.spec.runtime_image)
+            self.assertEqual(harness.spec.session_entrypoint, "controller/scripts/probe_openhands_sdk.py")
 
     def test_mini_swe_registry_resolves_live_cli_bridge(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

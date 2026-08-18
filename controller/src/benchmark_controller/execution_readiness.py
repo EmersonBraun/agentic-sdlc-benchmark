@@ -61,13 +61,6 @@ BLOCKER_SPECS: dict[str, ExecutionBlocker] = {
         "Repeat the isolated provider-backed lifecycle probe and require every component-local invariant to pass.",
         "PYTHONPATH=controller/src python3 controller/scripts/probe_compozy_session.py --confirm",
     ),
-    "harness:openhands-sdk": ExecutionBlocker(
-        "openhands-dependency-graph", "harness:openhands-sdk", "upstream",
-        "The latest approved SDK dependency graph does not resolve on pinned Python without overrides.",
-        "adapters/openhands-resolver-attestation-v1.0.json",
-        "Re-run the normal resolver when a compatible OpenHands release is published; do not use dependency overrides.",
-        "docker run --rm python:3.12.10-slim python -m pip install --dry-run --no-cache-dir openhands-sdk==1.42.1 openhands-tools==1.42.1 openhands-workspace==1.42.1",
-    ),
     "harness:mini-swe-agent": ExecutionBlocker(
         "mini-swe-cli-transport", "harness:mini-swe-agent", "protocol",
         "The isolated runtime requires successful model and task execution through the frozen native CLI transport.",

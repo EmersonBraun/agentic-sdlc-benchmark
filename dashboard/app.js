@@ -16,7 +16,7 @@ const fallback = {
     },
     harness: {
       reference: { status: "contract-ready" },
-      "openhands-sdk": { status: "dependency-resolution-failed" },
+      "openhands-sdk": { status: "installed-ready" },
       "mini-swe-agent": { status: "installed-not-ready" },
     },
     agentskit: { off: { status: "contract-ready" }, on: { status: "installed-not-ready" } },

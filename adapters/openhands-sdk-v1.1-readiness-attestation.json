@@ -1,0 +1,54 @@
+{
+  "analysis_eligible": false,
+  "build_command_sha256": "1a481516d1bed3996470ee3938a75ab5434129bbb4eb4105d919c8c9a9a695a1",
+  "built_image_id_sha256": "751a51c2d70447e17fd09d92458e1bfde6d7ee70f26e4416dc22faafa1b5d7fc",
+  "container_removed": true,
+  "fixture_tree_sha256": "7b264674c10546f32590196394b4cbf8bd824da3cdff1619432f1d39160a44df",
+  "image": "ghcr.io/astral-sh/uv:python3.12-bookworm-slim@sha256:e5b65587bce7de595f299855d7385fe7fca39b8a74baa261ba1b7147afa78e58",
+  "image_removed": true,
+  "ledger_event_count": 4,
+  "ledger_sha256": "16b31c9c805110842333489ef47105f89d0159a86b7d5dfb1e919b611fc26a80",
+  "native": {
+    "raw_content_in_result": false,
+    "read_exit_code": 0,
+    "read_marker_observed": true,
+    "read_stdout_sha256": "eded81ce4085aaad43008676656b0f4a67b02cfc0ea3bcdd241308ca65a5c64a",
+    "schema_version": "openhands-native-probe-v1.1",
+    "versions": {
+      "openhands-agent-server": "1.42.1",
+      "openhands-sdk": "1.42.1",
+      "openhands-tools": "1.42.1",
+      "openhands-workspace": "1.42.1"
+    },
+    "versions_exact": true,
+    "workspace_tree_sha256": "7b264674c10546f32590196394b4cbf8bd824da3cdff1619432f1d39160a44df",
+    "workspace_type": "LocalWorkspace",
+    "write_denied": true,
+    "write_exit_code": 1,
+    "write_stderr_sha256": "9570428b59e64d2a322d115986711ff53ea6c2c6ed9347b75b4227d56142d27c"
+  },
+  "native_probe_source_sha256": "295ba1b608975d5b3e982c1aef5999c2ab7bd752d7cf2491db74f9595a35335e",
+  "observed_at": "2026-08-18T16:43:52.960988+00:00",
+  "operator": "local-primary-operator",
+  "packages": [
+    "openhands-sdk==1.42.1",
+    "openhands-tools==1.42.1",
+    "openhands-workspace==1.42.1"
+  ],
+  "probe_source_sha256": "925a7132cffac1e428edc93600fce8484ab78e3c566c5d2173c4495ba5d7f379",
+  "protocol_version": "v1.1",
+  "raw_output_persisted": false,
+  "resolver": "uv",
+  "resolver_output_sha256": "0c19ed83f811177aee0298429e2aa190a28b897a318b77f6e9800a27fb23d568",
+  "resolver_policy": {
+    "dependency_overrides": false,
+    "no_deps": false,
+    "pre_release": false
+  },
+  "resolver_returncode": 0,
+  "run_command_sha256": "76ccddcec070bfc3bb80de4399d0530081c2565b3980d2608bfdffbdac18dc16",
+  "runtime_returncode": 0,
+  "schema_version": "openhands-sdk-readiness-attestation-v1.1",
+  "status": "passed",
+  "workspace_unchanged": true
+}
