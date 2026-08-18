@@ -202,7 +202,14 @@ def main() -> int:
             if code:
                 raise RuntimeError("session termination failed")
             terminated = True
-            observer.observe({"id": session_id, "status": "terminated"})
+            code, output = _run(
+                "session", "ls", "--all", "--include-terminated", "--project", project_id, "--json"
+            )
+            result["commands"]["post_kill_observation"] = _command_record(code, output)
+            terminated_items = [item for item in _sessions(output) if item.get("id") == session_id]
+            if code or len(terminated_items) != 1 or not terminated_items[0].get("isTerminated"):
+                raise RuntimeError("session termination was not independently observed")
+            observer.observe(terminated_items[0])
         except Exception as exc:
             result["error_type"] = type(exc).__name__
             result["error"] = str(exc)
