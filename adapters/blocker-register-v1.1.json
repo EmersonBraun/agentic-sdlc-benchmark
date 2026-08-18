@@ -21,11 +21,11 @@
       "safe_next_action": "Keep polling bounded and redacted; run the approved isolated gpt-5.4 session probe only if its lifecycle and cleanup evidence can be captured."
     },
     {
-      "component": "ade:compozy",
-      "evidence_refs": ["preflight-v1.1.json", "compozy-binding-attestation-v1.0.json", "compozy-session-attestation-v1.0.json", "compozy-v1.1-session-probe-attestation.json", "compozy-v1.1-availability-probe-attestation-3.json", "model-compatibility-v1.1.json"],
-      "blocking_conditions": ["full cross-component semantic parity remains unverified"],
-      "resolution_gate": "Declare a stable CLI path, resolve workspace/config, authenticate an allowed provider in an isolated profile, bind a gpt-5.4 session, and prove lifecycle plus ledger emission.",
-      "safe_next_action": "Keep the exact-model/provider evidence pinned and complete parity probes for ORCA, Agent Orchestrator, harnesses, and AgentsKit before collection."
+      "component": "protocol:semantic-parity",
+      "evidence_refs": ["semantic-parity-v1.0.json", "preflight-v1.1.json", "../protocol/conditions-v1.1.json"],
+      "blocking_conditions": ["all seven invariants are not verified across the complete 18-condition matrix"],
+      "resolution_gate": "Every component is independently ready and all seven semantic-parity invariants are verified for 18/18 conditions before official collection.",
+      "safe_next_action": "Resolve the remaining component-local blockers, regenerate condition readiness, and promote this global protocol gate only at 18/18."
     },
     {
       "component": "harness:openhands-sdk",

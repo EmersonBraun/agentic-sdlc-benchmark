@@ -24,15 +24,6 @@
       "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/probe_agent_orchestrator_lifecycle.py"
     },
     {
-      "blocker_id": "compozy-global-parity",
-      "component": "ade:compozy",
-      "evidence_ref": "analysis/technical-pair-compozy-reference-v1.1.json",
-      "next_action": "Keep Compozy technical evidence frozen and promote it only after every other factor passes the same parity invariants.",
-      "owner": "protocol",
-      "reason": "The technical ON/OFF pair passes, but official cross-factor semantic parity is not complete.",
-      "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection"
-    },
-    {
       "blocker_id": "openhands-dependency-graph",
       "component": "harness:openhands-sdk",
       "evidence_ref": "adapters/openhands-resolver-attestation-v1.0.json",
@@ -48,6 +39,15 @@
       "next_action": "Run AgentsKit ON only after each paired ADE/harness condition is officially ready; preserve matched OFF controls.",
       "owner": "protocol",
       "reason": "Native public components pass one excluded technical condition, not the preregistered official replication gate.",
+      "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection"
+    },
+    {
+      "blocker_id": "global-semantic-parity",
+      "component": "protocol:semantic-parity",
+      "evidence_ref": "adapters/semantic-parity-v1.0.json",
+      "next_action": "Close every component-local blocker, verify all seven invariants for 18/18 conditions, then promote the global gate.",
+      "owner": "protocol",
+      "reason": "Component-local readiness is incomplete across the full 18-condition matrix.",
       "recheck_command": "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection"
     }
   ],

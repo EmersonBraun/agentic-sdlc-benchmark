@@ -32,10 +32,11 @@ preserve the redacted failure evidence.
 |---:|---|---|---|
 | 1 | ORCA workspace and graph | Register the isolated benchmark workspace and expose a ready graph through the approved ORCA runtime path. | Workspace binding, graph reachability, normalized lifecycle events, cleanup, and no session leakage. |
 | 2 | Agent Orchestrator semantics | Review the polling bridge against the shared lifecycle contract and run one approved isolated worker session. | Spawn, polling transitions, ledger events, cleanup, and zero cross-run state leakage; the lack of native events is explicitly accepted or remains a blocker. |
-| 3 | Compozy provider/model | In an isolated profile, make the declared protocol model executable, authenticate an allowed provider, bind a session, and verify the workspace. | Exact model execution, bound session, normalized lifecycle ledger, cleanup, and provider/session counts recorded. |
+| 3 | Compozy provider/model | Closed for v1.1; recheck only after a version, provider, model-policy, or adapter change. | [`compozy-v1.1-component-readiness-attestation.json`](compozy-v1.1-component-readiness-attestation.json) remains hash-consistent with exact-model, lifecycle, ledger, and cleanup evidence. |
 | 4 | OpenHands resolver | Re-run the normal resolver in a clean pinned container when an upstream-compatible release is available. | SDK, tools, and workspace resolve without `--no-deps` or overrides, followed by workspace, permission, and ledger probes. |
-| 5 | mini-SWE-agent model boundary | Supply a temporary non-production model/auth configuration to the isolated container. | Declared model executes with network, permissions, image, and workspace identity recorded; task lifecycle and ledger parity pass. |
+| 5 | mini-SWE-agent model boundary | Closed for v1.1; recheck after bridge, image, model, or task-contract changes. | Native Grok CLI/OAuth execution, frozen image identity, independent product tests, lifecycle, cleanup, and ledger parity pass. |
 | 6 | AgentsKit ON parity | Use the public pinned source and the same controlled task contract as OFF with the approved model boundary. | All declared component actions map to the ledger, the task completes, the OFF control is unchanged, and matched semantic parity passes. |
+| 7 | Global semantic parity | Regenerate the matrix only after every component-local gate is ready. | All seven invariants pass for 18/18 conditions; this gate is not attributed to any individual ADE. |
 
 ## Evidence procedure
 
@@ -66,9 +67,10 @@ create no benchmark run or external session.
 
 ## Current state
 
-As of 2026-08-18, the local closure checks pass, but all 18 v1.1 conditions
-remain blocked. Compozy plus the reference harness has a valid excluded ON/OFF
-technical pair. ORCA executes `gpt-5.4` but rejects authoritative lifecycle
+As of 2026-08-18, Compozy is independently ready and two component-complete
+v1.1 conditions are ready, but the global 18/18 collection gate remains
+blocked. Its reference-harness ON/OFF technical pair remains excluded from
+official analysis. ORCA executes `gpt-5.4` but rejects authoritative lifecycle
 settlement; Agent Orchestrator lacks observable model output/native events;
 OpenHands 1.42.1 does not resolve normally. mini-SWE-agent is ready through the
 authenticated Grok CLI/OAuth transport; no API key is part of the protocol.

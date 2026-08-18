@@ -1,0 +1,34 @@
+{
+  "schema_version": "compozy-session-recheck-attestation-v1.1",
+  "protocol_version": "v1.1",
+  "verified_on": "2026-08-18",
+  "cli_version": "0.3.0-beta.16",
+  "cli_commit": "c38ba0fa",
+  "cleanup": {
+    "fixture_destroyed": true,
+    "workspace_remove": {
+      "output_sha256": "45df385dbcdb5af990fbceab6d202ce324dcc0d75df54c812165572eb5abd733",
+      "returncode": 0
+    }
+  },
+  "commands": {
+    "session_new": {
+      "output_sha256": "038a9b4d310a509e24662b095f3ac585b2b963551c19f14a7b67e87dbf46db6e",
+      "returncode": 0
+    },
+    "session_stop": {
+      "output_sha256": "f8789baf56f4f8df5060e9c9ccd6ad8f8a710057bf36a9715e34c4774bdbef79",
+      "returncode": 0
+    }
+  },
+  "daemon_health": "passed",
+  "fixture_mutated": false,
+  "initial_state": "active",
+  "network_mode": "local",
+  "provider_execution_observed": false,
+  "runtime_status": "unbound",
+  "session_created": true,
+  "session_id_sha256": "2afe3822973ddcfc7f80ed1ffe8b8c4c8cf04c33800772045c7a9b2ba3967607",
+  "workspace_id_sha256": "b9ba2ed75b9460b917360648ad4d81cc9b35fe9e607824dc4272c30f43054dce",
+  "decision": "Fresh no-prompt isolation and cleanup recheck passed. Provider-backed exact-model and lifecycle evidence remains pinned in compozy-v1.1-session-probe-attestation.json; this recheck does not replace it."
+}

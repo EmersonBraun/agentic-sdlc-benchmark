@@ -3,7 +3,7 @@
   "protocol_version": "v1.1",
   "verified_on": "2026-08-17",
   "source": "controlled Compozy session prompt/events probe plus controller bridge probe",
-  "status": "partial-blocked",
+  "status": "component-ready",
   "authorization": {"operator_confirmation": true},
   "runtime": {"workspace_boundary": "passed", "network_mode": "local", "fixture_mutated": false, "fixture_destroyed": true, "cli_version": "0.3.0-beta.16"},
   "session": {"creation": "passed", "initial_state": "active", "runtime_status_at_creation": "unbound", "provider_bound_prompt": "passed", "stop": "passed", "provider_execution_observed": true, "session_id_sha256": "b9bc04bb443a598ce4834e27224326c22d23b185c29d818cab6ed7cc093cdf28", "workspace_path_sha256": "5ab26eae2d44a5b1f74935a1eda685ba46bdf5369fd6594c0b2aab57ea99963c"},
@@ -11,5 +11,5 @@
   "events": {"raw_count": 13, "raw_types": ["agent_message", "done", "hook.dispatch.complete", "hook.dispatch.start", "system", "thought", "usage", "user_message"], "normalized_lifecycle_count": 3, "content_and_tool_payloads_persisted": false, "unknown_event_policy": "fail-closed"},
   "model": {"policy_model": "gpt-5.4", "execution": "passed", "bounded_response": true},
   "bridge": {"implementation": "controller/src/benchmark_controller/compozy_lifecycle.py", "contract_tests": "passed", "live_event_stream_to_redacted_ledger_probe": "passed"},
-  "decision": "Exact v1.1 gpt-5.4 execution, isolated workspace cleanup, and a live Compozy event-stream-to-redacted-ledger probe now pass. The ADE remains blocked for collection because full cross-ADE/harness/AgentsKit semantic parity is not yet verified."
+  "decision": "Exact v1.1 gpt-5.4 execution, isolated workspace cleanup, and a live Compozy event-stream-to-redacted-ledger probe pass. This establishes component-local readiness only; global 18-condition semantic parity remains a separate collection gate."
 }

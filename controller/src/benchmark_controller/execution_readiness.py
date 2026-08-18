@@ -6,6 +6,7 @@ from dataclasses import asdict, dataclass
 from typing import Any, Mapping
 
 from .readiness import READY_STATUSES
+from .semantic_parity import REQUIRED_EVIDENCE_KEYS, evaluate_semantic_parity
 
 
 @dataclass(frozen=True)
@@ -61,11 +62,11 @@ BLOCKER_SPECS: dict[str, ExecutionBlocker] = {
         "PYTHONPATH=controller/src python3 controller/scripts/probe_agent_orchestrator_lifecycle.py",
     ),
     "ade:compozy": ExecutionBlocker(
-        "compozy-global-parity", "ade:compozy", "protocol",
-        "The technical ON/OFF pair passes, but official cross-factor semantic parity is not complete.",
-        "analysis/technical-pair-compozy-reference-v1.1.json",
-        "Keep Compozy technical evidence frozen and promote it only after every other factor passes the same parity invariants.",
-        "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection",
+        "compozy-runtime-parity", "ade:compozy", "protocol",
+        "The Compozy runtime has not independently satisfied its declared workspace, model, lifecycle, ledger, and cleanup contract.",
+        "adapters/compozy-v1.1-component-readiness-attestation.json",
+        "Repeat the isolated provider-backed lifecycle probe and require every component-local invariant to pass.",
+        "PYTHONPATH=controller/src python3 controller/scripts/probe_compozy_session.py --confirm",
     ),
     "harness:openhands-sdk": ExecutionBlocker(
         "openhands-dependency-graph", "harness:openhands-sdk", "upstream",
@@ -104,6 +105,16 @@ BLOCKER_SPECS: dict[str, ExecutionBlocker] = {
     ),
 }
 
+GLOBAL_PARITY_BLOCKER = ExecutionBlocker(
+    "global-semantic-parity",
+    "protocol:semantic-parity",
+    "protocol",
+    "Component-local readiness is incomplete across the full 18-condition matrix.",
+    "adapters/semantic-parity-v1.0.json",
+    "Close every component-local blocker, verify all seven invariants for 18/18 conditions, then promote the global gate.",
+    "PYTHONPATH=controller/src python3 controller/scripts/check_pilot_gate.py --preflight adapters/preflight-v1.1.json --gate-mode official-collection",
+)
+
 
 def evaluate_execution_readiness(preflight: Mapping[str, Any]) -> ExecutionReadinessReport:
     if preflight.get("protocol_version") != "v1.1":
@@ -115,6 +126,9 @@ def evaluate_execution_readiness(preflight: Mapping[str, Any]) -> ExecutionReadi
         document = preflight.get(factor, {}).get(key, {})
         if not isinstance(document, Mapping) or document.get("status") not in READY_STATUSES:
             blockers.append(spec)
+
+    if not evaluate_semantic_parity(preflight).verified:
+        blockers.append(GLOBAL_PARITY_BLOCKER)
 
     technical = preflight.get("technical_pilot", {}).get("allowed_conditions", [])
     technical_ready = tuple(sorted(str(value) for value in technical)) if isinstance(technical, list) else ()
