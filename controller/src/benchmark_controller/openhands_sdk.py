@@ -36,7 +36,15 @@ class OpenHandsSDKAdapter:
 
     def prepare_runtime(self) -> str:
         """Materialize the network-dependent image as an explicit audited operation."""
-        self.runtime.permissions.authorize("network")
+        try:
+            self.runtime.permissions.authorize("network")
+        except PermissionError:
+            self.runtime.ledger.record(
+                stage_id="intake", actor="infrastructure", event_type="harness.runtime.materialization.blocked",
+                time_category="orchestration_overhead", duration_ms=0, status="blocked",
+                payload={"access": "network"}, tool="openhands-sdk-container-adapter-v1.1",
+            )
+            raise
         self.runtime.prepare()
         with tempfile.TemporaryDirectory(prefix="agentic-sdlc-openhands-runtime-") as directory:
             context = Path(directory)
@@ -94,6 +102,7 @@ class OpenHandsSDKAdapter:
         readonly_image = f"agentic-sdlc-openhands-readonly:{time.time_ns()}"
         container_removed = False
         runtime_available = False
+        readonly_image_removed = access != "read"
         pending_error: Exception | None = None
         started = time.monotonic_ns()
         result = AdapterCommandResult(normalized, 125, "", "OpenHands command did not start")
@@ -145,19 +154,22 @@ class OpenHandsSDKAdapter:
                 subprocess.run(("docker", "rm", "--force", container), capture_output=True, text=True, check=False)
                 subprocess.run(("docker", "image", "rm", "--force", readonly_image), capture_output=True, text=True, check=False)
                 container_removed = _confirmed_absent(("docker", "container", "inspect", container))
+                if access == "read":
+                    readonly_image_removed = _confirmed_absent(("docker", "image", "inspect", readonly_image))
                 runtime_available = subprocess.run(("docker", "image", "inspect", RUNTIME_IMAGE), capture_output=True, text=True, check=False).returncode == 0
         duration_ms = (time.monotonic_ns() - started) / 1_000_000
         self.runtime.ledger.record(
             stage_id=stage_id, actor=actor, event_type="adapter.command.executed",
             time_category=time_category, duration_ms=duration_ms,
-            status="completed" if result.returncode == 0 and container_removed and runtime_available else "failed",
+            status="completed" if result.returncode == 0 and container_removed and readonly_image_removed and runtime_available else "failed",
             payload={
                 "argv_sha256": hashlib.sha256(json.dumps(normalized, separators=(",", ":")).encode()).hexdigest(),
                 "access": access, "returncode": result.returncode, "timed_out": result.timed_out,
-                "container_removed": container_removed, "runtime_available": runtime_available,
+                "container_removed": container_removed, "readonly_image_removed": readonly_image_removed,
+                "runtime_available": runtime_available,
             }, tool="openhands-sdk-container-adapter-v1.1",
         )
-        if not container_removed or not runtime_available:
+        if not container_removed or not readonly_image_removed or not runtime_available:
             raise RuntimeError("OpenHands container cleanup could not be verified")
         if pending_error is not None:
             raise pending_error
@@ -190,8 +202,8 @@ def _runtime_dockerfile() -> str:
         "COPY requirements.lock /requirements.lock",
         "RUN uv pip install --system --require-hashes -r /requirements.lock",
         "RUN npm install --global pnpm@11.21.0", "COPY bridge.py /bridge.py",
-        "COPY workspace /workspace",
-        "RUN if [ -f /workspace/pnpm-lock.yaml ]; then cd /workspace && pnpm install --frozen-lockfile; fi",
+        "COPY workspace /build-workspace",
+        "RUN if [ -f /build-workspace/pnpm-lock.yaml ]; then cd /build-workspace && pnpm install --frozen-lockfile && mv node_modules /opt/product-node_modules; fi && rm -rf /build-workspace && mkdir /workspace",
         "WORKDIR /workspace", "",
     ))
 

@@ -9,7 +9,7 @@ from benchmark_controller.ade_adapters import ADENotReadyError, build_ade_adapte
 from benchmark_controller.harness_adapters import build_harness_adapter
 from benchmark_controller.ledger import Ledger
 from benchmark_controller.mini_swe import MiniSweAgentAdapter
-from benchmark_controller.openhands_sdk import OpenHandsSDKAdapter, _replace_workspace
+from benchmark_controller.openhands_sdk import OpenHandsSDKAdapter, RUNTIME_IMAGE, _replace_workspace
 
 
 class RuntimeAdapterRegistryTests(unittest.TestCase):
@@ -50,7 +50,9 @@ class RuntimeAdapterRegistryTests(unittest.TestCase):
                 if argv[:3] == ("docker", "container", "inspect"):
                     return CompletedProcess(argv, 1, "", "Error: No such object")
                 if argv[:3] == ("docker", "image", "inspect"):
-                    return CompletedProcess(argv, 0, "sha256:test", "")
+                    if RUNTIME_IMAGE in argv:
+                        return CompletedProcess(argv, 0, "sha256:test", "")
+                    return CompletedProcess(argv, 1, "", "Error: No such image")
                 if argv[:2] == ("docker", "start"):
                     payload = {"schema_version": "openhands-command-result-v1.1", "returncode": 0, "stdout": "ok\n", "stderr": ""}
                     return CompletedProcess(argv, 0, json.dumps(payload) + "\n", "")

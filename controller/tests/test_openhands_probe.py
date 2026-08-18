@@ -48,6 +48,7 @@ class OpenHandsReadinessEvidenceTests(unittest.TestCase):
         for field, path in (
             ("probe_source_sha256", root / "controller" / "scripts" / "probe_openhands_sdk.py"),
             ("native_probe_source_sha256", root / "controller" / "scripts" / "openhands_native_probe.py"),
+            ("command_bridge_source_sha256", root / "controller" / "scripts" / "openhands_command_bridge.py"),
             ("ledger_sha256", root / "adapters" / "openhands-sdk-v1.1-probe-ledger.jsonl"),
             ("lock_sha256", root / "adapters" / "openhands-sdk-v1.1.requirements.lock"),
         ):

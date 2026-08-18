@@ -152,6 +152,7 @@ def main() -> int:
     root = Path(__file__).resolve().parents[2]
     fixture = root / "products" / "greenfield"
     native_probe = root / "controller" / "scripts" / "openhands_native_probe.py"
+    command_bridge = root / "controller" / "scripts" / "openhands_command_bridge.py"
     lockfile = root / "adapters" / "openhands-sdk-v1.1.requirements.lock"
     before = tree_sha256(fixture)
     name = f"benchmark-openhands-{int(time.time())}"
@@ -221,6 +222,7 @@ def main() -> int:
         "run_command_sha256": sha256_bytes(json.dumps(run_command, separators=(",", ":")).encode()),
         "probe_source_sha256": sha256_bytes(Path(__file__).read_bytes()),
         "native_probe_source_sha256": sha256_bytes(native_probe.read_bytes()),
+        "command_bridge_source_sha256": sha256_bytes(command_bridge.read_bytes()),
         "resolver_returncode": build.returncode,
         "runtime_returncode": runtime.returncode if runtime else None,
         "resolver_output_sha256": sha256_bytes(combined.encode()),
