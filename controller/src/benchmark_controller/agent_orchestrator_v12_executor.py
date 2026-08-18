@@ -299,9 +299,14 @@ class AgentOrchestratorV12RoleExecutor:
             ), timeout_seconds=self._timeout(request, cap=10))
             preparation_ms += expected.duration_ms + aligned.duration_ms
             command.extend(("--branch", branch))
-        result = self.transport.run(tuple(command), timeout_seconds=self._timeout(request, cap=60))
+        try:
+            result = self.transport.run(tuple(command), timeout_seconds=self._timeout(request, cap=60))
+        except Exception:
+            self._delete_branch(request.worktree, branch)
+            raise
         match = SESSION_PATTERN.search(result.stdout + result.stderr)
         if not match:
+            self._delete_branch(request.worktree, branch)
             raise RuntimeError("AO returned no session id")
         session_id = match.group(1)
         try:
@@ -318,11 +323,22 @@ class AgentOrchestratorV12RoleExecutor:
                 self.transport.run((
                     str(self.ao_path), "session", "cleanup", "--project", self.project, "--yes",
                 ), timeout_seconds=60)
+                self._delete_branch(request.worktree, branch)
             raise
         self._sessions[key] = session
         effective_ms = session.observed_turn_ms or result.duration_ms
         preparation_ms += inspection_ms + max(0, result.duration_ms - effective_ms)
         return session, preparation_ms, effective_ms
+
+    def _delete_branch(self, repository: Path, branch: str | None) -> None:
+        if branch is None:
+            return
+        try:
+            self.transport.run(
+                ("git", "-C", str(repository), "branch", "-D", branch), timeout_seconds=30,
+            )
+        except Exception:
+            self._cleanup_failed = True
 
     def _stop_session(self, request: NativeStepRequest, step: str) -> float:
         key = (request.run_id, step)

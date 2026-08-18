@@ -81,7 +81,7 @@
   "technical_pilot_status": "blocked-full-runner-and-evidence-contract",
   "v12_semantic_parity": {
     "matrix": "semantic-parity-matrix-v1.2.json",
-    "matrix_sha256": "8f98f339562d32a0172c892df6e807ae0eb4d905c3b3ed2d9a963725bb9862a1",
+    "matrix_sha256": "e98580fdc3bbdcd2befbed3e6387a46a21be24ce64c17ba557664562d5e5a95e",
     "status": "blocked"
   }
 }
