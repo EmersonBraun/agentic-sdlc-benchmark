@@ -35,12 +35,18 @@ class Transport:
             sentinel = "V12_AO_" + hashlib.sha256(
                 f"{self.run_id}:{self.step}".encode()
             ).hexdigest()[:20].upper()
-            payload = json.dumps({"handoff_payload": {
-                "requirements": "resolved", "implementation_plan": ["build"],
-                "acceptance_criteria": ["passes"],
-            }})
+            payload = json.dumps(
+                {"completion_proof": {
+                    "verified_gates": ["unit-tests"], "product_quality_score": 90,
+                    "merge_commit": "b" * 40,
+                }} if self.step == "merge" else {"handoff_payload": {
+                    "requirements": "resolved", "implementation_plan": ["build"],
+                    "acceptance_criteria": ["passes"],
+                }}
+            )
             return AOCommandResult(
-                "prompt " + sentinel + "\ngpt-5.4\n" + payload + "\n" + sentinel, "", 1,
+                "AO_SESSION_READY AO_SESSION_READY\n› ready\nprompt " + sentinel
+                + "\ngpt-5.4\n" + payload + "\n" + sentinel, "", 1,
             )
         return AOCommandResult("{}", "", 1)
 
@@ -105,3 +111,84 @@ class AgentOrchestratorV12ExecutorTests(unittest.TestCase):
             ).execute(request)
             self.assertEqual(result.status, "timeout")
             self.assertEqual(transport.calls, [])
+
+    def test_merge_returns_required_completion_proof(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            workspace = root / "ao-worktree"
+            workspace.mkdir()
+            transport = Transport(workspace, "run_ao-test", "merge")
+            request = self.request(root)
+            request = request.__class__(**{
+                **request.__dict__, "step": "merge", "idempotency_key": "run_ao-test:merge:1",
+            })
+            result = AgentOrchestratorV12RoleExecutor(
+                "code-10x", ao_path=Path("/ao"), transport=transport,
+            ).execute(request)
+            self.assertEqual(result.status, "completed")
+            self.assertEqual(result.completion_proof["merge_commit"], "b" * 40)
+
+    def test_mutating_worker_commit_is_cherry_picked_into_measured_worktree(self):
+        class SyncTransport(Transport):
+            def __init__(self, workspace, run_id, step):
+                super().__init__(workspace, run_id, step)
+                self.rev_parse_count = 0
+
+            def run(self, argv, *, timeout_seconds):
+                if argv[0] == "git" and "status" in argv:
+                    self.calls.append(tuple(argv))
+                    return AOCommandResult("", "", 1)
+                if argv[0] == "git" and "rev-parse" in argv:
+                    self.calls.append(tuple(argv))
+                    self.rev_parse_count += 1
+                    # Base validation and pre-stage alignment observe A. The
+                    # post-stage worker HEAD is B; the measured target remains A.
+                    value = "b" * 40 if self.rev_parse_count == 4 else "a" * 40
+                    return AOCommandResult(value + "\n", "", 1)
+                if argv[:2] == ("tmux", "capture-pane"):
+                    self.calls.append(tuple(argv))
+                    sentinel = "V12_AO_" + hashlib.sha256(
+                        f"{self.run_id}:{self.step}".encode()
+                    ).hexdigest()[:20].upper()
+                    return AOCommandResult(
+                        "AO_SESSION_READY AO_SESSION_READY\n› ready\nprompt " + sentinel
+                        + "\nGrok 4.5\n" + sentinel, "", 1,
+                    )
+                return super().run(argv, timeout_seconds=timeout_seconds)
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            workspace = root / "ao-worktree"
+            workspace.mkdir()
+            transport = SyncTransport(workspace, "run_ao-test", "implementation")
+            request = self.request(root)
+            request = request.__class__(**{
+                **request.__dict__, "step": "implementation", "role": "executor_fixer",
+                "provider": "grok-cli", "model": "grok-4.5",
+                "idempotency_key": "run_ao-test:implementation:1",
+            })
+            result = AgentOrchestratorV12RoleExecutor(
+                "code-10x", ao_path=Path("/ao"), transport=transport,
+            ).execute(request)
+            self.assertEqual(result.status, "completed")
+            self.assertTrue(any("cherry-pick" in call for call in transport.calls))
+
+    def test_close_propagates_to_independent_evaluator(self):
+        class Evaluator:
+            closed = False
+
+            def close(self):
+                self.closed = True
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            workspace = root / "ao-worktree"
+            workspace.mkdir()
+            evaluator = Evaluator()
+            executor = AgentOrchestratorV12RoleExecutor(
+                "code-10x", ao_path=Path("/ao"),
+                transport=Transport(workspace, "run_ao-test", "decomposition"),
+                evaluator=evaluator,
+            )
+            executor.close()
+            self.assertTrue(evaluator.closed)

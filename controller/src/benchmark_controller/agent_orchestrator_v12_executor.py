@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Protocol, Sequence
 
+from .condition_runner import PRE_MERGE_QUALITY_GATES, REQUIRED_QUALITY_GATES
 from .v12_native_backend import NativeStepExecution, NativeStepRequest, V12RoleExecutor
 
 SESSION_PATTERN = re.compile(r"spawned session ([A-Za-z0-9_-]+)")
@@ -70,6 +71,7 @@ class AgentOrchestratorV12RoleExecutor:
         self._sessions: dict[tuple[str, str], _Session] = {}
         self._cache: dict[tuple[str, str], NativeStepExecution] = {}
         self._config_checked = False
+        self._cleanup_failed = False
 
     def execute(self, request: NativeStepRequest) -> NativeStepExecution:
         if request.role == "independent_evaluator":
@@ -86,21 +88,21 @@ class AgentOrchestratorV12RoleExecutor:
         try:
             orchestration_ms += self._verify_config(request)
             kind = "orchestrator" if request.step in PLANNER_STEPS else "worker"
-            session, created_ms, initial_prompt_submitted = self._ensure_session(request, kind)
-            orchestration_ms += created_ms
-            prompt, sentinel = self._prompt(request)
+            session, setup_ms, initial_effective_ms = self._ensure_session(request, kind)
+            orchestration_ms += setup_ms
+            _, sentinel = self._prompt(request)
             existing, capture_ms = self._capture(session, request)
             orchestration_ms += capture_ms
             effective_started = time.monotonic_ns()
-            if sentinel not in existing and not initial_prompt_submitted:
-                orchestration_ms += self._send(session, prompt, request)
             capture, wait_ms = self._wait(session, sentinel, request)
-            effective_ms = max(0, self._elapsed(effective_started) - wait_ms)
+            effective_ms = initial_effective_ms + max(0, self._elapsed(effective_started) - wait_ms)
             orchestration_ms += wait_ms
             self._verify_capture(request, session, capture, sentinel)
             metadata = self._metadata(request, capture, sentinel, session)
+            orchestration_ms += self._synchronize_product_workspace(session, request)
             if self._remaining(request) <= 0:
                 raise subprocess.TimeoutExpired("ao", 0)
+            orchestration_ms += self._stop_session(request, request.step)
             result = NativeStepExecution(
                 status="completed", role=request.role, provider=request.provider, model=request.model,
                 workspace=request.worktree, effective_work_ms=effective_ms, external_wait_ms=0,
@@ -115,7 +117,7 @@ class AgentOrchestratorV12RoleExecutor:
                 orchestration_overhead_ms=orchestration_ms,
             )
         except RuntimeError as exc:
-            self._discard_session(request.run_id, kind if "kind" in locals() else None)
+            self._discard_session(request.run_id, request.step if "kind" in locals() else None)
             result = self._outcome(
                 request, "retry", self._runtime_reason(exc), effective_work_ms=self._elapsed(effective_started),
                 orchestration_overhead_ms=orchestration_ms,
@@ -124,10 +126,11 @@ class AgentOrchestratorV12RoleExecutor:
             self._cache[semantic_key] = result
         return result
 
-    def _discard_session(self, run_id: str, kind: str | None) -> None:
-        if kind is None:
+    def _discard_session(self, run_id: str, step: str | None) -> None:
+        if step is None:
             return
-        session = self._sessions.pop((run_id, kind), None)
+        key = (run_id, step)
+        session = self._sessions.get(key)
         if session is None:
             return
         try:
@@ -138,8 +141,9 @@ class AgentOrchestratorV12RoleExecutor:
             self.transport.run((
                 str(self.ao_path), "session", "cleanup", "--project", self.project, "--yes",
             ), timeout_seconds=60)
+            self._sessions.pop(key, None)
         except Exception:
-            pass
+            self._cleanup_failed = True
 
     @staticmethod
     def _runtime_reason(exc: RuntimeError) -> str:
@@ -153,7 +157,7 @@ class AgentOrchestratorV12RoleExecutor:
         return "native-runtime-error"
 
     def close(self) -> None:
-        failed = False
+        failed = self._cleanup_failed
         for key, session in tuple(self._sessions.items())[::-1]:
             killed = False
             for _ in range(3):
@@ -174,6 +178,12 @@ class AgentOrchestratorV12RoleExecutor:
             ), timeout_seconds=60)
         except Exception:
             failed = True
+        evaluator_close = getattr(self.evaluator, "close", None)
+        if callable(evaluator_close):
+            try:
+                evaluator_close()
+            except Exception:
+                failed = True
         if failed:
             raise RuntimeError("Agent Orchestrator terminal cleanup failed")
 
@@ -199,10 +209,12 @@ class AgentOrchestratorV12RoleExecutor:
         self._config_checked = True
         return result.duration_ms
 
-    def _ensure_session(self, request: NativeStepRequest, kind: str) -> tuple[_Session, float, bool]:
-        key = (request.run_id, kind)
+    def _ensure_session(
+        self, request: NativeStepRequest, kind: str,
+    ) -> tuple[_Session, float, float]:
+        key = (request.run_id, request.step)
         if key in self._sessions:
-            return self._sessions[key], 0, False
+            return self._sessions[key], 0, 0
         preparation_ms = 0.0
         if kind == "orchestrator":
             expected = self.transport.run(
@@ -217,14 +229,26 @@ class AgentOrchestratorV12RoleExecutor:
         prompt, _ = self._prompt(request)
         command = [
             str(self.ao_path), "spawn", "--project", self.project,
-            "--name", ("v12-" + kind[:4] + "-" + hashlib.sha256(request.run_id.encode()).hexdigest()[:8])[:20],
+            "--name", ("v12-" + kind[:4] + "-" + hashlib.sha256(
+                f"{request.run_id}:{request.step}".encode()
+            ).hexdigest()[:8])[:20],
             "--issue", "18", "--prompt", prompt, "--kind", kind, "--mode", "tui",
         ]
         # AO owns a persistent shared worktree for orchestrators. Supplying a
         # branch there currently breaks Codex TUI bootstrap; workers remain
-        # isolated on a run-specific branch.
+        # isolated on a stage-specific branch.
         if kind == "worker":
-            command.extend(("--branch", f"benchmark/{request.run_id}-{kind}"))
+            branch = f"benchmark/{request.run_id}-{request.step}"
+            expected = self.transport.run(
+                ("git", "-C", str(request.worktree), "rev-parse", "HEAD"),
+                timeout_seconds=self._timeout(request, cap=10),
+            )
+            aligned = self.transport.run((
+                "git", "-C", str(request.worktree), "branch", "-f", branch,
+                expected.stdout.strip(),
+            ), timeout_seconds=self._timeout(request, cap=10))
+            preparation_ms += expected.duration_ms + aligned.duration_ms
+            command.extend(("--branch", branch))
         result = self.transport.run(tuple(command), timeout_seconds=self._timeout(request, cap=60))
         match = SESSION_PATTERN.search(result.stdout + result.stderr)
         if not match:
@@ -246,8 +270,48 @@ class AgentOrchestratorV12RoleExecutor:
                 ), timeout_seconds=self._timeout(request, cap=60))
             raise
         self._sessions[key] = session
-        # The initial prompt was already submitted by spawn.
-        return session, preparation_ms + result.duration_ms, True
+        return session, preparation_ms, result.duration_ms
+
+    def _stop_session(self, request: NativeStepRequest, step: str) -> float:
+        key = (request.run_id, step)
+        session = self._sessions[key]
+        killed = self.transport.run((
+            str(self.ao_path), "session", "kill", session.session_id,
+            "--project", self.project,
+        ), timeout_seconds=30)
+        cleaned = self.transport.run((
+            str(self.ao_path), "session", "cleanup", "--project", self.project, "--yes",
+        ), timeout_seconds=60)
+        self._sessions.pop(key, None)
+        return killed.duration_ms + cleaned.duration_ms
+
+    def _synchronize_product_workspace(self, session: _Session, request: NativeStepRequest) -> float:
+        """Cherry-pick role-owned commits into the controller's measured worktree."""
+
+        if request.step not in {"implementation", "documentation"}:
+            return 0
+        status = self.transport.run(
+            ("git", "-C", str(session.workspace), "status", "--porcelain"),
+            timeout_seconds=self._timeout(request, cap=10),
+        )
+        if status.stdout.strip():
+            raise RuntimeError("AO stage left uncommitted product changes")
+        source = self.transport.run(
+            ("git", "-C", str(session.workspace), "rev-parse", "HEAD"),
+            timeout_seconds=self._timeout(request, cap=10),
+        )
+        target = self.transport.run(
+            ("git", "-C", str(request.worktree), "rev-parse", "HEAD"),
+            timeout_seconds=self._timeout(request, cap=10),
+        )
+        duration = status.duration_ms + source.duration_ms + target.duration_ms
+        if source.stdout.strip() == target.stdout.strip():
+            raise RuntimeError("AO mutating stage produced no committed change")
+        picked = self.transport.run(
+            ("git", "-C", str(request.worktree), "cherry-pick", source.stdout.strip()),
+            timeout_seconds=self._timeout(request, cap=60),
+        )
+        return duration + picked.duration_ms
 
     def _inspect_session(self, session_id: str, kind: str, request: NativeStepRequest) -> _Session:
         result = self.transport.run((
@@ -285,17 +349,6 @@ class AgentOrchestratorV12RoleExecutor:
             raise RuntimeError("AO delegated workspace base commit mismatch")
         return _Session(session_id, workspace, kind)
 
-    def _send(self, session: _Session, prompt: str, request: NativeStepRequest) -> float:
-        typed = self.transport.run(
-            ("tmux", "send-keys", "-t", session.session_id, "-l", prompt),
-            timeout_seconds=self._timeout(request, cap=10),
-        )
-        entered = self.transport.run(
-            ("tmux", "send-keys", "-t", session.session_id, "Enter"),
-            timeout_seconds=self._timeout(request, cap=10),
-        )
-        return typed.duration_ms + entered.duration_ms
-
     def _capture(self, session: _Session, request: NativeStepRequest) -> tuple[str, float]:
         result = self.transport.run(
             ("tmux", "capture-pane", "-pt", session.session_id, "-S", "-1000"),
@@ -308,19 +361,24 @@ class AgentOrchestratorV12RoleExecutor:
         while self._remaining(request) > 0:
             capture, duration = self._capture(session, request)
             waited_ms += duration
-            # The submitted prompt is visible in the TUI, so the completion
-            # marker must occur a second time in the model's response.
-            if capture.count(sentinel) >= 2:
+            if self._stage_occurrences(capture, sentinel) >= 2:
                 return capture, waited_ms
             time.sleep(min(0.5, self._remaining(request)))
         raise subprocess.TimeoutExpired("ao", 0)
+
+    @staticmethod
+    def _stage_occurrences(capture: str, sentinel: str) -> int:
+        return capture.count(sentinel)
 
     @staticmethod
     def _verify_capture(
         request: NativeStepRequest, session: _Session, capture: str, sentinel: str,
     ) -> None:
         expected_model = "gpt-5.4" if request.role == "planner_requirements_lead" else "grok 4.5"
-        if capture.count(sentinel) < 2 or expected_model.lower() not in capture.lower():
+        if (
+            AgentOrchestratorV12RoleExecutor._stage_occurrences(capture, sentinel) < 2
+            or expected_model.lower() not in capture.lower()
+        ):
             raise RuntimeError("AO model identity or completion sentinel was not observed")
         if "Do you trust the contents" in capture:
             raise RuntimeError("AO trust prompt blocked autonomous execution")
@@ -340,7 +398,24 @@ class AgentOrchestratorV12RoleExecutor:
         if request.step == "decomposition":
             rules += " Return JSON with handoff_payload containing requirements, implementation_plan, acceptance_criteria."
         if request.step == "implementation":
-            rules += " State the supplied handoff and AgentsKit SHA-256 digests verbatim."
+            rules += (
+                " State the supplied handoff and AgentsKit SHA-256 digests verbatim. "
+                "Commit all product changes before the sentinel and leave the worktree clean."
+            )
+        if request.step == "documentation":
+            rules += " Commit all documentation changes before the sentinel and leave the worktree clean."
+        if request.step == "review":
+            rules += (
+                " Return JSON with completion_proof containing verified_gates and "
+                "product_quality_score. The only allowed gates are: "
+                + ", ".join(sorted(PRE_MERGE_QUALITY_GATES)) + "."
+            )
+        if request.step == "merge":
+            rules += (
+                " Return JSON with completion_proof containing verified_gates, "
+                "product_quality_score, and the exact 40-character merge_commit. The only "
+                "allowed gates are: " + ", ".join(sorted(REQUIRED_QUALITY_GATES)) + "."
+            )
         return "\n\n".join((rules, "TASK:\n" + task, "HANDOFF:\n" + handoff, "AGENTSKIT:\n" + factor)), sentinel
 
     @classmethod
@@ -355,6 +430,11 @@ class AgentOrchestratorV12RoleExecutor:
         }
         if request.step == "decomposition":
             metadata["handoff_payload"] = cls._extract_json(capture, "handoff_payload")["handoff_payload"]
+        if request.step in {"review", "merge"}:
+            proof = cls._extract_json(capture, "completion_proof").get("completion_proof")
+            if not isinstance(proof, Mapping):
+                raise RuntimeError("AO stage output omitted completion proof")
+            metadata["completion_proof"] = dict(proof)
         if request.handoff_path:
             digest = hashlib.sha256(request.handoff_path.read_bytes()).hexdigest()
             if digest not in capture:

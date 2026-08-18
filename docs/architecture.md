@@ -69,13 +69,16 @@ input/output/cached/reasoning token and cost breakdown. Technical-pilot records
 therefore mark this field unavailable; official collection fails closed until
 the concrete executor can observe complete token/cost accounting.
 
-The Agent Orchestrator implementation keeps one native orchestrator session
-for analytical stages and one native worker session for implementation stages.
-Each AO session owns its ADE-managed worktree, whose initial commit is checked
-against the controller-frozen worktree before use. Stable per-stage sentinels
-and a semantic stage cache prevent duplicate prompts across bounded retries.
-The controller records only redacted capture hashes and normalized evidence;
-all AO sessions and worktrees receive bounded terminal cleanup retries.
+The Agent Orchestrator implementation creates one native, isolated session per
+stage: Codex orchestrator sessions for analytical work and Grok worker sessions
+for implementation work. Each AO-managed branch is pinned to the preceding
+controller-frozen product commit before spawn. Mutating stages must commit and
+leave a clean worktree; the controller then cherry-picks that exact commit into
+the measured product worktree so later stages evaluate the produced artifact.
+Stable stage sentinels and a semantic completion cache prevent duplicate
+completed work across bounded retries. Session creation and cleanup are
+orchestration overhead, while the spawn-bound model turn is effective work.
+Raw output is not published, and every stage receives terminal cleanup.
 
 Checkpoints are not permission to resume a measurement after process failure.
 They support bounded retries during one process and idempotent cleanup after a
