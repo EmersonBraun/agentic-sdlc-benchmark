@@ -83,3 +83,9 @@ frozen run worktree. AgentsKit ON must materialize its public component context
 inside that same worktree; OFF must prove that no such context or event exists.
 Hashes alone are public evidence, but the receiving role must acknowledge the
 exact handoff/context digest before its step can complete.
+
+AgentsKit context is admissible only with per-component native execution
+evidence bound to the run worktree. OFF conditions reject both factor files and
+AgentsKit ledger events. Instrumentation is deleted before merge, and the
+independent evaluator identity is enforced in the runner rather than delegated
+to ADE configuration.

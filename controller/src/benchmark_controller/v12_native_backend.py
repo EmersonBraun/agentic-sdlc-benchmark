@@ -9,11 +9,13 @@ from typing import Any, Mapping, Protocol
 from .condition_runner import StepContext, StepResult
 
 
-PLANNER_STEPS = {"requirements", "planning", "decomposition", "review", "documentation", "merge"}
+PLANNER_STEPS = {"requirements", "planning", "decomposition", "documentation", "merge"}
 EXECUTOR_STEPS = {"implementation", "local-testing", "pull-request", "ci-qa"}
+EVALUATOR_STEPS = {"review"}
 ROLE_BINDINGS = {
     "planner_requirements_lead": ("codex-cli", "gpt-5.4"),
     "executor_fixer": ("grok-cli", "grok-4.5"),
+    "independent_evaluator": ("codex", "gpt-5.4-mini"),
 }
 
 
@@ -117,6 +119,8 @@ class V12NativeStageBackend:
             return "planner_requirements_lead"
         if step in EXECUTOR_STEPS:
             return "executor_fixer"
+        if step in EVALUATOR_STEPS:
+            return "independent_evaluator"
         raise ValueError(f"unsupported v1.2 SDLC step: {step}")
 
     @staticmethod

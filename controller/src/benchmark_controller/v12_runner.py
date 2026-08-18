@@ -6,14 +6,17 @@ from dataclasses import replace
 import hashlib
 import json
 from pathlib import Path
+import shutil
 import tempfile
 from typing import Any, Callable, Mapping
 
 from .condition_runner import (
     ComposedConditionRunner,
+    CompletionVerifier,
     ConditionStepBackend,
     StepContext,
     StepResult,
+    WorktreeProvider,
 )
 from .matrix import MatrixAssignment
 
@@ -21,6 +24,9 @@ HANDOFF_RELATIVE = Path(".benchmark/handoffs/codex-to-grok.json")
 AGENTSKIT_CONTEXT_RELATIVE = Path(".benchmark/agentskit/context.json")
 HANDOFF_KEYS = {"requirements", "implementation_plan", "acceptance_criteria"}
 PUBLIC_AGENTSKIT_COMPONENTS = {"doc-bridge", "playbook", "code-review"}
+AGENTSKIT_EVIDENCE_KEYS = {
+    "source_commit", "command_sha256", "output_sha256", "exit_code", "workspace",
+}
 
 
 def _sha(value: bytes) -> str:
@@ -43,6 +49,20 @@ class V12NativeConditionRunner(ComposedConditionRunner):
     state_schema_version = "condition-runner-state-v1.2"
     runner_tool = "condition-runner-v1.2"
     accepts_v12 = True
+
+    def __init__(
+        self,
+        backend: ConditionStepBackend,
+        worktrees: WorktreeProvider,
+        verifier: CompletionVerifier,
+        **kwargs: Any,
+    ) -> None:
+        if (
+            getattr(verifier, "provider", None),
+            getattr(verifier, "model", None),
+        ) != ("codex", "gpt-5.4-mini"):
+            raise ValueError("v1.2 requires the frozen independent evaluator")
+        super().__init__(backend, worktrees, verifier, **kwargs)
 
     def _factors(self, assignment: MatrixAssignment) -> dict[str, Any]:
         if assignment.harness is not None:
@@ -93,7 +113,10 @@ class V12HandoffBackend:
         else:
             handoff_digest = None
 
+        ledger_before = context.bundle.ledger.path.read_text() if context.bundle.ledger.path.exists() else ""
         result = self.delegate.execute_step(enriched)
+        if context.assignment.agentskit == "off" and self._agentskit_events_added(context, ledger_before):
+            return StepResult("invalid-measurement", reason="agentskit-off-ledger-contamination")
         if result.status != "completed":
             return result
         metadata = dict(result.metadata or {})
@@ -112,6 +135,11 @@ class V12HandoffBackend:
         if context.assignment.agentskit == "on" and context.step.name in {"decomposition", "implementation"}:
             if metadata.get("agentskit_context_sha256_observed") != factor_digest:
                 return StepResult("invalid-measurement", reason="agentskit-context-acknowledgement-mismatch")
+            if set(metadata.get("agentskit_components_observed", [])) != PUBLIC_AGENTSKIT_COMPONENTS:
+                return StepResult("invalid-measurement", reason="agentskit-component-acknowledgement-mismatch")
+
+        if context.step.name == "merge":
+            shutil.rmtree(context.worktree / ".benchmark", ignore_errors=True)
 
         return StepResult.completed(
             artifacts=result.artifacts,
@@ -149,6 +177,7 @@ class V12HandoffBackend:
 
     @staticmethod
     def _valid_factor(context: StepContext, payload: Mapping[str, Any]) -> bool:
+        executions = payload.get("executions")
         return all((
             payload.get("condition_id") == context.assignment.condition_id,
             payload.get("task_id") == context.assignment.task_id,
@@ -156,7 +185,41 @@ class V12HandoffBackend:
             payload.get("agentskit_os_used") is False,
             set(payload.get("components", [])) == PUBLIC_AGENTSKIT_COMPONENTS,
             isinstance(payload.get("guidance"), str) and bool(payload["guidance"].strip()),
+            isinstance(executions, Mapping),
+            set(executions or {}) == PUBLIC_AGENTSKIT_COMPONENTS,
+            all(
+                isinstance(record, Mapping)
+                and set(record) == AGENTSKIT_EVIDENCE_KEYS
+                and isinstance(record.get("source_commit"), str)
+                and len(record["source_commit"]) == 40
+                and all(character in "0123456789abcdef" for character in record["source_commit"])
+                and isinstance(record.get("command_sha256"), str)
+                and len(record["command_sha256"]) == 64
+                and all(character in "0123456789abcdef" for character in record["command_sha256"])
+                and isinstance(record.get("output_sha256"), str)
+                and len(record["output_sha256"]) == 64
+                and all(character in "0123456789abcdef" for character in record["output_sha256"])
+                and record.get("exit_code") == 0
+                and record.get("workspace") == str(context.worktree.resolve())
+                for record in (executions or {}).values()
+            ),
         ))
+
+    @staticmethod
+    def _agentskit_events_added(context: StepContext, before: str) -> bool:
+        current = (
+            context.bundle.ledger.path.read_text()
+            if context.bundle.ledger.path.exists()
+            else ""
+        )
+        suffix = current[len(before):] if current.startswith(before) else current
+        for line in suffix.splitlines():
+            event = json.loads(line)
+            if "agentskit" in str(event.get("tool", "")).lower():
+                return True
+            if str(event.get("event_type", "")).startswith("agentskit."):
+                return True
+        return False
 
     @staticmethod
     def _write_handoff(context: StepContext, path: Path, payload: Any) -> str:

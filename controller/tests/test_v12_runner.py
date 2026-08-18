@@ -69,11 +69,13 @@ class Delegate:
                     "acceptance_criteria": ["healthy dependency returns ready"],
                 },
                 "agentskit_context_sha256_observed": factor_digest,
+                "agentskit_components_observed": ["doc-bridge", "playbook", "code-review"],
             })
         if context.step.name == "implementation":
             return StepResult.completed(metadata={
                 "handoff_sha256_observed": hashlib.sha256(context.handoff_path.read_bytes()).hexdigest(),
                 "agentskit_context_sha256_observed": factor_digest,
+                "agentskit_components_observed": ["doc-bridge", "playbook", "code-review"],
             })
         return StepResult.completed()
 
@@ -110,6 +112,16 @@ class V12RunnerTests(unittest.TestCase):
                     "agentskit_os_used": False,
                     "components": ["doc-bridge", "playbook", "code-review"],
                     "guidance": "Use grounded docs, playbook gates, and public code review.",
+                    "executions": {
+                        name: {
+                            "source_commit": "a" * 40,
+                            "command_sha256": "b" * 64,
+                            "output_sha256": "c" * 64,
+                            "exit_code": 0,
+                            "workspace": str(context.worktree.resolve()),
+                        }
+                        for name in ("doc-bridge", "playbook", "code-review")
+                    },
                 },
             )
             base = dict(
@@ -169,3 +181,66 @@ class V12RunnerTests(unittest.TestCase):
             ))
             self.assertEqual(result.status, "invalid-measurement")
             self.assertEqual(delegate.contexts, [])
+
+    def test_rejects_self_declared_agentskit_without_execution_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            worktree = root / "worktree"
+            worktree.mkdir()
+            current_bundle = bundle(root)
+            backend = V12HandoffBackend(Delegate(), agentskit_context_factory=lambda context: {
+                "condition_id": context.assignment.condition_id,
+                "task_id": context.assignment.task_id,
+                "public_only": True,
+                "agentskit_os_used": False,
+                "components": ["doc-bridge", "playbook", "code-review"],
+                "guidance": "unverified",
+            })
+            context = StepContext(
+                assignment=assignment(), bundle=current_bundle,
+                step=ConditionStep("requirements", "requirements", "planner"), attempt=1,
+                worktree=worktree, branch="benchmark/run", idempotency_key="requirements-1",
+                deadline_epoch_ms=None, accounting_tool="test-accounting",
+            )
+            with self.assertRaisesRegex(RuntimeError, "public-only"):
+                backend.execute_step(context)
+
+    def test_off_condition_rejects_delegate_agentskit_ledger_event(self) -> None:
+        class ContaminatedDelegate(Delegate):
+            def execute_step(self, context):
+                context.bundle.ledger.record(
+                    stage_id=context.step.stage_id, actor="controller",
+                    event_type="agentskit.component.executed",
+                    time_category="instrumentation_overhead", duration_ms=0,
+                    status="completed", payload={}, tool="agentskit-public-v1.2",
+                )
+                return StepResult.completed()
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            worktree = root / "worktree"
+            worktree.mkdir()
+            context = StepContext(
+                assignment=assignment("off"), bundle=bundle(root, "off"),
+                step=ConditionStep("requirements", "requirements", "planner"), attempt=1,
+                worktree=worktree, branch="benchmark/run", idempotency_key="requirements-1",
+                deadline_epoch_ms=None, accounting_tool="test-accounting",
+            )
+            result = V12HandoffBackend(ContaminatedDelegate()).execute_step(context)
+            self.assertEqual(result.status, "invalid-measurement")
+
+    def test_merge_removes_in_worktree_instrumentation(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            worktree = root / "worktree"
+            evidence = worktree / HANDOFF_RELATIVE
+            evidence.parent.mkdir(parents=True)
+            evidence.write_text("evidence")
+            context = StepContext(
+                assignment=assignment("off"), bundle=bundle(root, "off"),
+                step=ConditionStep("merge", "merge", "controller"), attempt=1,
+                worktree=worktree, branch="benchmark/run", idempotency_key="merge-1",
+                deadline_epoch_ms=None, accounting_tool="test-accounting",
+            )
+            self.assertEqual(V12HandoffBackend(Delegate()).execute_step(context).status, "completed")
+            self.assertFalse((worktree / ".benchmark").exists())

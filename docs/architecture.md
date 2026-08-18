@@ -46,6 +46,13 @@ complete. AgentsKit ON similarly materializes public-only context in the same
 worktree and requires planner/executor acknowledgement. OFF rejects any such
 context as treatment contamination.
 
+ON evidence is not self-declared: every public component records its pinned
+source, command and output digests, exit status, and exact run workspace. OFF
+also rejects AgentsKit ledger events emitted by the ADE delegate. These
+instrumentation files are removed before merge so they cannot change the
+product diff. Review and completion verification are frozen to the independent
+Codex `gpt-5.4-mini` evaluator.
+
 Checkpoints are not permission to resume a measurement after process failure.
 They support bounded retries during one process and idempotent cleanup after a
 terminal state. Interrupted measurements remain invalid and are replaced by a

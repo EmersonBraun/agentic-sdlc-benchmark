@@ -65,6 +65,11 @@ class V12NativeBackendTests(unittest.TestCase):
             self.assertEqual(executor.requests[-1].model, "gpt-5.4")
             self.assertEqual(backend.execute_step(self.context(Path(directory) / "second", "implementation")).status, "completed")
             self.assertEqual(executor.requests[-1].model, "grok-4.5")
+            self.assertEqual(backend.execute_step(self.context(Path(directory) / "third", "review")).status, "completed")
+            self.assertEqual(
+                (executor.requests[-1].role, executor.requests[-1].provider, executor.requests[-1].model),
+                ("independent_evaluator", "codex", "gpt-5.4-mini"),
+            )
 
     def test_rejects_native_workspace_escape_and_still_records_accounting(self):
         with tempfile.TemporaryDirectory() as directory:
