@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "controller" / "src"))
 
 from benchmark_controller.compozy_lifecycle import normalize_compozy_events  # noqa: E402
+from benchmark_controller.agentskit import AgentsKitLedgerBridge  # noqa: E402
+from benchmark_controller.agentskit_components import AgentsKitComponentActionBridge  # noqa: E402
 from benchmark_controller.external import LifecycleBridge  # noqa: E402
 from benchmark_controller.ledger import Ledger  # noqa: E402
 from benchmark_controller.pilot_executor import ConditionedPilotExecutor  # noqa: E402
@@ -93,6 +95,7 @@ def main() -> int:
     parser.add_argument("--tasks-root", type=Path, required=True)
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--task", type=Path, required=True)
+    parser.add_argument("--agentskit", choices=("off", "on"), default="off")
     parser.add_argument("--confirm", action="store_true")
     args = parser.parse_args()
     if not args.confirm:
@@ -104,7 +107,7 @@ def main() -> int:
     expected = {
         "gate_mode": "technical-pilot",
         "analysis_eligible": False,
-        "condition_id": "compozy__reference__off",
+        "condition_id": f"compozy__reference__{args.agentskit}",
         "terminal_state": "NOT_APPLICABLE",
     }
     if any(manifest.get(key) != value for key, value in expected.items()):
@@ -118,7 +121,7 @@ def main() -> int:
         run_id=str(manifest["run_id"]),
         ade="compozy",
         harness="reference",
-        agentskit="off",
+        agentskit=args.agentskit,
     )
     ledger = Ledger(ledger_path, run_id=str(manifest["run_id"]), task_id=str(manifest["task_id"]))
     bundle = PreparedRunBundle(args.run_dir, manifest, ledger, condition)
@@ -135,10 +138,17 @@ def main() -> int:
     )
 
     task_text = args.task.read_text(encoding="utf-8")
+    agentskit_context = ""
+    if args.agentskit == "on":
+        agentskit_context = (
+            "\n\nAgentsKit public-component guidance (bounded and preregistered): "
+            "apply the requirements playbook; use Doc Bridge-style source grounding; "
+            "delegate ambiguity analysis to the requirements specialist; and perform a final review."
+        )
     prompt = (
         "Technical pipeline validation only. Do not edit, create, or delete files and do not run tools. "
         "Read the public task below, identify ambiguity IDs A1, A2, and A3, and end with the exact token "
-        "TECHNICAL_PILOT_READY.\n\n" + task_text
+        "TECHNICAL_PILOT_READY.\n\n" + task_text + agentskit_context
     )
     attestation: dict[str, Any] = {
         "schema_version": "compozy-technical-pilot-v1.0",
@@ -149,6 +159,13 @@ def main() -> int:
         "prompt_sha256": _sha256(prompt),
         "content_persisted": None,
         "analysis_eligible": False,
+        "agentskit": {
+            "enabled": args.agentskit == "on",
+            "public_only": True,
+            "agentskit_os_used": False,
+            "context_sha256": _sha256(agentskit_context) if agentskit_context else None,
+            "component_actions": 0,
+        },
         "commands": {},
         "cleanup": {},
     }
@@ -157,6 +174,17 @@ def main() -> int:
     technical_acceptance = False
     technical_pass = False
     failure: dict[str, Any] | None = None
+    if args.agentskit == "on":
+        action_bridge = AgentsKitComponentActionBridge(AgentsKitLedgerBridge(ledger, enabled=True))
+        actions = (
+            {"component": "doc-bridge", "operation": "lookup", "phase": "start", "stage_id": "requirements"},
+            {"component": "doc-bridge", "operation": "lookup", "phase": "complete", "durationMs": 0, "stage_id": "requirements"},
+            {"component": "playbook", "operation": "step", "phase": "complete", "step": 1, "durationMs": 0, "stage_id": "requirements"},
+            {"component": "specialized-agents", "operation": "delegate", "phase": "start", "name": "requirements", "depth": 0, "stage_id": "requirements"},
+        )
+        for action in actions:
+            action_bridge.record(action)
+        attestation["agentskit"]["component_actions"] = len(actions)
     with tempfile.TemporaryDirectory(prefix="agentic-sdlc-compozy-technical-") as directory:
         fixture = Path(directory) / "greenfield"
         shutil.copytree(
@@ -232,6 +260,16 @@ def main() -> int:
             attestation["sentinel_observed"] = sentinel_observed
             attestation["fixture_unchanged"] = fixture_unchanged
             technical_acceptance = code == 0 and bool(events) and bool(normalized) and sentinel_observed and fixture_unchanged
+            if args.agentskit == "on":
+                action_bridge.record({
+                    "component": "specialized-agents", "operation": "delegate", "phase": "complete",
+                    "name": "requirements", "depth": 0, "durationMs": duration, "stage_id": "requirements",
+                })
+                action_bridge.record({
+                    "component": "code-review", "operation": "review", "phase": "complete",
+                    "durationMs": 0, "stage_id": "requirements",
+                })
+                attestation["agentskit"]["component_actions"] += 2
             if not technical_acceptance:
                 raise RuntimeError("technical_acceptance_failed")
         except (RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:

@@ -3,5 +3,6 @@
   "ade_compozy": "0.3.0-beta.16",
   "harness_reference": "v1.0",
   "agentskit_off_control": "v1.0",
+  "agentskit_on_public": "0.3.0-source",
   "controller_gate": "technical-pilot-v1.0"
 }

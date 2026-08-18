@@ -1,0 +1,62 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "component_actions": 6,
+    "context_sha256": "11b63b604111ff79399e1ba6a5e645d2f4d878a627a0c7b78f1a470948207f95",
+    "enabled": true,
+    "public_only": true
+  },
+  "analysis_eligible": false,
+  "cleanup": {
+    "fixture_destroyed": true,
+    "session_residual": false,
+    "session_stop": {
+      "output_sha256": "d60a47348d689659bb759760647714d74a0b855dd5b40a21e559fbe4e2e46a04",
+      "returncode": 0
+    },
+    "verified": true,
+    "workspace_remove": {
+      "output_sha256": "30a2eb1e486fe4b4f78860373807a5bc211d98be226f86d78c7482310ccab8d3",
+      "returncode": 65
+    },
+    "workspace_residual": false
+  },
+  "commands": {
+    "session_events": {
+      "output_sha256": "aaaa2c316a58d8b69d3a127027c449ba5ca737828a9a2f3be593d55554615aed",
+      "returncode": 0
+    },
+    "session_new": {
+      "output_sha256": "f6a8927a58fc275c176ba60ce637e2a5769540d342ee69336274a878a4b73e3a",
+      "returncode": 0
+    },
+    "session_prompt": {
+      "output_sha256": "8645e136b07fb018e5ec2faffe35d2c12febb4ff09580b5e97edc84e0f12726d",
+      "returncode": 0
+    }
+  },
+  "condition_id": "compozy__reference__on",
+  "content_persisted": false,
+  "event_count": 46,
+  "event_types": {
+    "agent_message": 36,
+    "done": 1,
+    "hook.dispatch.complete": 1,
+    "hook.dispatch.start": 1,
+    "system": 3,
+    "thought": 2,
+    "usage": 1,
+    "user_message": 1
+  },
+  "fixture_unchanged": true,
+  "model": "gpt-5.4",
+  "normalized_lifecycle_count": 3,
+  "prompt_sha256": "89224f9e85b543f6d58ecee17de92e31a14e63b6c4c2c6586f2aad1bd7b88058",
+  "provider": "codex",
+  "run_id": "run_technical-compozy-reference-on-r1",
+  "schema_version": "compozy-technical-pilot-v1.0",
+  "sentinel_observed": true,
+  "session_id_sha256": "ded167ba4a9f8996b80139a714f4216ff54c7f88d67b2c58b7a1867609f9fefb",
+  "status": "technical-pass",
+  "workspace_id_sha256": "07d49d873cfe687e15b0407dc63def617bb05ac078d35442e9c31d09be83b4e0"
+}

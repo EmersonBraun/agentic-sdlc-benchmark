@@ -1,0 +1,74 @@
+{
+  "by_condition": [],
+  "excluded_runs": [
+    {
+      "path": "runs/run_technical-compozy-reference-off-r1/manifest.json",
+      "reason": "technical_pilot"
+    },
+    {
+      "path": "runs/run_technical-compozy-reference-off-r2/manifest.json",
+      "reason": "technical_pilot"
+    },
+    {
+      "path": "runs/run_technical-compozy-reference-off-r3/manifest.json",
+      "reason": "technical_pilot"
+    },
+    {
+      "path": "runs/run_technical-compozy-reference-off-r4/manifest.json",
+      "reason": "technical_pilot"
+    },
+    {
+      "path": "runs/run_technical-compozy-reference-off-r5/manifest.json",
+      "reason": "technical_pilot"
+    },
+    {
+      "path": "runs/run_technical-compozy-reference-on-r1/manifest.json",
+      "reason": "technical_pilot"
+    }
+  ],
+  "generated_at": "2026-08-17T21:39:17.663452-03:00",
+  "invalid_runs": [],
+  "metrics": {
+    "effective_work_hours": {
+      "bootstrap_ci_95": null,
+      "iqr": null,
+      "maximum": null,
+      "median": null,
+      "minimum": null,
+      "n": 0
+    },
+    "quality_score": {
+      "bootstrap_ci_95": null,
+      "iqr": null,
+      "maximum": null,
+      "median": null,
+      "minimum": null,
+      "n": 0
+    },
+    "speedup_vs_baseline": {
+      "bootstrap_ci_95": null,
+      "iqr": null,
+      "maximum": null,
+      "median": null,
+      "minimum": null,
+      "n": 0
+    }
+  },
+  "protocol_version": "v1.1",
+  "records": [],
+  "schema_version": "analysis-results-v1.1",
+  "source": {
+    "baseline_count": 1,
+    "bootstrap_seed": 20260817,
+    "runs_root": "runs",
+    "tasks_root": "tasks/public"
+  },
+  "status": "no-results",
+  "summary": {
+    "evaluated_runs": 0,
+    "excluded_runs": 6,
+    "invalid_runs": 0,
+    "quality_pass_count": 0,
+    "runs": 0
+  }
+}
