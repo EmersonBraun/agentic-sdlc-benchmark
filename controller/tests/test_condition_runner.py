@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from dataclasses import dataclass
 from pathlib import Path
+from unittest.mock import patch
 
 from benchmark_controller.condition_runner import (
     CONDITION_STEPS,
@@ -374,6 +375,32 @@ class ComposedConditionRunnerTests(unittest.TestCase):
 
 
 class GitWorktreeProviderTests(unittest.TestCase):
+    def test_rolls_back_new_worktree_when_identity_verification_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository = root / "repository"
+            repository.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=repository, check=True)
+            subprocess.run(["git", "config", "user.email", "benchmark@example.invalid"], cwd=repository, check=True)
+            subprocess.run(["git", "config", "user.name", "Benchmark"], cwd=repository, check=True)
+            (repository / "README.md").write_text("fixture\n")
+            subprocess.run(["git", "add", "README.md"], cwd=repository, check=True)
+            subprocess.run(["git", "commit", "-qm", "fixture"], cwd=repository, check=True)
+            commit = subprocess.run(
+                ["git", "rev-parse", "HEAD"], cwd=repository, check=True,
+                capture_output=True, text=True,
+            ).stdout.strip()
+            provider = GitWorktreeProvider(repository, root / "worktrees")
+            with patch.object(provider, "_verify_worktree", side_effect=RuntimeError("mismatch")):
+                with self.assertRaisesRegex(RuntimeError, "mismatch"):
+                    provider.acquire(run_id="run_rollback", base_commit=commit)
+            self.assertFalse((root / "worktrees/run_rollback").exists())
+            branches = subprocess.run(
+                ["git", "branch", "--list", "benchmark/run_rollback"], cwd=repository,
+                check=True, capture_output=True, text=True,
+            ).stdout
+            self.assertEqual(branches.strip(), "")
+
     def test_creates_and_removes_an_isolated_branch(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -394,6 +421,26 @@ class GitWorktreeProviderTests(unittest.TestCase):
             self.assertEqual(lease.branch, "benchmark/run_fixture")
             provider.release(lease)
             self.assertFalse(lease.path.exists())
+
+    def test_rejects_a_dirty_persisted_worktree(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository = root / "repository"
+            repository.mkdir()
+            subprocess.run(["git", "init", "-q"], cwd=repository, check=True)
+            subprocess.run(["git", "config", "user.email", "benchmark@example.invalid"], cwd=repository, check=True)
+            subprocess.run(["git", "config", "user.name", "Benchmark"], cwd=repository, check=True)
+            (repository / "README.md").write_text("fixture\n")
+            subprocess.run(["git", "add", "README.md"], cwd=repository, check=True)
+            subprocess.run(["git", "commit", "-qm", "fixture"], cwd=repository, check=True)
+            commit = subprocess.run(
+                ["git", "rev-parse", "HEAD"], cwd=repository, check=True, capture_output=True, text=True
+            ).stdout.strip()
+            provider = GitWorktreeProvider(repository, root / "worktrees")
+            lease = provider.acquire(run_id="run_fixture", base_commit=commit)
+            (lease.path / "dirty.txt").write_text("dirty\n")
+            with self.assertRaisesRegex(RuntimeError, "cleanliness"):
+                provider.acquire(run_id="run_fixture", base_commit=commit)
 
 
 if __name__ == "__main__":

@@ -36,6 +36,33 @@ Failed worktrees remain available for audit. Successful worktrees are removed
 only after an independent verifier confirms every protocol quality gate;
 commits and public artifacts remain in the run bundle and Git history.
 
+### Protocol v1.2 native runner
+
+v1.2 reuses the controller-owned state machine but has a separate state schema
+and no harness factor. A clean worktree is verified at the frozen commit before
+the ADE starts. Codex planning produces an integrity-bound handoff in the
+run-bundle control plane; Grok receives its path and must acknowledge the exact
+frozen digest before implementation can complete. AgentsKit ON similarly
+materializes public-only context in that non-versionable control plane, runs
+each component with the product worktree as its workspace, and requires
+planner/executor acknowledgement. OFF rejects any such context as treatment
+contamination.
+
+ON evidence passes two distinct seams: the runtime factory records pinned
+source, command and output digests, exit status, and exact run workspace, then
+a separate controller verifier must validate those observations before the
+context is admissible. The concrete native verifier remains a preflight gate;
+the generic runner alone does not claim component execution. OFF
+also rejects AgentsKit ledger events emitted by the ADE delegate. These
+instrumentation files never enter the product tree, so they cannot change the
+product diff. Review and completion verification are frozen to the independent
+Codex `gpt-5.4-mini` evaluator.
+
+Checkpoints are not permission to resume a measurement after process failure.
+They support bounded retries during one process and idempotent cleanup after a
+terminal state. Interrupted measurements remain invalid and are replaced by a
+new randomized run ID.
+
 ## Harnesses
 
 1. Reference Harness — neutral benchmark control.
