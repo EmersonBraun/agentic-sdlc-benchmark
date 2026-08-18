@@ -38,6 +38,13 @@ def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
+def safe_run(command: tuple[str, ...]) -> subprocess.CompletedProcess[str]:
+    try:
+        return subprocess.run(command, capture_output=True, text=True, check=False)
+    except OSError as exc:
+        return subprocess.CompletedProcess(command, 125, "", f"{type(exc).__name__}: {exc}")
+
+
 def tree_sha256(root: Path) -> str:
     digest = hashlib.sha256()
     for path in sorted(root.rglob("*")):
@@ -123,15 +130,11 @@ def execute_probe(
     except OSError as exc:
         operational_error = f"{type(exc).__name__}: {exc}"
     finally:
-        subprocess.run(("docker", "rm", "--force", name), capture_output=True, text=True, check=False)
-        subprocess.run(("docker", "image", "rm", "--force", tag), capture_output=True, text=True, check=False)
+        safe_run(("docker", "rm", "--force", name))
+        safe_run(("docker", "image", "rm", "--force", tag))
     duration_ms = (time.monotonic_ns() - started) / 1_000_000
-    container_inspect = subprocess.run(
-        ("docker", "container", "inspect", name), capture_output=True, text=True, check=False,
-    )
-    image_inspect = subprocess.run(
-        ("docker", "image", "inspect", tag), capture_output=True, text=True, check=False,
-    )
+    container_inspect = safe_run(("docker", "container", "inspect", name))
+    image_inspect = safe_run(("docker", "image", "inspect", tag))
     container_removed = container_inspect.returncode != 0 and "No such" in container_inspect.stderr
     image_removed = image_inspect.returncode != 0 and "No such" in image_inspect.stderr
     return build, runtime, build_command, run_command, duration_ms, image_id_sha256, container_removed, image_removed, operational_error

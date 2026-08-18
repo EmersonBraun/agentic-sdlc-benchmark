@@ -51,7 +51,7 @@ class RuntimeAdapterRegistryTests(unittest.TestCase):
                 if argv[:3] == ("docker", "container", "inspect"):
                     return CompletedProcess(argv, 1, "", "Error: No such object")
                 if argv[:3] == ("docker", "image", "inspect"):
-                    if RUNTIME_IMAGE in argv:
+                    if RUNTIME_IMAGE in argv or "sha256:test" in argv:
                         return CompletedProcess(argv, 0, "sha256:test", "")
                     return CompletedProcess(argv, 1, "", "Error: No such image")
                 if argv[:2] == ("docker", "start"):

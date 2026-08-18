@@ -119,7 +119,7 @@ class OpenHandsSDKAdapter:
             if access != "network":
                 run += ["--network", "none"]
             run += ["--cap-drop=ALL", "--cap-add=DAC_OVERRIDE", "--security-opt=no-new-privileges", "--pids-limit", "256"]
-            run += ["--tmpfs", "/tmp:rw,noexec,nosuid,size=64m", RUNTIME_IMAGE, "python", "/bridge.py", json.dumps(normalized)]
+            run += ["--tmpfs", "/tmp:rw,noexec,nosuid,size=64m", self.runtime_image_id, "python", "/bridge.py", json.dumps(normalized)]
             try:
                 created = subprocess.run(run, capture_output=True, text=True, check=False)
                 if created.returncode != 0:
@@ -129,12 +129,12 @@ class OpenHandsSDKAdapter:
                     raise RuntimeError("failed to import OpenHands workspace")
                 if access == "read":
                     committed = subprocess.run(("docker", "commit", container, readonly_image), capture_output=True, text=True, check=False)
-                    subprocess.run(("docker", "rm", "--force", container), capture_output=True, text=True, check=False)
+                    _safe_run(("docker", "rm", "--force", container))
                     if committed.returncode != 0:
                         raise RuntimeError("failed to freeze read-only OpenHands workspace")
                     readonly_run = list(run)
-                    readonly_run.insert(readonly_run.index(RUNTIME_IMAGE), "--read-only")
-                    readonly_run[readonly_run.index(RUNTIME_IMAGE)] = readonly_image
+                    readonly_run.insert(readonly_run.index(self.runtime_image_id), "--read-only")
+                    readonly_run[readonly_run.index(self.runtime_image_id)] = readonly_image
                     recreated = subprocess.run(readonly_run, capture_output=True, text=True, check=False)
                     if recreated.returncode != 0:
                         raise RuntimeError("failed to create read-only OpenHands runtime container")
@@ -154,12 +154,13 @@ class OpenHandsSDKAdapter:
                 pending_error = exc
                 result = AdapterCommandResult(normalized, 125, "", type(exc).__name__)
             finally:
-                subprocess.run(("docker", "rm", "--force", container), capture_output=True, text=True, check=False)
-                subprocess.run(("docker", "image", "rm", "--force", readonly_image), capture_output=True, text=True, check=False)
+                _safe_run(("docker", "rm", "--force", container))
+                _safe_run(("docker", "image", "rm", "--force", readonly_image))
                 container_removed = _confirmed_absent(("docker", "container", "inspect", container))
                 if access == "read":
                     readonly_image_removed = _confirmed_absent(("docker", "image", "inspect", readonly_image))
-                runtime_available = subprocess.run(("docker", "image", "inspect", RUNTIME_IMAGE), capture_output=True, text=True, check=False).returncode == 0
+                runtime_check = subprocess.run(("docker", "image", "inspect", self.runtime_image_id, "--format", "{{.Id}}"), capture_output=True, text=True, check=False)
+                runtime_available = runtime_check.returncode == 0 and runtime_check.stdout.strip() == self.runtime_image_id
         duration_ms = (time.monotonic_ns() - started) / 1_000_000
         self.runtime.ledger.record(
             stage_id=stage_id, actor=actor, event_type="adapter.command.executed",
@@ -212,8 +213,15 @@ def _runtime_dockerfile() -> str:
 
 
 def _confirmed_absent(command: tuple[str, ...]) -> bool:
-    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    result = _safe_run(command)
     return result.returncode != 0 and "No such" in result.stderr
+
+
+def _safe_run(command: tuple[str, ...]) -> subprocess.CompletedProcess[str]:
+    try:
+        return subprocess.run(command, capture_output=True, text=True, check=False)
+    except OSError as exc:
+        return subprocess.CompletedProcess(command, 125, "", f"{type(exc).__name__}: {exc}")
 
 
 def _replace_workspace(target: Path, source: Path) -> None:
