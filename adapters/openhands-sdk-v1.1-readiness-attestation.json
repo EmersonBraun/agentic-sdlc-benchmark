@@ -1,17 +1,17 @@
 {
-  "adapter_source_sha256": "33a9fe1e01675ab0d4d9727b686cad318b0914b4413e783d1d2dc75669c395a0",
+  "adapter_source_sha256": "91b8ddc4b79f79969b6d8568a9d967f1cd3089288276b6e76eb2b32316a462e1",
   "analysis_eligible": false,
-  "build_command_sha256": "ba079a41ff69a756b3c78bfaae160834c3f165e2f3cfa4b20281426c42e69e19",
-  "built_image_id_sha256": "8788d58318d9163ceaabefdabcfa2b14aca7467033d0801c0c8f24c24940ce29",
+  "build_command_sha256": "5492c1dab99e4700bd98702df5f6c0d07ceec8a177870aba067754f967e70f90",
+  "built_image_id_sha256": "58643f7eb388600c7f2ff74ee6cc203a04e21fd3ea1206a831a09791f57d9ade",
   "command_bridge_source_sha256": "b57b6f74080146d26734d509277faf3cebfd6bb28607d7a1fb94332a2e753f52",
-  "container_name_sha256": "78047b5e8cb5cbd5e2bcec9c1efb87b7bfb8612dfc7cb639f5ee534aee18b114",
+  "container_name_sha256": "6d93ee8c8979388864f7f10ee7807517f0edd82e1c62e150b371a32257393d78",
   "container_removed": true,
   "fixture_tree_sha256": "7b264674c10546f32590196394b4cbf8bd824da3cdff1619432f1d39160a44df",
   "image": "ghcr.io/astral-sh/uv:python3.12-bookworm-slim@sha256:e5b65587bce7de595f299855d7385fe7fca39b8a74baa261ba1b7147afa78e58",
   "image_removed": true,
-  "image_tag_sha256": "0dcb4bc2c69c407c7f13d8d4d42f219f13347467e0a56d49c8fc67961e9cc896",
+  "image_tag_sha256": "079a7e1a4a967f2bb3a9e4cd7f8fe82e146cfd724edb6e5d4663caf7dda7d32a",
   "ledger_event_count": 4,
-  "ledger_sha256": "e474e7dbda2a281d3acd20cc6a7c2770c9ab2706dfc6d56317bdc4d221bb81bd",
+  "ledger_sha256": "1ae567da67a7acae7770d3959c15e4b80f385f7cebb898217c316c1218a915b5",
   "lock_sha256": "e2c057ea261f465fc60d9910befc0746e617d14b9eb46b39f0c0ccf0fd06dd15",
   "native": {
     "raw_content_in_result": false,
@@ -33,7 +33,7 @@
     "write_stderr_sha256": "9570428b59e64d2a322d115986711ff53ea6c2c6ed9347b75b4227d56142d27c"
   },
   "native_probe_source_sha256": "295ba1b608975d5b3e982c1aef5999c2ab7bd752d7cf2491db74f9595a35335e",
-  "observed_at": "2026-08-18T17:20:27.227040+00:00",
+  "observed_at": "2026-08-18T17:21:52.217159+00:00",
   "operator": "local-primary-operator",
   "operator_probe_command": [
     "/opt/homebrew/opt/python@3.14/bin/python3.14",
@@ -49,7 +49,7 @@
   "raw_output_persisted": false,
   "redaction_scan_passed": true,
   "resolver": "uv",
-  "resolver_output_sha256": "88a4e4d440723134ac16c14ac818b25922ebdcb3e001e82431f9876a3dfd957e",
+  "resolver_output_sha256": "2fbee9ddf20752e3583687ea2340b24e86866166624b204329903ef91b0ba80d",
   "resolver_policy": {
     "dependency_overrides": false,
     "no_deps": false,
@@ -57,7 +57,7 @@
     "require_hashes": true
   },
   "resolver_returncode": 0,
-  "run_command_sha256": "882d8f7cdc45214f65d0593ebfff19d4268ea7a9beb0215c9c4db85d9472b084",
+  "run_command_sha256": "b7f47ed225ebe23c20df0eb4913eccf76b09ab549eb8cbf70031584be931784f",
   "runtime_returncode": 0,
   "schema_version": "openhands-sdk-readiness-attestation-v1.1",
   "status": "passed",

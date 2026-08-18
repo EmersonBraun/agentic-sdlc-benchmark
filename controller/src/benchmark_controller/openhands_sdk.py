@@ -49,7 +49,12 @@ class OpenHandsSDKAdapter:
         self.runtime.prepare()
         with tempfile.TemporaryDirectory(prefix="agentic-sdlc-openhands-runtime-") as directory:
             context = Path(directory)
-            shutil.copytree(self.runtime.workspace, context / "workspace", ignore=shutil.ignore_patterns(*CONTEXT_IGNORED))
+            dependency_manifest = context / "dependency-manifest"
+            dependency_manifest.mkdir()
+            for filename in ("package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml"):
+                source = self.runtime.workspace / filename
+                if source.is_file():
+                    shutil.copy2(source, dependency_manifest / filename)
             shutil.copy2(self._root / "controller/scripts/openhands_command_bridge.py", context / "bridge.py")
             shutil.copy2(self._root / "adapters/openhands-sdk-v1.1.requirements.lock", context / "requirements.lock")
             (context / "Dockerfile").write_text(_runtime_dockerfile(), encoding="utf-8")
@@ -212,7 +217,7 @@ def _runtime_dockerfile() -> str:
         "COPY requirements.lock /requirements.lock",
         "RUN uv pip install --system --require-hashes -r /requirements.lock",
         "RUN npm install --global pnpm@11.21.0", "COPY bridge.py /bridge.py",
-        "COPY workspace /build-workspace",
+        "COPY dependency-manifest /build-workspace",
         "RUN if [ -f /build-workspace/pnpm-lock.yaml ]; then cd /build-workspace && pnpm install --frozen-lockfile && mv node_modules /opt/product-node_modules; fi && rm -rf /build-workspace && mkdir /workspace",
         "WORKDIR /workspace", "",
     ))
