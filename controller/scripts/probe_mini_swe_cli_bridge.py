@@ -172,7 +172,7 @@ def main() -> int:
         parser.error("live execution requires --workspace, --task-file, --ledger, --run-id, and --task-id")
     technical_probe = args.workspace is None
 
-    with tempfile.TemporaryDirectory(prefix="agentic-sdlc-mini-swe-cli-", dir="/private/tmp") as directory:
+    with tempfile.TemporaryDirectory(prefix="agentic-sdlc-mini-swe-cli-") as directory:
         root = Path(directory)
         workspace = (root / "workspace") if technical_probe else args.workspace.resolve()
         if technical_probe:

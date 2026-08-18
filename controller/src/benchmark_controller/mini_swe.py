@@ -143,7 +143,6 @@ class MiniSweAgentAdapter:
                 encoding="utf-8",
                 prefix="agentic-sdlc-mini-swe-task-",
                 suffix=".md",
-                dir="/private/tmp",
                 delete=False,
             ) as stream:
                 stream.write(issue_text)

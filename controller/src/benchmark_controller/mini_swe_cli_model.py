@@ -63,7 +63,7 @@ class GrokCliModel:
             "echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT.\n\n"
             + json.dumps(messages, ensure_ascii=False, separators=(",", ":"))
         )
-        with tempfile.TemporaryDirectory(prefix="agentic-sdlc-grok-model-", dir="/private/tmp") as directory:
+        with tempfile.TemporaryDirectory(prefix="agentic-sdlc-grok-model-") as directory:
             invocation_root = Path(directory)
             prompt_path = invocation_root / "prompt.txt"
             prompt_path.write_text(prompt, encoding="utf-8")

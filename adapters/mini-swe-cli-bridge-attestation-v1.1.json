@@ -15,9 +15,9 @@
     "api_credentials_used": false
   },
   "implementation": {
-    "model_bridge_sha256": "b308aa5b085db0f2aa8efcca8f096d405c02dc57dc3a1dad0c01b4f57e133a2a",
-    "runner_sha256": "a4e937e0522d9ea36ea7050487d1fbea55435c1eaaa1fb343135ff5e53af8da7",
-    "adapter_sha256": "b48765398cdff66b2d2d80ca3f2acefa294a5212a1d21995a0870e3e1487310f",
+    "model_bridge_sha256": "0677d90fa8fb950940829f5aa94278af01df35c56158a4d50de3e881a38a0a39",
+    "runner_sha256": "09f0cf2dd9cab13235f8fe74aececedb48c0736dab9f702819af6284ccc2c8ec",
+    "adapter_sha256": "547f67205917a411eec3fb414aa141a3952285aaa2eca3a68b2c8f9787efd45b",
     "ledger_sha256": "f2bd836ca62d56e62e6f5f916f270e341ba5791065124ea45021f2dee4b42261",
     "factory_sha256": "a39825858320847ded9728ff276b1e6c63c96c5769a38e018e782919eb0470f3",
     "live_workspace_mode": "implemented",
@@ -38,7 +38,7 @@
       "submitted": true,
       "artifact_sha256": "2211e7d43455f21bb20ce9a4fa794c68013cd9d627209a6570c081afea3167ed",
       "ledger_event_count": 9,
-      "ledger_sha256": "0246be569cde22fa5d004a917c8641b50ae8fc6c2d8aee1ce5060ce6baf81934"
+      "ledger_sha256": "926bd8cd34ae476afccfcf953acd35c525b8c67b018d96896b3759e3107367cd"
     },
     {
       "product": "umami",
@@ -54,7 +54,7 @@
       "submitted": true,
       "artifact_sha256": "2211e7d43455f21bb20ce9a4fa794c68013cd9d627209a6570c081afea3167ed",
       "ledger_event_count": 9,
-      "ledger_sha256": "9ffa9f82c26cc838ca0715d1945ce332ae56c72a909fbf633fd3b467e0adc030"
+      "ledger_sha256": "b1cd0b1bb28a596fe52d5b1eaed70f9968d61a4fb311df7bc357bdb74d4d92c5"
     }
   ],
   "discovery_evidence": {
