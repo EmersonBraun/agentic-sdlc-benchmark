@@ -29,11 +29,13 @@ private audit store until the release policy permits publication.
 
 ## Current status
 
-The repository contains three immutable technical-pilot bundles for the
-preregistered Compozy × Reference Harness × AgentsKit OFF condition. The first
-two failed and the third passed; all three set `analysis_eligible: false`.
-There are still no official collected observations or performance results, and
-the official 18/18 gate remains unchanged.
+The repository contains five immutable technical-pilot bundles for the
+preregistered Compozy × Reference Harness × AgentsKit OFF condition. Attempts
+recorded integration discoveries as the acceptance criteria were strengthened;
+the fifth passed model execution, lifecycle normalization, fixture integrity,
+and residual-state cleanup. Every attempt sets `analysis_eligible: false`.
+There are still no official observations or performance results, and the
+official 18/18 gate remains unchanged.
 
 Use `controller/scripts/prepare_run_bundle.py` to create a bound bundle and
 `controller/scripts/validate_run_bundle.py` to verify its public integrity.

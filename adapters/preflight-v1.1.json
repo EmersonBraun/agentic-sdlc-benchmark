@@ -35,13 +35,16 @@
       "agentskit-v1.1-preflight-attestation.json",
       "../runs/run_technical-compozy-reference-off-r1/manifest.json",
       "../runs/run_technical-compozy-reference-off-r2/manifest.json",
-      "../runs/run_technical-compozy-reference-off-r3/manifest.json"
+      "../runs/run_technical-compozy-reference-off-r3/manifest.json",
+      "../runs/run_technical-compozy-reference-off-r4/manifest.json",
+      "../runs/run_technical-compozy-reference-off-r5/manifest.json"
     ],
     "execution": {
-      "attempts": 3,
-      "technical_passes": 1,
-      "technical_failures": 2,
-      "latest_successful_run": "run_technical-compozy-reference-off-r3",
+      "attempts": 5,
+      "technical_passes": 2,
+      "technical_failures": 3,
+      "latest_successful_run": "run_technical-compozy-reference-off-r5",
+      "latest_cleanup_verified": true,
       "official_observations_created": 0
     },
     "evidence": {
@@ -53,7 +56,7 @@
       "append_only_ledger": "verified",
       "no_fallback_resolution": "verified"
     },
-    "decision": "The preregistered Compozy × Reference Harness × AgentsKit OFF pipeline-validation pilot passed on its third immutable attempt. All three outputs remain excluded from official analysis and do not relax the 18/18 collection gate."
+    "decision": "The preregistered Compozy × Reference Harness × AgentsKit OFF pipeline-validation pilot passed under the strengthened cleanup criterion on its fifth immutable attempt. All outputs remain excluded from official analysis and do not relax the 18/18 collection gate."
   },
   "ade": {
     "orca": {
