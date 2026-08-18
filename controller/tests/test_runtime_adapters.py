@@ -85,6 +85,13 @@ class RuntimeAdapterRegistryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "local package dependencies"):
                 _assert_supported_dependency_layout(workspace)
 
+    def test_openhands_parses_and_rejects_quoted_workspace_packages(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            (workspace / "pnpm-workspace.yaml").write_text('"packages": ["packages/*"]\n')
+            with self.assertRaisesRegex(ValueError, "multi-package"):
+                _assert_supported_dependency_layout(workspace)
+
     def test_mini_swe_registry_resolves_live_cli_bridge(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

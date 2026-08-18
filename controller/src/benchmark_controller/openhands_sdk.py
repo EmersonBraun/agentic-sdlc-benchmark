@@ -11,6 +11,8 @@ import time
 from pathlib import Path
 from typing import Mapping, Sequence
 
+import yaml
+
 from .adapters import HARNESS_DESCRIPTORS, ComponentDescriptor
 from .external import AccessType, AdapterCommandResult, ControlledAdapter, PermissionMode, _validate_command
 from .ledger import Ledger
@@ -241,8 +243,12 @@ def _assert_supported_dependency_layout(workspace: Path) -> None:
         if any(isinstance(value, str) and value.startswith(("workspace:", "file:", "link:")) for value in values):
             raise ValueError("local package dependencies are not supported by the isolated runtime materializer")
     workspace_file = workspace / "pnpm-workspace.yaml"
-    if workspace_file.is_file() and any(line.strip().startswith("packages:") for line in workspace_file.read_text(encoding="utf-8").splitlines()):
-        raise ValueError("multi-package pnpm workspaces are not supported by the isolated runtime materializer")
+    if workspace_file.is_file():
+        workspace_config = yaml.safe_load(workspace_file.read_text(encoding="utf-8")) or {}
+        if not isinstance(workspace_config, dict):
+            raise ValueError("pnpm workspace configuration must be a mapping")
+        if workspace_config.get("packages"):
+            raise ValueError("multi-package pnpm workspaces are not supported by the isolated runtime materializer")
 
 
 def _confirmed_absent(command: tuple[str, ...]) -> bool:
