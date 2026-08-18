@@ -1,0 +1,64 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "enabled": false,
+    "event_count": 0,
+    "public_only": false
+  },
+  "analysis_eligible": false,
+  "base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
+  "cleanup": {
+    "terminal_residual_count": 0,
+    "verified": true
+  },
+  "condition_id": "orca__off",
+  "factors": {
+    "ade": "orca",
+    "agentskit": "off"
+  },
+  "failure": "RuntimeError: ORCA command failed: orchestration",
+  "invariants": {
+    "agentskit_attribution": "failed",
+    "lifecycle_cleanup": "passed",
+    "no_fallback": "failed",
+    "permission_policy": "passed",
+    "role_topology": "failed",
+    "same_base_commit": "passed",
+    "same_task": "passed",
+    "workspace_boundary": "passed"
+  },
+  "ledger_sha256": "d732bc9abde8ffc3202db58ffe5109f3eda897677b0577bb949cc72385d5177c",
+  "live_execution": true,
+  "observed_at": "2026-08-18T20:45:02.808151+00:00",
+  "protocol_version": "v1.2",
+  "redaction": {
+    "raw_outputs_persisted_publicly": false,
+    "raw_prompts_persisted_publicly": false
+  },
+  "schema_version": "condition-integration-attestation-v1.2",
+  "source_hashes": {
+    "probe": "f5ee21988a6c7bdb1da16b827e322f3b0b5b583c45a9a8d61d949ebabcb9889f"
+  },
+  "status": "failed",
+  "task_id": "pilot_greenfield_service_readiness",
+  "topology": {
+    "executor": {
+      "model": "grok-4.5",
+      "provider": "grok-cli",
+      "settlement": {}
+    },
+    "planner": {
+      "model": "gpt-5.4",
+      "provider": "codex-cli",
+      "settlement": {
+        "capability_hash_present": true,
+        "capability_revoked": true,
+        "delivery_acknowledged": true,
+        "failure_count": 0,
+        "status": "completed",
+        "worker_done_accepted": true
+      }
+    },
+    "sequential_capability_bound_dispatches": true
+  }
+}

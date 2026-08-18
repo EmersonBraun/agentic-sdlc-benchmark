@@ -27,6 +27,31 @@ from probe_orca_grok_v12 import EXPECTED_ORCA_VERSION, _nested, _sha, _terminal_
 from run_compozy_technical_pilot import _run_native_agentskit  # noqa: E402
 
 
+class EvidenceOrcaAdapter(OrcaAdapter):
+    """Expose only ORCA's structured error code when a probe command fails."""
+
+    def _json_command(
+        self, args: tuple[str, ...], *, stage_id: str, access: str = "read",
+        allowed_error_codes: tuple[str, ...] = (),
+    ) -> dict[str, Any]:
+        result = self.runtime.run(
+            (self.cli_path, *args), stage_id=stage_id, actor="infrastructure",
+            access=access, time_category="orchestration_overhead",
+        )
+        try:
+            payload = json.loads(result.stdout)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(f"ORCA returned non-JSON output: {args[0]}") from exc
+        if not isinstance(payload, dict) or not isinstance(payload.get("ok"), bool):
+            raise RuntimeError(f"ORCA returned unexpected JSON: {args[0]}")
+        error = payload.get("error", {}) if isinstance(payload.get("error"), dict) else {}
+        code = error.get("code") if isinstance(error.get("code"), str) else None
+        allowed = payload["ok"] is False and code in allowed_error_codes
+        if (result.returncode != 0 or payload["ok"] is False) and not allowed:
+            raise RuntimeError(f"ORCA command failed: {args[0]}:{code or 'unknown'}")
+        return payload
+
+
 def _settlement_summary(value: dict[str, Any]) -> dict[str, Any]:
     dispatch = value["dispatch"]
     delivery = value["delivery"]
@@ -92,7 +117,7 @@ def main() -> int:
                 agentskit_evidence.update(native)
                 agentskit_evidence["event_count"] = native["component_action_records"]
 
-            adapter = OrcaAdapter(ROOT, ledger, permission_mode="approve-all")
+            adapter = EvidenceOrcaAdapter(ROOT, ledger, permission_mode="approve-all")
             status = adapter._json_command(("status", "--json"), stage_id="intake")
             if (
                 _nested(status, "result", "runtime", "state") != "ready"
