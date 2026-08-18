@@ -19,7 +19,7 @@
   ],
   "candidate_execution": {
     "orca": {"model": "gpt-5.4", "status": "executed", "bounded_response": true, "workspace_mutated": false},
-    "agent_orchestrator": {"model": "gpt-5.4", "status": "executed", "bounded_response": true, "session_cleaned": true, "workspace_mutated": false},
+    "agent_orchestrator": {"model": "gpt-5.4", "provider": "openai", "status": "executed", "effective_model_observed_in_native_rollout": true, "bounded_response": true, "session_cleaned": true, "workspace_mutated": false},
     "compozy": {"model": "gpt-5.4", "status": "executed", "session_cleaned": true, "workspace_mutated": false},
     "codex_cli": {"model": "gpt-5.4", "status": "executed", "sandbox": "read-only", "workspace_mutated": false},
     "evaluator": {"model": "gpt-5.4-mini", "status": "executed-in-compozy-and-codex-cli"}

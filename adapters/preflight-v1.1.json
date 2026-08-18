@@ -98,7 +98,7 @@
       "status": "installed-ready",
       "evidence": {
         "registered_project": "isolated-disposable-git-worktree",
-        "permission_mode": "controlled-auto-read-only-prompt",
+        "permission_mode": "default-no-tool-use",
         "lifecycle_bridge": "four-redacted-events",
         "ledger_bridge": "passed",
         "runtime_reachable": true,
@@ -110,7 +110,7 @@
         "model_configuration": "accepted",
         "model_execution": "observed",
         "provider_events": ["turn.started", "message.completed", "usage", "turn.completed"],
-        "output_tokens_observed": 50,
+        "output_tokens_observed": 40,
         "raw_content_persisted": false,
         "active_session_leak_count": 0
       },

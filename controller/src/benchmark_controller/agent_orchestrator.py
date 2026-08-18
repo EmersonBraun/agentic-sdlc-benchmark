@@ -89,10 +89,39 @@ class AgentOrchestratorAdapter:
                 "worker",
                 "--mode",
                 "chat",
+                "--harness",
+                "codex",
             ),
             stage_id="intake",
             access="write",
         )
+
+    def observe_session(self, *, project_id: str, session_id: str) -> dict[str, Any]:
+        """Fetch and ledger one public session-state transition."""
+
+        snapshot = self._json_command(
+            ("session", "get", session_id, "--project", project_id, "--json"),
+            stage_id="implementation",
+        )
+        self.record_observed_session_state(snapshot, stage_id="implementation")
+        return snapshot
+
+    def terminate_session(self, *, project_id: str, session_id: str) -> dict[str, Any]:
+        """Terminate a bounded session and record its terminal transition."""
+
+        command = self.runtime.run(
+            (self.cli_path, "session", "kill", session_id, "--project", project_id),
+            stage_id="implementation",
+            actor="infrastructure",
+            access="write",
+            time_category="orchestration_overhead",
+        )
+        if command.returncode != 0:
+            raise RuntimeError("Agent Orchestrator command failed: session kill")
+        self.record_observed_session_state(
+            {"id": session_id, "status": "terminated"}, stage_id="implementation"
+        )
+        return {"status": "terminated"}
 
     def record_lifecycle_event(
         self,

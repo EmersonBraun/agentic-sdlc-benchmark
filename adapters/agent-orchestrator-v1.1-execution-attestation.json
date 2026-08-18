@@ -5,58 +5,88 @@
     "fixture_destroyed": true,
     "passed": true,
     "project_remove": {
-      "output_sha256": "ad17eff7cabc5499e9e895e51ef50349f2c93d6e892610f84cc547f6afd8c6be",
+      "output_sha256": "db2ffcd45d917eb194d43a74f1cd7f7a44bdfb14b91b7f8a8a2ac17302a6d441",
       "returncode": 0
     },
     "session_list": {
-      "output_sha256": "3ef74dcf623aa06b8294f87041cb0cabe486b819a426287e9b31c0f95e76e993",
+      "output_sha256": "2bcbe46d1037d03307fbc589dce7bc2d7b3fb622f613dbb58e1922b02ea79f91",
       "returncode": 0
-    }
+    },
+    "session_schema_valid": true
   },
   "commands": {
     "kill": {
-      "output_sha256": "ca9774107b2c74b656262f3f4054a6754707879a2743d0e6a3a7706914988a86",
+      "output_sha256": "a9d40bf781f10be5bd50e026251989d76f99cf9189a51cff162785f10eafd140",
       "returncode": 0
     },
     "project_add": {
-      "output_sha256": "809a0745ede71b63cb2c073b50c5a4c850dc544f0980d9498fbc5c53559aaec6",
+      "output_sha256": "a9e4eaae92153c7ecee00751d05a439a09469f0b5cb116b1767a8b5015b14de4",
       "returncode": 0
     },
     "project_config": {
-      "output_sha256": "d0ffae67522b5a14ef004cb027ecc295cf6ebefdd0785dad2b318efae57a795e",
+      "output_sha256": "886928465ec609cc1531283ba719c23ebb1883cf0f6a9a3c9357f6e7535efcac",
       "returncode": 0
     },
     "spawn": {
-      "output_sha256": "dc3fa447ac5a09c208f3d612b3c7ec002993dca5053d9e2c4b7c1338d3499d38",
+      "output_sha256": "7c0da10be5756c8312c916c5cb708786ff4c4c7bb0ed930f4f2c88740e44dc40",
       "returncode": 0
     }
   },
+  "component_version": "0.12.6",
   "configured_model": "gpt-5.4",
   "datastore_access": "read-only-redacted",
+  "datastore_schema_sha256": "214250b58eb7163e32ad6e00ee2bb4e4605d7ec074bc0f9107bddb2c8f6b379f",
   "ledger_event_count": 4,
   "model_configuration_observed": true,
-  "observed_at": "2026-08-18T16:17:40.058300+00:00",
-  "probe_sha256": "1942a04f21025fc8d5f664dd31ce0701671abf432dcb3053d37aa3089bf68b72",
+  "model_identity": {
+    "effective_models": [
+      "gpt-5.4"
+    ],
+    "effective_providers": [
+      "openai"
+    ],
+    "identity_observed": true,
+    "native_rollout_sha256": "6991f10dcf39b0ff4ab12c27d7e7ade3eff007a3a03e48d44d34fcacbc1046db",
+    "raw_content_in_attestation": false
+  },
+  "observed_at": "2026-08-18T16:22:32.031127+00:00",
+  "operator": "local-primary-operator",
+  "permission_configuration_observed": true,
+  "probe_command": [
+    "PYTHONPATH=controller/src",
+    "python3",
+    "controller/scripts/probe_agent_orchestrator_execution.py",
+    "--confirm"
+  ],
+  "probe_sha256": "8403d98fc549002358c3cb1b3ae79c0d2696e21b8066b25aab6eff2b3025932d",
   "provider_evidence": {
     "assistant_message_count": 1,
     "assistant_reply_sha256": "17fee59ddfe89443a0b73c0548f25656e4ffbf756806d9989f023bf3033b646c",
     "expected_reply_observed": true,
-    "input_tokens_observed": 22820,
-    "output_tokens_observed": 50,
-    "provider_event_types": [
-      "message.completed",
-      "turn.completed",
+    "input_tokens_observed": 20255,
+    "output_tokens_observed": 40,
+    "provider_event_sequence": [
       "turn.started",
-      "usage"
+      "message.completed",
+      "usage",
+      "turn.completed"
     ],
-    "raw_content_persisted": false,
-    "required_provider_events_complete": true
+    "raw_content_in_attestation": false,
+    "required_provider_sequence_complete": true
   },
   "public_cli_event_stream": "not-exposed",
+  "runtime_sha256": "1223e55763f43a99ef8ccf42b11247b7b9d77a793d43bcfe4fc2e28baf7cf419",
   "schema_version": "agent-orchestrator-execution-attestation-v1.1",
   "session": {
     "model_execution_observed": true,
-    "session_id_sha256": "68d3f47b0f5f80f2b8ea68b5c61c05d87a525c4230553ed2cf6f1aef39563278"
+    "session_id_sha256": "5648b2605d32477845c3496135da0d595591e35380b52080b287e62225d16426"
   },
-  "status": "passed"
+  "status": "passed",
+  "workspace": {
+    "clean": true,
+    "head_matches_fixture": true,
+    "path_sha256": "4a6019607df6de465a9f0b8e086e1bffdc90f76cfb54caad7090158db2eb9b10",
+    "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "workspace_commit_sha256": "e44059c8174e4b8a8551bdd24676857659ecd61427644f2eceda1609dacc3016"
 }
