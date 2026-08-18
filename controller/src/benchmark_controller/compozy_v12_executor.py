@@ -69,32 +69,38 @@ class CompozyV12RoleExecutor:
         cached = self._cache.get(request.idempotency_key)
         if cached is not None:
             return cached
-        remaining = self._remaining_seconds(request)
-        if remaining <= 0:
-            return self._outcome(request, "failed", 0, reason="controller-deadline-exceeded")
-        self._verify_provider_configuration(remaining)
-        session_id, setup_ms = self._session(request, remaining)
-        prompt, sentinel = self._prompt(request)
-        runtime_provider = self._runtime_provider(request.provider)
-        argv = [
-            "session", "prompt", session_id, prompt,
-            "--provider", runtime_provider,
-            "--reasoning-effort", "low",
-            "--message-id", "msg_" + _sha(request.idempotency_key)[:24],
-            "--idempotency-key", request.idempotency_key,
-            "-o", "json",
-        ]
-        if runtime_provider == "codex":
-            argv[argv.index("--reasoning-effort"):argv.index("--reasoning-effort")] = ["--model", request.model]
+        if self._remaining_seconds(request) <= 0:
+            return self._outcome(request, "timeout", reason="controller-deadline-exceeded")
+        setup_ms = 0.0
+        prompt_started: int | None = None
         try:
+            setup_ms += self._verify_provider_configuration(self._timeout(request))
+            session_id, session_ms = self._session(request, self._timeout(request))
+            setup_ms += session_ms
+            prompt, sentinel = self._prompt(request)
+            runtime_provider = self._runtime_provider(request.provider)
+            argv = [
+                "session", "prompt", session_id, prompt,
+                "--provider", runtime_provider,
+                "--reasoning-effort", "low",
+                "--message-id", "msg_" + _sha(request.idempotency_key)[:24],
+                "--idempotency-key", request.idempotency_key,
+                "-o", "json",
+            ]
+            if runtime_provider == "codex":
+                position = argv.index("--reasoning-effort")
+                argv[position:position] = ["--model", request.model]
+            cursor, cursor_ms = self._event_cursor(session_id, request)
+            setup_ms += cursor_ms
             prompt_started = time.monotonic_ns()
             try:
-                turn = self.transport.run_json(argv, timeout_seconds=self._remaining_seconds(request))
+                turn = self.transport.run_json(argv, timeout_seconds=self._timeout(request))
                 events = self._events(turn.value)
                 prompt_ms = turn.duration_ms
             except RuntimeError:
-                events = self._recover_events(session_id, request)
-                prompt_ms = (time.monotonic_ns() - prompt_started) / 1_000_000
+                events, recovery_ms = self._recover_events(session_id, request, after=cursor)
+                prompt_ms = max(0, (time.monotonic_ns() - prompt_started) / 1_000_000 - recovery_ms)
+                setup_ms += recovery_ms
             text = self._agent_text(events)
             self._verify_turn(request, events, text, sentinel, runtime_provider)
             metadata = self._metadata(request, text, events, sentinel)
@@ -105,12 +111,19 @@ class CompozyV12RoleExecutor:
                 status="completed", role=request.role, provider=request.provider, model=request.model,
                 workspace=request.worktree, effective_work_ms=prompt_ms,
                 external_wait_ms=0, orchestration_overhead_ms=setup_ms + cleanup_ms,
+                token_cost_accounting_observed=any(tokens.values()) or cost > 0,
                 tokens=tokens, cost_usd=cost,
                 metadata=metadata, completion_proof=metadata.get("completion_proof"),
             )
-        except (RuntimeError, subprocess.TimeoutExpired) as exc:
+        except subprocess.TimeoutExpired:
             outcome = self._outcome(
-                request, "retry", setup_ms, reason=type(exc).__name__,
+                request, "timeout", effective_work_ms=self._elapsed_ms(prompt_started),
+                orchestration_overhead_ms=setup_ms, reason="controller-deadline-exceeded",
+            )
+        except RuntimeError as exc:
+            outcome = self._outcome(
+                request, "retry", effective_work_ms=self._elapsed_ms(prompt_started),
+                orchestration_overhead_ms=setup_ms, reason=type(exc).__name__,
             )
         self._cache[request.idempotency_key] = outcome
         return outcome
@@ -118,17 +131,22 @@ class CompozyV12RoleExecutor:
     def close(self) -> None:
         """Best-effort deterministic cleanup for sessions left by terminal failures."""
 
+        failed = False
         for run_id, session_id in tuple(self._sessions.items()):
             try:
                 self.transport.run_json(
                     ("session", "stop", session_id, "-o", "json"), timeout_seconds=30,
                 )
-            finally:
+            except Exception:
+                failed = True
+            else:
                 self._sessions.pop(run_id, None)
+        if failed:
+            raise RuntimeError("Compozy terminal session cleanup failed")
 
-    def _verify_provider_configuration(self, timeout_seconds: float) -> None:
+    def _verify_provider_configuration(self, timeout_seconds: float) -> float:
         if self._provider_checked:
-            return
+            return 0
         result = self.transport.run_json(("config", "show", "-o", "json"), timeout_seconds=timeout_seconds)
         config = result.value.get("config", {}) if isinstance(result.value, Mapping) else {}
         providers = config.get("providers", {}) if isinstance(config, Mapping) else {}
@@ -139,6 +157,7 @@ class CompozyV12RoleExecutor:
             raise RuntimeError("Compozy Grok provider is unavailable")
         validate_provider_config(grok)
         self._provider_checked = True
+        return result.duration_ms
 
     def _session(self, request: NativeStepRequest, timeout_seconds: float) -> tuple[str, float]:
         existing = self._sessions.get(request.run_id)
@@ -156,24 +175,37 @@ class CompozyV12RoleExecutor:
     def _stop(self, request: NativeStepRequest, session_id: str) -> float:
         result = self.transport.run_json(
             ("session", "stop", session_id, "-o", "json"),
-            timeout_seconds=min(30, max(1, self._remaining_seconds(request))),
+            # Cleanup has its own bound and must run even after the measurement deadline.
+            timeout_seconds=30,
         )
         self._sessions.pop(request.run_id, None)
         return result.duration_ms
 
-    def _recover_events(self, session_id: str, request: NativeStepRequest) -> list[Mapping[str, Any]]:
+    def _event_cursor(self, session_id: str, request: NativeStepRequest) -> tuple[int, float]:
+        result = self.transport.run_json((
+            "session", "events", session_id, "--last", "1", "-o", "json",
+        ), timeout_seconds=self._timeout(request, cap=30))
+        events = self._events(result.value)
+        sequences = [event.get("sequence") for event in events if isinstance(event.get("sequence"), int)]
+        return (max(sequences) if sequences else 0), result.duration_ms
+
+    def _recover_events(
+        self, session_id: str, request: NativeStepRequest, *, after: int,
+    ) -> tuple[list[Mapping[str, Any]], float]:
         """Recover bounded persisted events when Compozy's live SSE scanner overflows."""
 
         recovered: list[Mapping[str, Any]] = []
+        duration_ms = 0.0
         for event_type in ("agent_message", "usage", "done"):
             result = self.transport.run_json((
-                "session", "events", session_id, "--last", "500", "--type", event_type,
+                "session", "events", session_id, "--after", str(after), "--type", event_type,
                 "-o", "json",
-            ), timeout_seconds=min(30, max(1, self._remaining_seconds(request))))
+            ), timeout_seconds=self._timeout(request, cap=30))
+            duration_ms += result.duration_ms
             recovered.extend(self._events(result.value))
         if not any(event.get("type") == "done" for event in recovered):
             raise RuntimeError("Compozy prompt stream failed before a persisted terminal event")
-        return recovered
+        return recovered, duration_ms
 
     @staticmethod
     def _runtime_provider(provider: str) -> str:
@@ -184,6 +216,13 @@ class CompozyV12RoleExecutor:
         if request.deadline_epoch_ms is None:
             return 900
         return max(0, (request.deadline_epoch_ms - time.time() * 1000) / 1000)
+
+    @classmethod
+    def _timeout(cls, request: NativeStepRequest, *, cap: float | None = None) -> float:
+        remaining = cls._remaining_seconds(request)
+        if remaining <= 0:
+            raise subprocess.TimeoutExpired("compozy", 0)
+        return min(remaining, cap) if cap is not None else remaining
 
     @staticmethod
     def _events(value: Any) -> list[Mapping[str, Any]]:
@@ -306,7 +345,7 @@ class CompozyV12RoleExecutor:
         for event in events:
             if event.get("type") != "usage":
                 continue
-            content = event.get("content", event)
+            content = event.get("content", event.get("usage", event))
             if not isinstance(content, Mapping):
                 continue
             for target, aliases in {
@@ -337,12 +376,18 @@ class CompozyV12RoleExecutor:
 
     @staticmethod
     def _outcome(
-        request: NativeStepRequest, status: str, external_wait_ms: float, *, reason: str,
+        request: NativeStepRequest, status: str, *, reason: str,
+        effective_work_ms: float = 0, orchestration_overhead_ms: float = 0,
     ) -> NativeStepExecution:
         return NativeStepExecution(
             status=status, role=request.role, provider=request.provider, model=request.model,
-            workspace=request.worktree, effective_work_ms=0, external_wait_ms=max(0, external_wait_ms),
-            orchestration_overhead_ms=0,
+            workspace=request.worktree, effective_work_ms=max(0, effective_work_ms), external_wait_ms=0,
+            orchestration_overhead_ms=max(0, orchestration_overhead_ms),
+            token_cost_accounting_observed=False,
             tokens={"input": 0, "output": 0, "cached": 0, "reasoning": 0}, cost_usd=0,
             metadata={}, reason=reason,
         )
+
+    @staticmethod
+    def _elapsed_ms(started: int | None) -> float:
+        return 0 if started is None else (time.monotonic_ns() - started) / 1_000_000

@@ -161,6 +161,11 @@ class V12HandoffBackend:
             completion_proof=result.completion_proof,
         )
 
+    def close(self) -> None:
+        close = getattr(self.delegate, "close", None)
+        if callable(close):
+            close()
+
     def _prepare_factor(self, context: StepContext, path: Path) -> str | None:
         if context.assignment.agentskit == "off":
             if path.exists():
@@ -318,10 +323,16 @@ class V12NativeCollectionBackend:
         self.retry_backoff_seconds = retry_backoff_seconds
 
     def execute(self, assignment: MatrixAssignment, bundle: PreparedRunBundle) -> ExecutionOutcome:
-        return V12NativeConditionRunner(
-            self.backend_factory(assignment, bundle),
-            self.worktrees,
-            self.verifier_factory(assignment, bundle),
-            max_attempts=self.max_attempts,
-            retry_backoff_seconds=self.retry_backoff_seconds,
-        ).execute(assignment, bundle)
+        backend = self.backend_factory(assignment, bundle)
+        try:
+            return V12NativeConditionRunner(
+                backend,
+                self.worktrees,
+                self.verifier_factory(assignment, bundle),
+                max_attempts=self.max_attempts,
+                retry_backoff_seconds=self.retry_backoff_seconds,
+            ).execute(assignment, bundle)
+        finally:
+            close = getattr(backend, "close", None)
+            if callable(close):
+                close()

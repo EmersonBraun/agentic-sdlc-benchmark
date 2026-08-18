@@ -27,6 +27,8 @@ class Transport:
             return CommandResult({"id": "session-1"}, 3)
         if argv[:2] == ("session", "stop"):
             return CommandResult({"status": "stopped"}, 4)
+        if argv[:2] == ("session", "events"):
+            return CommandResult([], 1)
         key = argv[argv.index("--idempotency-key") + 1]
         sentinel = "V12_" + __import__("hashlib").sha256(key.encode()).hexdigest()[:20].upper()
         provider = argv[argv.index("--provider") + 1]
@@ -60,6 +62,8 @@ class RecoveringTransport(Transport):
             raise RuntimeError("SSE scanner overflow")
         if argv[:2] == ("session", "events"):
             self.calls.append(tuple(argv))
+            if "--type" not in argv:
+                return CommandResult([], 1)
             event_type = argv[argv.index("--type") + 1]
             runtime = {"provider": "codex", "model": "gpt-5.4"}
             key = "run_test:decomposition:1"
@@ -73,6 +77,25 @@ class RecoveringTransport(Transport):
                 "done": [{"type": "done", "prompt_runtime": runtime}],
             }
             return CommandResult(values[event_type], 1)
+        return super().run_json(argv, timeout_seconds=timeout_seconds)
+
+
+class FailingConfigTransport(Transport):
+    def run_json(self, argv, *, timeout_seconds):
+        if argv[:2] == ("config", "show"):
+            raise RuntimeError("temporary transport failure")
+        return super().run_json(argv, timeout_seconds=timeout_seconds)
+
+
+class FailingStopTransport(Transport):
+    def __init__(self):
+        super().__init__()
+        self.fail_stop = True
+
+    def run_json(self, argv, *, timeout_seconds):
+        if argv[:2] == ("session", "stop") and self.fail_stop:
+            self.fail_stop = False
+            raise RuntimeError("temporary stop failure")
         return super().run_json(argv, timeout_seconds=timeout_seconds)
 
 
@@ -120,14 +143,48 @@ class CompozyV12ExecutorTests(unittest.TestCase):
             request = self.request(root)
             request = request.__class__(**{**request.__dict__, "deadline_epoch_ms": 1})
             result = CompozyV12RoleExecutor(root / "control", transport).execute(request)
-            self.assertEqual(result.status, "failed")
+            self.assertEqual(result.status, "timeout")
             self.assertEqual(transport.calls, [])
 
     def test_recovers_filtered_persisted_events_after_prompt_stream_overflow(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
+            transport = RecoveringTransport()
             result = CompozyV12RoleExecutor(
-                root / "control", RecoveringTransport(),
+                root / "control", transport,
             ).execute(self.request(root))
             self.assertEqual(result.status, "completed")
             self.assertEqual(result.metadata["handoff_payload"]["requirements"], "resolved")
+            self.assertTrue(all(
+                "--after" in call
+                for call in transport.calls
+                if call[:2] == ("session", "events") and "--type" in call
+            ))
+
+    def test_provider_setup_failure_is_a_normalized_retry(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            result = CompozyV12RoleExecutor(
+                root / "control", FailingConfigTransport(),
+            ).execute(self.request(root))
+            self.assertEqual(result.status, "retry")
+            self.assertEqual(result.reason, "RuntimeError")
+
+    def test_failed_cleanup_retains_session_for_a_second_attempt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            transport = FailingStopTransport()
+            executor = CompozyV12RoleExecutor(root / "control", transport)
+            executor.execute(self.request(root))
+            with self.assertRaisesRegex(RuntimeError, "cleanup failed"):
+                executor.close()
+            executor.close()
+
+    def test_live_context_only_usage_is_explicitly_unavailable_not_measured_zero(self):
+        events = [{"type": "usage", "usage": {"context_used": 34766, "context_size": 258400}}]
+        tokens, cost = CompozyV12RoleExecutor._usage(events)
+        observation = CompozyV12RoleExecutor._usage_observation(events, tokens)
+        self.assertEqual(tokens, {"input": 0, "output": 0, "cached": 0, "reasoning": 0})
+        self.assertEqual(cost, 0)
+        self.assertFalse(observation["token_breakdown_observed"])
+        self.assertEqual(observation["context_used"], 34766)

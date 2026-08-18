@@ -97,12 +97,12 @@
   "schema_version": "semantic-parity-matrix-v1.2",
   "scope": "live connectivity smoke only; not condition integration or effect evidence",
   "source_hashes": {
-    "controller/src/benchmark_controller/compozy_v12_executor.py": "b47068bd54f4e393d04035a932364ffb8f3436d2712ea3747079e65d9d0332a5",
+    "controller/src/benchmark_controller/compozy_v12_executor.py": "6db99be4e181986b3dd353726b2cb3e145cc7173486f99a3bf8dae2b0049ab7c",
     "controller/src/benchmark_controller/v12_ade_backends.py": "2acd1e11ab20594f9eeae27a6edbe5e80c28d706c0964b56a6eab9c70e1087d0",
     "controller/src/benchmark_controller/v12_execution.py": "5327531cc1e59aa840457adb434700eed0bffbb95f10e22fd3923ce81c2f7390",
     "controller/src/benchmark_controller/v12_integration.py": "776f847be18ace08d3e0acf78e288d3d8dd24ae74c8b36398a9ceed0a4ea54e8",
-    "controller/src/benchmark_controller/v12_native_backend.py": "688687824bc212dbf9114e6720babd9d8454ded18a44b172343df53e056be6bb",
-    "controller/src/benchmark_controller/v12_runner.py": "95d188f43cb1e834e6ee2bc81e26870f922da999593fa52f5c2034180d12ba17",
+    "controller/src/benchmark_controller/v12_native_backend.py": "8f5938f338dc7d668f3560fd49c9ea1e0ec9fdb6b7fd4a46a7e2d271556f3418",
+    "controller/src/benchmark_controller/v12_runner.py": "ba4f1cc00d66a376edc26fbfa27ff3f5c9adf90bd3d561d3c090e2f628d007ad",
     "protocol/conditions-v1.2.json": "56848248d1fc340b06f82259691a7330c86b66607c8bb6ce4ff2bd76524d4c1b",
     "protocol/model-policy-v1.2.json": "06ae2588391153991a7b953ee36603ba23735e967738f08472dd28a946c6c66f",
     "protocol/protocol-v1.2.md": "ca6d4518306cf4a875c39fb48f9f9b00d9428b9a7feca1cb65b8ecfc9da73b6b"

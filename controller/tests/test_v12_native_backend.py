@@ -30,6 +30,7 @@ class Executor:
             status="completed", role=request.role, provider=request.provider, model=request.model,
             workspace=Path("/tmp/wrong") if self.wrong_workspace else request.worktree,
             effective_work_ms=10, external_wait_ms=2, orchestration_overhead_ms=3,
+            token_cost_accounting_observed=True,
             tokens={"input": 1, "output": 2, "cached": 0, "reasoning": 1},
             cost_usd=0.01, metadata=metadata,
         )

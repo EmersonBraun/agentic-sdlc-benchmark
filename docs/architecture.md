@@ -64,6 +64,10 @@ the role provider/model, validates the returned event stream, and redacts raw
 prompt/output content. Model execution is measured as effective work; session
 setup and cleanup are recorded separately as orchestration overhead. The
 session is stopped after merge or by terminal cleanup.
+Compozy currently exposes total context use for Codex but not a complete
+input/output/cached/reasoning token and cost breakdown. Technical-pilot records
+therefore mark this field unavailable; official collection fails closed until
+the concrete executor can observe complete token/cost accounting.
 
 Checkpoints are not permission to resume a measurement after process failure.
 They support bounded retries during one process and idempotent cleanup after a
