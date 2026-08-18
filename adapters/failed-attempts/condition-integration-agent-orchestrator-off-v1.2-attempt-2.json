@@ -1,0 +1,76 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "enabled": false,
+    "event_count": 0,
+    "public_only": false
+  },
+  "analysis_eligible": false,
+  "base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
+  "cleanup": {
+    "cleanup_returncode": 0,
+    "kill_returncodes": [
+      0
+    ],
+    "session_residual_count": 0,
+    "verified": true
+  },
+  "condition_id": "agent-orchestrator__off",
+  "factors": {
+    "ade": "agent-orchestrator",
+    "agentskit": "off"
+  },
+  "failure": "RuntimeError: AO Codex planner contract failed",
+  "invariants": {
+    "agentskit_attribution": "failed",
+    "lifecycle_cleanup": "passed",
+    "no_fallback": "failed",
+    "permission_policy": "passed",
+    "role_topology": "failed",
+    "same_base_commit": "passed",
+    "same_task": "passed",
+    "workspace_boundary": "passed"
+  },
+  "ledger_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "live_execution": true,
+  "observed_at": "2026-08-18T20:59:19.163157+00:00",
+  "protocol_version": "v1.2",
+  "redaction": {
+    "raw_outputs_persisted_publicly": false,
+    "raw_prompts_persisted_publicly": false
+  },
+  "schema_version": "condition-integration-attestation-v1.2",
+  "source_hashes": {
+    "ao_executable": "1223e55763f43a99ef8ccf42b11247b7b9d77a793d43bcfe4fc2e28baf7cf419",
+    "probe": "cb7b6632e073752e05dde8847a7a315ae9cad2a98c538a4340c49ff8aa96712b"
+  },
+  "status": "failed",
+  "task_id": "pilot_greenfield_service_readiness",
+  "topology": {
+    "executor": {
+      "execution": {},
+      "model": "grok-4.5",
+      "provider": "grok-cli"
+    },
+    "native_separate_sessions": true,
+    "planner": {
+      "execution": {
+        "capture_sha256": "ce63e9b2f52d23312409a9e6f76e7597c240b3e2577dff3a8f2c143bc5f421e5",
+        "effective_model_observed": true,
+        "sentinel_observed": true,
+        "session_id_sha256": "3a8a80a9437e818a04c721142a38969c7e1dafcc374aed8f2c4a2c9d8625e76d",
+        "spawn_output_sha256": "7241dedfa673f2e33850662d39c2e955f35d6f6a33d24a609cc2f03895e20b0b",
+        "trust_prompt_observed": false,
+        "workspace_clean": false,
+        "workspace_path_sha256": "7e2adf583ff46511dab0375dd228452f4853b90f7315c1ece0859f41d4f26c29",
+        "workspace_status_sha256": "0d44e574564a7b4dc9dd81a16e6ba1ed7c28216a75ba2681365bbc4bd082a334"
+      },
+      "model": "gpt-5.4",
+      "provider": "codex-cli"
+    }
+  },
+  "versions": {
+    "agent_orchestrator": "0.12.6",
+    "grok": "grok 1.0.5 (5115b46bc909) [stable]"
+  }
+}

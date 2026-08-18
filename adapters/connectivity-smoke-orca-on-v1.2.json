@@ -1,0 +1,184 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "commands": {
+      "code_review": {
+        "duration_ms": 165795.175167,
+        "output_sha256": "e8f764b924a22a6e27730abc07bf446c55097e414f4e68cabc49090ed248f8f2",
+        "returncode": 0
+      },
+      "doc_bridge": {
+        "duration_ms": 96.415333,
+        "output_sha256": "b70e0484e960777776ad7cc7a55d32f6cbac2436dde37bb5d310ee170bf3a6c5",
+        "returncode": 0
+      },
+      "playbook": {
+        "duration_ms": 87.049667,
+        "output_sha256": "bed0667a5624d5e3e09a8436f5caf9f790ad59a2db11361d4d46c7f7aebd61a3",
+        "returncode": 0
+      }
+    },
+    "component_action_records": 6,
+    "components": {
+      "code_review": {
+        "commit": "467cfa570a6b5f1076098b3c76be4e812562f23e",
+        "executable_sha256": "57befe7aec1eb2e6a8d06ba40dc6c0a884de635a0db980ceadbfe4e3927c29bc",
+        "materialization_commands": [
+          {
+            "argv_sha256": "25b2e2447434e1486d25ce617d01a3d1de2c008b7405891a5f21c210621acc5f",
+            "duration_ms": 1561.229875,
+            "output_sha256": "e629bc7e138553b920afa38870c432f0cdddb9449a3e5c431ee5d6e5c4de8d0c",
+            "returncode": 0
+          },
+          {
+            "argv_sha256": "9adf315bbd4238afbdfe1554bc58cc5a41b1dcd01b14668a68ba9cde3b462993",
+            "duration_ms": 1076.230583,
+            "output_sha256": "1e209434515f93a9fcf1cb5b60d662175f02770fd18e666efbce8cd605a15d7c",
+            "returncode": 0
+          }
+        ],
+        "materialized_from_lockfile": true,
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/code-review-cli",
+        "version": "0.1.0",
+        "working_tree_clean": true
+      },
+      "doc_bridge": {
+        "commit": "9a03016932b9e3024604712183152025c0577fe4",
+        "executable_sha256": "177b03c3550e50990724ef3830ba03e0f24c74edea47ba7d327260350be1714b",
+        "materialization_commands": [
+          {
+            "argv_sha256": "753697b8e53f6224528bac452692deb749cf015ca5566ea1cdc6933d30343dc0",
+            "duration_ms": 707.249333,
+            "output_sha256": "f1dd91dc1054b3f7c4fd939c3f63b4a63d84541fad9e17f7cdbc5f51877ea387",
+            "returncode": 0
+          },
+          {
+            "argv_sha256": "18bfd5adfe957ed94fa3757f54fb0a7e2600255fcc86941ca28c6aac9ae8da6f",
+            "duration_ms": 4624.780916,
+            "output_sha256": "d91802f829bf3287121a3ec4ef5424dcfcc6fdd580057c66d4e96cce0306d4b0",
+            "returncode": 0
+          }
+        ],
+        "materialized_from_lockfile": true,
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/doc-bridge",
+        "version": "1.4.3",
+        "working_tree_clean": true
+      },
+      "playbook": {
+        "commit": "0818d860655c2d367f4d8b8c281c9b73ec5adad2",
+        "executable_sha256": "991f7a12d08062d4f86f8b4ac752fd9f9d6e42dfb6b99a6538beb8d4a2f92669",
+        "materialization_commands": [
+          {
+            "argv_sha256": "753697b8e53f6224528bac452692deb749cf015ca5566ea1cdc6933d30343dc0",
+            "duration_ms": 668.306833,
+            "output_sha256": "7f96a164a36746703fd038d028292bcfff736785337610d4da7c565563d61466",
+            "returncode": 0
+          },
+          {
+            "argv_sha256": "98d8a5cd8059be2f838c49a2eddc4a7842bed788a908e9ead3c35d4f440287b5",
+            "duration_ms": 1891.668,
+            "output_sha256": "e77b92d4e0922d1d6526a4776a606a30e6bae20b608630c4aa037b357e3e66ea",
+            "returncode": 0
+          }
+        ],
+        "materialized_from_lockfile": true,
+        "provenance_verified": true,
+        "repository": "https://github.com/AgentsKit-io/agents-playbook",
+        "version": "0.1.0",
+        "working_tree_clean": true
+      }
+    },
+    "context_sha256": "6f963edd43b613248f75d2c096eab8308d19df87d5c86c8a730db2a9073f148e",
+    "enabled": true,
+    "event_count": 6,
+    "native_external_components_executed": true,
+    "public_only": true
+  },
+  "analysis_eligible": false,
+  "cleanup": {
+    "terminal_residual_count": 0,
+    "verified": true
+  },
+  "condition_id": "orca__on",
+  "factors": {
+    "ade": "orca",
+    "agentskit": "on"
+  },
+  "invariants": {
+    "agentskit_attribution": "component_executed_not_integrated",
+    "lifecycle_cleanup": "passed",
+    "no_fallback": "not_evaluated",
+    "permission_policy": "not_evaluated",
+    "role_topology": "passed",
+    "same_base_commit": "not_evaluated",
+    "same_task": "passed",
+    "workspace_boundary": "passed"
+  },
+  "ledger_sha256": "a5d9742eee1106c4994f03109ad8d6dc00d6ed28054254687075cfde8694b3cb",
+  "observed_at": "2026-08-18T20:57:38.964295+00:00",
+  "protocol_version": "v1.2",
+  "redaction": {
+    "raw_outputs_persisted_publicly": false,
+    "raw_prompts_persisted_publicly": false
+  },
+  "schema_version": "condition-connectivity-smoke-attestation-v1.2",
+  "source_hashes": {
+    "probe": "8b00048644a3fcbdea8fc9b43a172dda1d3f2cce99534253c89d66d4a29914ea"
+  },
+  "status": "passed",
+  "task_id": "pilot_greenfield_service_readiness",
+  "topology": {
+    "executor": {
+      "model": "grok-4.5",
+      "provider": "grok-cli",
+      "settlement": {
+        "capability_hash_present": true,
+        "capability_revoked": true,
+        "delivery_acknowledged": true,
+        "failure_count": 0,
+        "status": "completed",
+        "worker_done_accepted": true
+      }
+    },
+    "planner": {
+      "model": "gpt-5.4",
+      "provider": "codex-cli",
+      "settlement": {
+        "capability_hash_present": true,
+        "capability_revoked": true,
+        "delivery_acknowledged": true,
+        "failure_count": 0,
+        "status": "completed",
+        "worker_done_accepted": true
+      }
+    },
+    "sequential_capability_bound_dispatches": true
+  },
+  "live_connectivity_execution": true,
+  "semantic_parity_eligible": false,
+  "scope": "live ADE/provider connectivity smoke; not a full SDLC condition run",
+  "missing_gates": [
+    "frozen_base_worktree",
+    "full_sdlc",
+    "complete_ade_ledger",
+    "agentskit_inside_ade",
+    "permission_parity",
+    "independent_evaluation"
+  ],
+  "declared_base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
+  "source_revision": {
+    "git_commit": "55fd50270f11c5c9a7a69d6f2e9d9d1a3db85498",
+    "probe_sha256_matches_commit": true,
+    "classification_transform": "connectivity-smoke-reclassification-v1",
+    "transformed_fields": [
+      "schema_version",
+      "scope",
+      "eligibility",
+      "missing_gates",
+      "invariant_claim_strength",
+      "base_commit_label"
+    ]
+  }
+}

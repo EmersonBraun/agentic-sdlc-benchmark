@@ -1,0 +1,64 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "enabled": false,
+    "event_count": 0,
+    "public_only": false
+  },
+  "analysis_eligible": false,
+  "base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
+  "cleanup": {
+    "cleanup_returncode": 0,
+    "kill_returncodes": [],
+    "session_residual_count": 0,
+    "verified": true
+  },
+  "condition_id": "agent-orchestrator__off",
+  "factors": {
+    "ade": "agent-orchestrator",
+    "agentskit": "off"
+  },
+  "failure": "RuntimeError: AO did not create the orchestrator session",
+  "invariants": {
+    "agentskit_attribution": "failed",
+    "lifecycle_cleanup": "passed",
+    "no_fallback": "failed",
+    "permission_policy": "passed",
+    "role_topology": "failed",
+    "same_base_commit": "passed",
+    "same_task": "passed",
+    "workspace_boundary": "passed"
+  },
+  "ledger_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "live_execution": true,
+  "observed_at": "2026-08-18T20:58:46.439434+00:00",
+  "protocol_version": "v1.2",
+  "redaction": {
+    "raw_outputs_persisted_publicly": false,
+    "raw_prompts_persisted_publicly": false
+  },
+  "schema_version": "condition-integration-attestation-v1.2",
+  "source_hashes": {
+    "ao_executable": "1223e55763f43a99ef8ccf42b11247b7b9d77a793d43bcfe4fc2e28baf7cf419",
+    "probe": "b805f3513f7efd9203dbacbca1269518e6e986bf3dcae15abe11b09f5e84e64b"
+  },
+  "status": "failed",
+  "task_id": "pilot_greenfield_service_readiness",
+  "topology": {
+    "executor": {
+      "execution": {},
+      "model": "grok-4.5",
+      "provider": "grok-cli"
+    },
+    "native_separate_sessions": true,
+    "planner": {
+      "execution": {},
+      "model": "gpt-5.4",
+      "provider": "codex-cli"
+    }
+  },
+  "versions": {
+    "agent_orchestrator": "0.12.6",
+    "grok": "grok 1.0.5 (5115b46bc909) [stable]"
+  }
+}

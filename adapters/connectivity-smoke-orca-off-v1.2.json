@@ -1,0 +1,93 @@
+{
+  "agentskit": {
+    "agentskit_os_used": false,
+    "enabled": false,
+    "event_count": 0,
+    "public_only": false
+  },
+  "analysis_eligible": false,
+  "cleanup": {
+    "terminal_residual_count": 0,
+    "verified": true
+  },
+  "condition_id": "orca__off",
+  "factors": {
+    "ade": "orca",
+    "agentskit": "off"
+  },
+  "invariants": {
+    "agentskit_attribution": "not_applicable",
+    "lifecycle_cleanup": "passed",
+    "no_fallback": "not_evaluated",
+    "permission_policy": "not_evaluated",
+    "role_topology": "passed",
+    "same_base_commit": "not_evaluated",
+    "same_task": "passed",
+    "workspace_boundary": "passed"
+  },
+  "ledger_sha256": "81a823b692293390459d91ce3e34289c59a83c81c3ac93ff0c88491129fe8fac",
+  "observed_at": "2026-08-18T20:50:08.083320+00:00",
+  "protocol_version": "v1.2",
+  "redaction": {
+    "raw_outputs_persisted_publicly": false,
+    "raw_prompts_persisted_publicly": false
+  },
+  "schema_version": "condition-connectivity-smoke-attestation-v1.2",
+  "source_hashes": {
+    "probe": "8b00048644a3fcbdea8fc9b43a172dda1d3f2cce99534253c89d66d4a29914ea"
+  },
+  "status": "passed",
+  "task_id": "pilot_greenfield_service_readiness",
+  "topology": {
+    "executor": {
+      "model": "grok-4.5",
+      "provider": "grok-cli",
+      "settlement": {
+        "capability_hash_present": true,
+        "capability_revoked": true,
+        "delivery_acknowledged": true,
+        "failure_count": 0,
+        "status": "completed",
+        "worker_done_accepted": true
+      }
+    },
+    "planner": {
+      "model": "gpt-5.4",
+      "provider": "codex-cli",
+      "settlement": {
+        "capability_hash_present": true,
+        "capability_revoked": true,
+        "delivery_acknowledged": true,
+        "failure_count": 0,
+        "status": "completed",
+        "worker_done_accepted": true
+      }
+    },
+    "sequential_capability_bound_dispatches": true
+  },
+  "live_connectivity_execution": true,
+  "semantic_parity_eligible": false,
+  "scope": "live ADE/provider connectivity smoke; not a full SDLC condition run",
+  "missing_gates": [
+    "frozen_base_worktree",
+    "full_sdlc",
+    "complete_ade_ledger",
+    "agentskit_inside_ade",
+    "permission_parity",
+    "independent_evaluation"
+  ],
+  "declared_base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
+  "source_revision": {
+    "git_commit": "55fd50270f11c5c9a7a69d6f2e9d9d1a3db85498",
+    "probe_sha256_matches_commit": true,
+    "classification_transform": "connectivity-smoke-reclassification-v1",
+    "transformed_fields": [
+      "schema_version",
+      "scope",
+      "eligibility",
+      "missing_gates",
+      "invariant_claim_strength",
+      "base_commit_label"
+    ]
+  }
+}

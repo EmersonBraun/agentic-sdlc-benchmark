@@ -1,0 +1,108 @@
+{
+  "analysis_eligible": false,
+  "conditions": [
+    {
+      "condition_id": "agent-orchestrator__off",
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-agent-orchestrator-off-v1.2.json",
+      "evidence_sha256": "290765fced81821bdeb45083df41a0fb9e4a9594c33625c4d00857d20f703748",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
+    },
+    {
+      "condition_id": "agent-orchestrator__on",
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-agent-orchestrator-on-v1.2.json",
+      "evidence_sha256": "4bfb3df8215d5fc6d1bf60a374402b236207a57bf54de955ff7bf723701551a9",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
+    },
+    {
+      "condition_id": "compozy__off",
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-compozy-off-v1.2.json",
+      "evidence_sha256": "c0d70c764f180883531e2d502a13b09bec1b45f68dc0fb7e92adb5c2555344a5",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
+    },
+    {
+      "condition_id": "compozy__on",
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-compozy-on-v1.2.json",
+      "evidence_sha256": "ecba829e4d5f43aaf46ac0c11270992cab9f1f5fdaf520d4df0ca9d4c63d4c8e",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
+    },
+    {
+      "condition_id": "orca__off",
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-orca-off-v1.2.json",
+      "evidence_sha256": "54e6683e5fe625a2c937762d7c92e5757048bb719d2df5811eb22f6477de10b2",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
+    },
+    {
+      "condition_id": "orca__on",
+      "connectivity_smoke_passed": true,
+      "evidence": "connectivity-smoke-orca-on-v1.2.json",
+      "evidence_sha256": "0988fa3750284277e8d1dad4f1fae1235d7842fd6f1646a482e95d2d6f31038e",
+      "missing_gates": [
+        "frozen_base_worktree",
+        "full_sdlc",
+        "complete_ade_ledger",
+        "agentskit_inside_ade",
+        "permission_parity",
+        "independent_evaluation"
+      ],
+      "verified": false
+    }
+  ],
+  "generator": "controller/scripts/build_v12_integration_matrix.py",
+  "protocol_version": "v1.2",
+  "schema_version": "semantic-parity-matrix-v1.2",
+  "scope": "live connectivity smoke only; not condition integration or effect evidence",
+  "source_hashes": {
+    "controller/src/benchmark_controller/v12_ade_backends.py": "2acd1e11ab20594f9eeae27a6edbe5e80c28d706c0964b56a6eab9c70e1087d0",
+    "controller/src/benchmark_controller/v12_execution.py": "dca271299096ce6c61adf9b61117c0530443a6ad6f495db4f01eff39266e6cb9",
+    "controller/src/benchmark_controller/v12_integration.py": "776f847be18ace08d3e0acf78e288d3d8dd24ae74c8b36398a9ceed0a4ea54e8",
+    "protocol/conditions-v1.2.json": "56848248d1fc340b06f82259691a7330c86b66607c8bb6ce4ff2bd76524d4c1b",
+    "protocol/model-policy-v1.2.json": "06ae2588391153991a7b953ee36603ba23735e967738f08472dd28a946c6c66f",
+    "protocol/protocol-v1.2.md": "ca6d4518306cf4a875c39fb48f9f9b00d9428b9a7feca1cb65b8ecfc9da73b6b"
+  },
+  "status": "blocked"
+}

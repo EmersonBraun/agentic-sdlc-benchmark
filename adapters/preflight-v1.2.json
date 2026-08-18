@@ -1,0 +1,87 @@
+{
+  "ade": {
+    "agent-orchestrator": {
+      "evidence": [
+        "connectivity-smoke-agent-orchestrator-off-v1.2.json",
+        "connectivity-smoke-agent-orchestrator-on-v1.2.json"
+      ],
+      "status": "installed-not-ready",
+      "technical_pilot_status": "installed-not-ready"
+    },
+    "compozy": {
+      "evidence": [
+        "connectivity-smoke-compozy-off-v1.2.json",
+        "connectivity-smoke-compozy-on-v1.2.json"
+      ],
+      "status": "installed-not-ready",
+      "technical_pilot_status": "installed-not-ready"
+    },
+    "orca": {
+      "evidence": [
+        "connectivity-smoke-orca-off-v1.2.json",
+        "connectivity-smoke-orca-on-v1.2.json"
+      ],
+      "status": "installed-not-ready",
+      "technical_pilot_status": "installed-not-ready"
+    }
+  },
+  "agentskit": {
+    "off": {
+      "evidence": {
+        "neutral_control": "live-zero-event-verified"
+      },
+      "status": "installed-not-ready",
+      "technical_pilot_status": "installed-not-ready"
+    },
+    "on": {
+      "evidence": {
+        "agentskit_os_used": false,
+        "components": [
+          "doc-bridge",
+          "playbook",
+          "code-review"
+        ],
+        "live_conditions": 3,
+        "public_only": true
+      },
+      "status": "installed-not-ready",
+      "technical_pilot_status": "installed-not-ready"
+    }
+  },
+  "limitations": [
+    "Connectivity smokes validate live CLI/ADE wiring only and are excluded from effect estimates.",
+    "They do not validate frozen-base execution, full SDLC, ledger completeness, or AgentsKit use inside the ADE.",
+    "Official collection remains blocked until the resumable v1.2 condition runner is implemented.",
+    "The study is single-operator and currently runs on one personal local machine."
+  ],
+  "official_collection_status": "blocked-runner-not-implemented",
+  "protocol_version": "v1.2",
+  "schema_version": "preflight-v1.2",
+  "status": "connectivity-smoke-ready",
+  "technical_pilot": {
+    "allowed_conditions": [
+      "agent-orchestrator__off",
+      "agent-orchestrator__on",
+      "compozy__off",
+      "compozy__on",
+      "orca__off",
+      "orca__on"
+    ],
+    "analysis_eligible": false,
+    "completed_conditions": [],
+    "completed_connectivity_smokes": [
+      "agent-orchestrator__off",
+      "agent-orchestrator__on",
+      "compozy__off",
+      "compozy__on",
+      "orca__off",
+      "orca__on"
+    ]
+  },
+  "technical_pilot_status": "blocked-full-runner-and-evidence-contract",
+  "v12_semantic_parity": {
+    "matrix": "semantic-parity-matrix-v1.2.json",
+    "matrix_sha256": "5e30b60ff3ed83696e54fc44e8c26112dcc73a5f46a7bc887e27fd3874987bc9",
+    "status": "blocked"
+  }
+}
