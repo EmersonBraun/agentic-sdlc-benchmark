@@ -7,6 +7,7 @@ import hashlib
 import subprocess
 import tempfile
 import time
+import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Mapping, Protocol
@@ -130,6 +131,7 @@ class StepContext:
     branch: str
     idempotency_key: str
     deadline_epoch_ms: float | None
+    accounting_tool: str
     worktree_mode: str = "controller-isolated-native-delegation"
 
 
@@ -186,7 +188,13 @@ class ConditionStepBackend(Protocol):
 class CompletionVerifier(Protocol):
     """Independently validate the backend's quality-gate evidence."""
 
+    enforces_deadline: bool
+
     def verify(self, context: StepContext, proof: Mapping[str, Any]) -> bool: ...
+
+
+class RetryableConditionError(RuntimeError):
+    """Explicit transport failure eligible for bounded retry."""
 
 
 class ComposedConditionRunner:
@@ -202,22 +210,27 @@ class ComposedConditionRunner:
         *,
         max_attempts: int = 3,
         retry_backoff_seconds: float = 1.0,
+        sleeper: Callable[[float], None] = time.sleep,
     ) -> None:
         if max_attempts < 1:
             raise ValueError("max_attempts must be positive")
-        if retry_backoff_seconds < 0:
-            raise ValueError("retry_backoff_seconds must be non-negative")
+        if retry_backoff_seconds <= 0:
+            raise ValueError("retry_backoff_seconds must be positive")
         if getattr(backend, "supports_idempotent_replay", False) is not True:
             raise ValueError("condition backend must guarantee idempotent replay")
         if getattr(backend, "enforces_deadline", False) is not True:
             raise ValueError("condition backend must enforce the controller deadline")
+        if getattr(verifier, "enforces_deadline", False) is not True:
+            raise ValueError("completion verifier must enforce the controller deadline")
         self.backend = backend
         self.worktrees = worktrees
         self.verifier = verifier
         self.max_attempts = max_attempts
         self.retry_backoff_seconds = retry_backoff_seconds
+        self.sleeper = sleeper
 
     def execute(self, assignment: MatrixAssignment, bundle: PreparedRunBundle) -> ExecutionOutcome:
+        self._validate_manifest_identity(assignment, bundle)
         state_path = bundle.directory / self.state_filename
         state_existed = state_path.exists()
         state = self._load_or_create_state(state_path, assignment, bundle)
@@ -281,17 +294,24 @@ class ComposedConditionRunner:
                     assignment, bundle, step, 0, lease.path, lease.branch,
                     f"{assignment.run_id}:pre-merge-verification",
                     self._deadline_epoch_ms(bundle, state),
+                    f"condition-accounting:{assignment.run_id}:pre-merge-verification",
                 )
                 if (
                     not isinstance(proof, Mapping)
                     or not self._valid_pre_merge_proof(proof)
-                    or not self.verifier.verify(context, proof)
+                    or not self._verify(context, proof, phase="pre-merge")
                 ):
                     failure = {"reason": "independent-pre-merge-verification-failed"}
                     state["terminal_state"] = "FAILED"
                     state["failure"] = failure
                     self._write_state(state_path, state)
                     return ExecutionOutcome("FAILED", tuple(artifacts), failure)
+                limit = self._limit_outcome(bundle, state)
+                if limit is not None:
+                    state["terminal_state"] = limit.terminal_state
+                    state["failure"] = limit.failure
+                    self._write_state(state_path, state)
+                    return limit
             outcome = self._run_step(step, assignment, bundle, lease, state_path, state)
             if outcome is not None:
                 state["terminal_state"] = outcome.terminal_state
@@ -306,6 +326,14 @@ class ComposedConditionRunner:
             self._write_state(state_path, state)
 
         proof = state.get("completion_proof")
+        try:
+            self._validate_artifacts(bundle, tuple(state.get("artifacts", [])))
+        except (OSError, ValueError) as exc:
+            failure = {"reason": "final-artifact-revalidation-failed", "error_type": type(exc).__name__}
+            state["terminal_state"] = "INVALID_MEASUREMENT"
+            state["failure"] = failure
+            self._write_state(state_path, state)
+            return ExecutionOutcome("INVALID_MEASUREMENT", tuple(artifacts), failure)
         verification_context = StepContext(
             assignment=assignment,
             bundle=bundle,
@@ -315,11 +343,12 @@ class ComposedConditionRunner:
             branch=lease.branch,
             idempotency_key=f"{assignment.run_id}:completion-verification",
             deadline_epoch_ms=self._deadline_epoch_ms(bundle, state),
+            accounting_tool=f"condition-accounting:{assignment.run_id}:completion-verification",
         )
         if (
             not isinstance(proof, Mapping)
             or not self._valid_completion_proof(proof)
-            or not self.verifier.verify(verification_context, proof)
+            or not self._verify(verification_context, proof, phase="final")
         ):
             failure = {"reason": "independent-quality-gate-verification-failed"}
             state["terminal_state"] = "FAILED"
@@ -334,12 +363,32 @@ class ComposedConditionRunner:
             self._complete_cleanup(lease, bundle, state_path, state)
         except Exception as exc:
             state["terminal_state"] = "INFRASTRUCTURE_FAILURE"
-            state["cleanup_pending"] = False
+            state["cleanup_pending"] = True
             state["cleanup_error"] = type(exc).__name__
             state["failure"] = {"step": "cleanup", "error_type": type(exc).__name__}
             self._write_state(state_path, state)
             return ExecutionOutcome("INFRASTRUCTURE_FAILURE", tuple(artifacts), state["failure"])
         return ExecutionOutcome("MERGED", tuple(artifacts))
+
+    def _verify(self, context: StepContext, proof: Mapping[str, Any], *, phase: str) -> bool:
+        decision = bool(self.verifier.verify(context, proof))
+        context.bundle.ledger.record(
+            stage_id="review" if phase == "pre-merge" else "merge",
+            actor="evaluator",
+            event_type=f"condition.verification.{phase}",
+            time_category="instrumentation_overhead",
+            duration_ms=0,
+            status="completed" if decision else "failed",
+            payload={
+                "phase": phase,
+                "proof_sha256": hashlib.sha256(
+                    json.dumps(dict(proof), sort_keys=True, separators=(",", ":")).encode()
+                ).hexdigest(),
+                "verifier": type(self.verifier).__name__,
+            },
+            tool="condition-runner-v1.1",
+        )
+        return decision
 
     def _complete_cleanup(
         self,
@@ -391,6 +440,7 @@ class ComposedConditionRunner:
                 payload={"step": step.name, "attempt": attempt, "condition_id": assignment.condition_id},
                 tool=f"condition-runner:{assignment.ade}:{assignment.harness}:{assignment.agentskit}",
             )
+            explicit_exception = False
             try:
                 started = time.monotonic_ns()
                 ledger_lines_before = self._ledger_line_count(bundle)
@@ -404,14 +454,23 @@ class ComposedConditionRunner:
                         lease.branch,
                         f"{assignment.run_id}:{step.name}:{attempt}",
                         self._deadline_epoch_ms(bundle, state),
+                        f"condition-accounting:{assignment.run_id}:{step.name}:{attempt}",
                     )
                 )
                 if not isinstance(result, StepResult):
                     raise TypeError("condition backend must return StepResult")
-            except Exception as exc:
+            except RetryableConditionError as exc:
                 result = StepResult.retry(type(exc).__name__)
+                explicit_exception = True
+            except Exception as exc:
+                result = StepResult("invalid-measurement", reason=type(exc).__name__)
+                explicit_exception = True
             duration_ms = (time.monotonic_ns() - started) / 1_000_000
-            if not self._has_backend_timing_evidence(bundle, ledger_lines_before):
+            if not explicit_exception and not self._has_backend_timing_evidence(
+                bundle, ledger_lines_before, step=step, accounting_tool=(
+                    f"condition-accounting:{assignment.run_id}:{step.name}:{attempt}"
+                )
+            ):
                 result = StepResult("invalid-measurement", reason="missing-backend-timing-evidence")
 
             if result.status == "completed":
@@ -457,7 +516,23 @@ class ComposedConditionRunner:
                 limit = self._limit_outcome(bundle, state)
                 if limit is not None:
                     return limit
-                time.sleep(self.retry_backoff_seconds * (2 ** (attempt - 1)))
+                delay = self.retry_backoff_seconds * (2 ** (attempt - 1))
+                started_wait = time.monotonic_ns()
+                self.sleeper(delay)
+                waited_ms = (time.monotonic_ns() - started_wait) / 1_000_000
+                bundle.ledger.record(
+                    stage_id=step.stage_id,
+                    actor="infrastructure",
+                    event_type="condition.retry.backoff",
+                    time_category="external_wait",
+                    duration_ms=waited_ms,
+                    status="completed",
+                    payload={"attempt": attempt, "scheduled_seconds": delay},
+                    tool="condition-runner-v1.1",
+                )
+                limit = self._limit_outcome(bundle, state)
+                if limit is not None:
+                    return limit
                 continue
 
             terminal = {
@@ -523,8 +598,19 @@ class ComposedConditionRunner:
                 or visibility not in {"public", "private", "redacted"}
             ):
                 raise ValueError("artifact requires path, sha256, and visibility")
+            relative = Path(path)
+            if relative.is_absolute() or ".." in relative.parts or len(digest) != 64 or any(
+                character not in "0123456789abcdef" for character in digest
+            ):
+                raise ValueError("artifact path or digest is invalid")
             target = (root / path).resolve()
-            if not target.is_relative_to(root) or not target.is_file():
+            if not target.is_relative_to(root):
+                raise ValueError("artifact escapes the run bundle")
+            if visibility == "private":
+                if target.exists():
+                    raise ValueError("private artifact content cannot exist in the public run bundle")
+                continue
+            if not target.is_file():
                 raise ValueError("artifact must be a file inside the run bundle")
             if hashlib.sha256(target.read_bytes()).hexdigest() != digest:
                 raise ValueError("artifact digest mismatch")
@@ -542,13 +628,17 @@ class ComposedConditionRunner:
                 or any(
                     not isinstance(budgets.get(key), (int, float))
                     or isinstance(budgets.get(key), bool)
+                    or not math.isfinite(float(budgets[key]))
                     or budgets[key] <= 0
                     for key in numeric
                 )
                 or not isinstance(stage_limits, Mapping)
                 or set(stage_limits) != {step.stage_id for step in CONDITION_STEPS}
                 or any(
-                    not isinstance(value, (int, float)) or isinstance(value, bool) or value <= 0
+                    not isinstance(value, (int, float))
+                    or isinstance(value, bool)
+                    or not math.isfinite(float(value))
+                    or value <= 0
                     for value in stage_limits.values()
                 )
             ):
@@ -570,6 +660,8 @@ class ComposedConditionRunner:
         )
         cost_usd = sum(float(event.get("cost_usd", 0)) for event in events)
         elapsed_ms = time.time() * 1000 - float(state["started_at_epoch_ms"])
+        if not all(math.isfinite(value) for value in (effective_ms, external_wait_ms, float(tokens), cost_usd, elapsed_ms)):
+            return ExecutionOutcome("INVALID_MEASUREMENT", failure={"reason": "non-finite-measurement"})
         wall_limit = budgets.get("wall_time_ms")
         if isinstance(wall_limit, (int, float)) and elapsed_ms > wall_limit:
             return ExecutionOutcome("TIMEOUT", failure={"reason": "wall-time-limit"})
@@ -596,6 +688,19 @@ class ComposedConditionRunner:
         return None
 
     @staticmethod
+    def _validate_manifest_identity(assignment: MatrixAssignment, bundle: PreparedRunBundle) -> None:
+        expected = {
+            "run_id": assignment.run_id,
+            "task_id": assignment.task_id,
+            "product_id": assignment.product_id,
+            "condition_id": assignment.condition_id,
+            "replicate": assignment.replicate,
+            "randomization_seed": assignment.randomization_seed,
+        }
+        if any(bundle.manifest.get(key) != value for key, value in expected.items()):
+            raise RuntimeError("assignment and run manifest identity mismatch")
+
+    @staticmethod
     def _deadline_epoch_ms(bundle: PreparedRunBundle, state: Mapping[str, Any]) -> float | None:
         budgets = bundle.manifest.get("budgets", {})
         limit = budgets.get("wall_time_ms") if isinstance(budgets, Mapping) else None
@@ -610,7 +715,13 @@ class ComposedConditionRunner:
         return sum(1 for line in bundle.ledger.path.read_text().splitlines() if line.strip())
 
     @staticmethod
-    def _has_backend_timing_evidence(bundle: PreparedRunBundle, prior_count: int) -> bool:
+    def _has_backend_timing_evidence(
+        bundle: PreparedRunBundle,
+        prior_count: int,
+        *,
+        step: ConditionStep,
+        accounting_tool: str,
+    ) -> bool:
         if not bundle.ledger.path.is_file():
             return False
         lines = [line for line in bundle.ledger.path.read_text().splitlines() if line.strip()]
@@ -618,10 +729,10 @@ class ComposedConditionRunner:
         accounting_complete = False
         for line in lines[prior_count:]:
             event = json.loads(line)
-            tool = str(event.get("tool", ""))
             if (
-                tool != "condition-runner-v1.1"
-                and not tool.startswith("condition-runner:")
+                event.get("tool") == accounting_tool
+                and event.get("stage_id") == step.stage_id
+                and event.get("status") == "completed"
                 and event.get("event_type") in {
                     "backend.attempt.effective-work",
                     "backend.attempt.external-wait",

@@ -60,7 +60,7 @@ class _Backend:
             duration_ms=1,
             status="completed",
             payload={"attempt": context.attempt},
-            tool="fake-backend",
+            tool=context.accounting_tool,
             tokens={"input": 0, "output": 0, "cached": 0, "reasoning": 0},
             cost_usd=0,
         )
@@ -72,7 +72,7 @@ class _Backend:
             duration_ms=0,
             status="completed",
             payload={"attempt": context.attempt},
-            tool="fake-backend",
+            tool=context.accounting_tool,
         )
         if context.step.name == self.retry_step and context.attempt == 1:
             return StepResult.retry("transient-provider-error")
@@ -95,6 +95,8 @@ class _Backend:
 
 
 class _Verifier:
+    enforces_deadline = True
+
     def verify(self, context, proof):
         return True
 
@@ -120,7 +122,15 @@ class ComposedConditionRunnerTests(unittest.TestCase):
         directory.mkdir()
         return _Bundle(
             directory=directory,
-            manifest={"base_commit": "a" * 40, "condition_id": "orca__reference__off"},
+            manifest={
+                "base_commit": "a" * 40,
+                "run_id": "run_condition-runner",
+                "task_id": "pilot_greenfield_service_readiness",
+                "product_id": "greenfield",
+                "condition_id": "orca__reference__off",
+                "replicate": 1,
+                "randomization_seed": 10,
+            },
             ledger=Ledger(directory / "ledger.jsonl", run_id="run_condition-runner", task_id="pilot_greenfield_service_readiness"),
         )
 
@@ -130,7 +140,8 @@ class ComposedConditionRunnerTests(unittest.TestCase):
             backend = _Backend(retry_step="implementation")
             worktrees = _Worktrees(root / "worktrees")
             runner = ComposedConditionRunner(
-                backend, worktrees, _Verifier(), max_attempts=2, retry_backoff_seconds=0
+                backend, worktrees, _Verifier(), max_attempts=2,
+                retry_backoff_seconds=1, sleeper=lambda seconds: None,
             )
 
             outcome = runner.execute(_assignment(), self._bundle(root))
@@ -159,6 +170,8 @@ class ComposedConditionRunnerTests(unittest.TestCase):
 
     def test_independent_verifier_can_block_merged(self) -> None:
         class RejectingVerifier:
+            enforces_deadline = True
+
             def verify(self, context, proof):
                 return False
 
@@ -189,7 +202,7 @@ class ComposedConditionRunnerTests(unittest.TestCase):
                 worktrees,
                 lambda assignment, bundle: _Backend(),
                 lambda assignment, bundle: _Verifier(),
-                retry_backoff_seconds=0,
+                retry_backoff_seconds=1,
             )
             outcome = backend.execute(_assignment(), self._bundle(root))
             self.assertEqual(outcome.terminal_state, "MERGED")
