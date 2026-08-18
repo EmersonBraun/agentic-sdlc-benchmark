@@ -48,3 +48,21 @@ class AgentsKitComponentActionBridgeTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 bridge.record({"component": "playbook", "operation": "step", "phase": "pending", "step": 1})
 
+    def test_delegate_lifecycle_can_be_recorded_without_double_counting_work(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            bridge = self.make_bridge(Path(directory))
+            delegated = bridge.record({
+                "component": "specialized-agents",
+                "operation": "delegate",
+                "phase": "complete",
+                "name": "code-review",
+                "depth": 0,
+            })
+            reviewed = bridge.record({
+                "component": "code-review",
+                "operation": "review",
+                "phase": "complete",
+                "durationMs": 125,
+            })
+            self.assertEqual(delegated["duration_ms"], 0)
+            self.assertEqual(reviewed["duration_ms"], 125)

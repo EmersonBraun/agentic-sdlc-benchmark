@@ -144,7 +144,10 @@ def _run_native_agentskit(
     evidence["commands"]["code_review"] = {"returncode": code, "output_sha256": _sha256(output), "duration_ms": duration}
     if code != 0 or "7/7 lens executions succeeded" not in output:
         raise RuntimeError("native_code_review_failed")
-    bridge.record({"component": "specialized-agents", "operation": "delegate", "phase": "complete", "name": "code-review", "depth": 0, "durationMs": duration, "stage_id": "review"})
+    # Delegation and review describe the same wall-clock operation. Keep the
+    # delegation lifecycle event at zero duration and attribute work once to
+    # the concrete code-review action.
+    bridge.record({"component": "specialized-agents", "operation": "delegate", "phase": "complete", "name": "code-review", "depth": 0, "stage_id": "review"})
     bridge.record({"component": "code-review", "operation": "review", "phase": "complete", "durationMs": duration, "stage_id": "review"})
 
     evidence["component_action_records"] = 6

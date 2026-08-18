@@ -21,6 +21,8 @@
     "versioned_memory": "@agentskit/memory@0.11.8"
   },
   "fresh_contract_recheck": {
+    "attestation": "agentskit-v1.1-contract-recheck-attestation.json",
+    "attestation_sha256": "a9af5dd22e5974f48f68b883ef6cce61bcbc7e9729d9064a017667823a611982",
     "core_runtime_event_count": 15,
     "integrated_component_action_count": 6,
     "integrated_ledger_event_count": 21,
@@ -30,8 +32,8 @@
     "raw_content_persisted": false
   },
   "provider_backed_pair": {
-    "pair": "../analysis/technical-pair-compozy-reference-v1.1.json",
-    "pair_sha256": "fbac6e3d343f60db92a39f25feac1797b0e13c9cb0615b8b4c4fa6c048bb0cbd",
+    "pair": "../analysis/technical-pair-compozy-reference-v1.1-2.json",
+    "pair_sha256": "3be1a2b5002c96fdcf87c402cac8ca1f5791371553750d0ff5a18ef41535c767",
     "same_task": "pilot_greenfield_service_readiness",
     "same_base_commit": "032045401c38d0d7f6168ade1cf2053f503e4acc",
     "same_ade": "compozy",
@@ -47,12 +49,13 @@
       "agentskit_event_count": 0
     },
     "on": {
-      "run_id": "run_technical-compozy-reference-on-r3",
+      "run_id": "run_technical-compozy-reference-on-r4",
       "terminal_state": "TECHNICAL_PASS",
-      "manifest_sha256": "790bcad6b132e14e09c8d014187479da523f7f023d32ff786f1e758c23212eb9",
-      "attestation_sha256": "5e6e409d8f16e673a39ca3babf648839d77562b4133e7fef35fc7ac079bcd8e6",
-      "ledger_sha256": "3686faf1e217c345f26c3764193d519efd6a95911604eaefae373106a89276e0",
+      "manifest_sha256": "0c38297dfb039cffabd7507409503d13fffdf0a18d75e4134f930fd766390f0d",
+      "attestation_sha256": "d738666de45b33528737d57c55f8904ebe17fddf148817fc71d8b4d29ffbf25b",
+      "ledger_sha256": "5a3290acd9537a3974939db65505adf90a0411c4a4f926aa214f3d2aed367c20",
       "agentskit_event_count": 6,
+      "effective_work_deduplicated": true,
       "native_components_executed": ["doc-bridge", "playbook", "code-review"]
     },
     "cleanup_verified": true,
@@ -66,6 +69,10 @@
     "redaction": "passed",
     "cleanup": "passed",
     "no_private_component": "passed"
+  },
+  "implementation": {
+    "technical_runner": "controller/scripts/run_compozy_technical_pilot.py",
+    "technical_runner_sha256": "6fc7b061606cd150ab3a94bd2b457e69c4191b8ed224a2f410a2bcc8930fe0e7"
   },
   "decision": "AgentsKit ON satisfies its independently testable v1.1 component contract. This validates integration, not benefit: effect estimation still requires preregistered official ON/OFF replications after every ADE and harness is ready."
 }
