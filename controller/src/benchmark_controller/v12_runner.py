@@ -7,6 +7,7 @@ import hashlib
 import json
 from pathlib import Path
 import tempfile
+import time
 from typing import Any, Callable, Mapping
 
 from .condition_runner import (
@@ -160,6 +161,11 @@ class V12HandoffBackend:
             metadata=metadata,
             completion_proof=result.completion_proof,
         )
+
+    def close(self) -> None:
+        close = getattr(self.delegate, "close", None)
+        if callable(close):
+            close()
 
     def _prepare_factor(self, context: StepContext, path: Path) -> str | None:
         if context.assignment.agentskit == "off":
@@ -318,10 +324,32 @@ class V12NativeCollectionBackend:
         self.retry_backoff_seconds = retry_backoff_seconds
 
     def execute(self, assignment: MatrixAssignment, bundle: PreparedRunBundle) -> ExecutionOutcome:
-        return V12NativeConditionRunner(
-            self.backend_factory(assignment, bundle),
-            self.worktrees,
-            self.verifier_factory(assignment, bundle),
-            max_attempts=self.max_attempts,
-            retry_backoff_seconds=self.retry_backoff_seconds,
-        ).execute(assignment, bundle)
+        backend = self.backend_factory(assignment, bundle)
+        try:
+            return V12NativeConditionRunner(
+                backend,
+                self.worktrees,
+                self.verifier_factory(assignment, bundle),
+                max_attempts=self.max_attempts,
+                retry_backoff_seconds=self.retry_backoff_seconds,
+            ).execute(assignment, bundle)
+        finally:
+            close = getattr(backend, "close", None)
+            if callable(close):
+                started = time.monotonic_ns()
+                cleanup_error: Exception | None = None
+                try:
+                    close()
+                except Exception as exc:
+                    cleanup_error = exc
+                bundle.ledger.record(
+                    stage_id="documentation", actor="infrastructure",
+                    event_type="condition.backend.cleanup",
+                    time_category="orchestration_overhead",
+                    duration_ms=(time.monotonic_ns() - started) / 1_000_000,
+                    status="failed" if cleanup_error else "completed",
+                    payload={"condition_id": assignment.condition_id},
+                    tool="condition-runner-v1.2",
+                )
+                if cleanup_error is not None:
+                    raise cleanup_error

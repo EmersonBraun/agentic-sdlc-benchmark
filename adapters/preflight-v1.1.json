@@ -15,7 +15,7 @@
     "contract": "semantic-parity-v1.0.json",
     "status": "not-ready",
     "matrix": "semantic-parity-matrix-v1.1.json",
-    "matrix_sha256": "990a4c806e794060253b8525b0d5192cdaf13982d42950ce000e33a5dc9a0f15",
+    "matrix_sha256": "37dcb822adb4364a6271efb5be9de6cef7707e2e31a79cba54f4112383676759",
     "precondition_conditions_verified": 18,
     "conditions_verified": 0,
     "invariants_per_condition": 7,

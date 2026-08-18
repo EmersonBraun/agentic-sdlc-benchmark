@@ -101,6 +101,7 @@ class Ledger:
         artifact_refs: list[str] | None = None,
         tokens: dict[str, int] | None = None,
         cost_usd: float | None = None,
+        token_cost_accounting_observed: bool | None = None,
     ) -> dict[str, Any]:
         if stage_id not in STAGES:
             raise ValueError(f"Unknown stage: {stage_id!r}")
@@ -120,6 +121,8 @@ class Ledger:
                 raise ValueError("token counts must be non-negative integers")
         if cost_usd is not None and cost_usd < 0:
             raise ValueError("cost_usd must be non-negative")
+        if token_cost_accounting_observed is not None and not isinstance(token_cost_accounting_observed, bool):
+            raise ValueError("token_cost_accounting_observed must be boolean")
 
         event_payload = payload or {}
         event = {
@@ -143,6 +146,8 @@ class Ledger:
         }
         if tokens is not None:
             event["tokens"] = dict(tokens)
+        if token_cost_accounting_observed is not None:
+            event["token_cost_accounting_observed"] = token_cost_accounting_observed
         if cost_usd is not None:
             event["cost_usd"] = round(cost_usd, 8)
         # Sequence allocation and append are one inter-process critical section.

@@ -4,7 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from benchmark_controller.condition_runner import ConditionStep, StepContext, StepResult
 from benchmark_controller.ledger import Ledger
@@ -247,14 +247,17 @@ class V12RunnerTests(unittest.TestCase):
             self.assertEqual(result.status, "invalid-measurement")
 
     def test_collection_backend_uses_v12_runner(self) -> None:
+        backend = SimpleNamespace(close=Mock())
         collection = V12NativeCollectionBackend(
-            object(), lambda assignment, bundle: object(), lambda assignment, bundle: object(),
+            object(), lambda assignment, bundle: backend, lambda assignment, bundle: object(),
         )
         expected = SimpleNamespace(terminal_state="MERGED")
+        current_bundle = SimpleNamespace(ledger=SimpleNamespace(record=Mock()))
         with patch("benchmark_controller.v12_runner.V12NativeConditionRunner") as runner:
             runner.return_value.execute.return_value = expected
-            self.assertIs(collection.execute(assignment("off"), object()), expected)
+            self.assertIs(collection.execute(assignment("off"), current_bundle), expected)
             runner.assert_called_once()
+            backend.close.assert_called_once_with()
 
     def test_rejects_self_declared_agentskit_without_execution_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

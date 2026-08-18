@@ -676,6 +676,14 @@ class ComposedConditionRunner:
         events = []
         if bundle.ledger.path.is_file():
             events = [json.loads(line) for line in bundle.ledger.path.read_text().splitlines() if line.strip()]
+        if bundle.manifest.get("gate_mode") == "official-collection" and any(
+            event.get("event_type") == "backend.attempt.effective-work"
+            and event.get("token_cost_accounting_observed") is not True
+            for event in events
+        ):
+            return ExecutionOutcome(
+                "INVALID_MEASUREMENT", failure={"reason": "token-cost-accounting-unavailable"},
+            )
         effective_ms = sum(
             float(event.get("duration_ms", 0))
             for event in events if event.get("time_category") == "effective_work"

@@ -47,6 +47,8 @@ class NativeStepExecution:
     workspace: Path
     effective_work_ms: float
     external_wait_ms: float
+    orchestration_overhead_ms: float
+    token_cost_accounting_observed: bool
     tokens: Mapping[str, int]
     cost_usd: float
     metadata: Mapping[str, Any]
@@ -108,11 +110,18 @@ class V12NativeStageBackend:
             return StepResult.failed(execution.reason or "native-step-failed")
         if execution.status == "human-required":
             return StepResult.human_required(execution.reason or "native-hitl-trigger")
+        if execution.status == "timeout":
+            return StepResult("timeout", reason=execution.reason or "controller-deadline-exceeded")
         return StepResult.completed(
             artifacts=execution.artifacts,
             metadata=execution.metadata,
             completion_proof=execution.completion_proof,
         )
+
+    def close(self) -> None:
+        close = getattr(self.executor, "close", None)
+        if callable(close):
+            close()
 
     @staticmethod
     def _role_for_step(step: str) -> str:
@@ -126,7 +135,7 @@ class V12NativeStageBackend:
 
     @staticmethod
     def _validate_execution(request: NativeStepRequest, execution: NativeStepExecution) -> str | None:
-        if execution.status not in {"completed", "retry", "failed", "human-required"}:
+        if execution.status not in {"completed", "retry", "failed", "human-required", "timeout"}:
             return "native-step-status-invalid"
         if (
             execution.role != request.role
@@ -136,11 +145,17 @@ class V12NativeStageBackend:
             return "native-role-binding-mismatch"
         if execution.workspace.resolve() != request.worktree:
             return "native-workspace-boundary-mismatch"
+        if not isinstance(execution.token_cost_accounting_observed, bool):
+            return "native-accounting-observation-invalid"
         if not all(math.isfinite(value) for value in (
-            execution.effective_work_ms, execution.external_wait_ms, execution.cost_usd,
+            execution.effective_work_ms, execution.external_wait_ms,
+            execution.orchestration_overhead_ms, execution.cost_usd,
         )):
             return "native-accounting-non-finite"
-        if execution.effective_work_ms < 0 or execution.external_wait_ms < 0 or execution.cost_usd < 0:
+        if (
+            execution.effective_work_ms < 0 or execution.external_wait_ms < 0
+            or execution.orchestration_overhead_ms < 0 or execution.cost_usd < 0
+        ):
             return "native-accounting-negative"
         if set(execution.tokens) != {"input", "output", "cached", "reasoning"}:
             return "native-token-accounting-incomplete"
@@ -167,10 +182,12 @@ class V12NativeStageBackend:
             payload={
                 "role": execution.role, "provider": execution.provider,
                 "model": execution.model, "idempotency_key": context.idempotency_key,
+                "token_cost_accounting_observed": execution.token_cost_accounting_observed,
             },
             tool=context.accounting_tool,
             tokens=tokens,
             cost_usd=max(0, execution.cost_usd) if math.isfinite(execution.cost_usd) else 0,
+            token_cost_accounting_observed=execution.token_cost_accounting_observed,
         )
         context.bundle.ledger.record(
             stage_id=context.step.stage_id,
@@ -178,6 +195,19 @@ class V12NativeStageBackend:
             event_type="backend.attempt.external-wait",
             time_category="external_wait",
             duration_ms=max(0, execution.external_wait_ms) if math.isfinite(execution.external_wait_ms) else 0,
+            status="completed" if valid else "failed",
+            payload={"idempotency_key": context.idempotency_key},
+            tool=context.accounting_tool,
+        )
+        context.bundle.ledger.record(
+            stage_id=context.step.stage_id,
+            actor="infrastructure",
+            event_type="backend.attempt.orchestration-overhead",
+            time_category="orchestration_overhead",
+            duration_ms=(
+                max(0, execution.orchestration_overhead_ms)
+                if math.isfinite(execution.orchestration_overhead_ms) else 0
+            ),
             status="completed" if valid else "failed",
             payload={"idempotency_key": context.idempotency_key},
             tool=context.accounting_tool,

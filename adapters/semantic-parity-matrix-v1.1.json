@@ -2109,7 +2109,7 @@
     "controller/src/benchmark_controller/agentskit.py": "4737fea5ba1c2b6055f0e6cf1461ea212ee27b7f235acef5e0a0cd9ba649a8be",
     "controller/src/benchmark_controller/external.py": "0e267889037c1ce978eb7cd3e1d0274a167826b2ede1fa5c7bc2559050c2e97d",
     "controller/src/benchmark_controller/harness_adapters.py": "e0e2046fe6b862e182b9931e774d5de10b890f73e4e5d78e86c23293dc8a4a7e",
-    "controller/src/benchmark_controller/ledger.py": "f2bd836ca62d56e62e6f5f916f270e341ba5791065124ea45021f2dee4b42261",
+    "controller/src/benchmark_controller/ledger.py": "0dfac310689e2817c5f32ceeac5396b909313aab5b77b8790987ac461a21290a",
     "controller/src/benchmark_controller/pilot_executor.py": "15e9cdc513854537a3981f0cb6cfe72cdf3aaccaa7813c7fbf392518922e264c",
     "controller/src/benchmark_controller/semantic_parity.py": "2598072322c603f8c16a096f68144877907cf40a1a3fad1e41d842bec7fca542",
     "controller/tests/test_adapters.py": "ffb2c7767c54981cf54addcde30d0670bbd824f5cfaf5acc6a591405776a68ba",
