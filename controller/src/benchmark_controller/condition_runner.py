@@ -404,6 +404,20 @@ class ComposedConditionRunner:
         return ExecutionOutcome("MERGED", tuple(artifacts))
 
     def _verify(self, context: StepContext, proof: Mapping[str, Any], *, phase: str) -> bool:
+        try:
+            self._prepare_verification(context)
+        except Exception as exc:
+            context.bundle.ledger.record(
+                stage_id="review" if phase == "pre-merge" else "merge",
+                actor="controller",
+                event_type=f"condition.verification.{phase}.preparation",
+                time_category="instrumentation_overhead",
+                duration_ms=0,
+                status="failed",
+                payload={"phase": phase, "error_type": type(exc).__name__},
+                tool=self.runner_tool,
+            )
+            return False
         ledger_lines_before = self._ledger_line_count(context.bundle)
         result = self.verifier.verify(context, proof)
         decision = result.accepted if isinstance(result, VerificationDecision) else bool(result)
@@ -439,6 +453,12 @@ class ComposedConditionRunner:
             tool=self.runner_tool,
         )
         return decision
+
+    def _prepare_step(self, context: StepContext) -> None:
+        """Controller-owned hook invoked immediately before a backend step."""
+
+    def _prepare_verification(self, context: StepContext) -> None:
+        """Controller-owned hook invoked immediately before independent verification."""
 
     def _complete_cleanup(
         self,
@@ -493,8 +513,7 @@ class ComposedConditionRunner:
             try:
                 started = time.monotonic_ns()
                 ledger_lines_before = self._ledger_line_count(bundle)
-                result = self.backend.execute_step(
-                    StepContext(
+                step_context = StepContext(
                         assignment,
                         bundle,
                         step,
@@ -505,7 +524,8 @@ class ComposedConditionRunner:
                         self._deadline_epoch_ms(bundle, state),
                         f"condition-accounting:{assignment.run_id}:{step.name}:{attempt}",
                     )
-                )
+                self._prepare_step(step_context)
+                result = self.backend.execute_step(step_context)
                 if not isinstance(result, StepResult):
                     raise TypeError("condition backend must return StepResult")
             except RetryableConditionError as exc:

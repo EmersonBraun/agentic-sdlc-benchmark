@@ -83,6 +83,24 @@ class Delegate:
 
 
 class V12RunnerTests(unittest.TestCase):
+    def test_refreshes_controller_evidence_before_every_evaluator_boundary(self) -> None:
+        collector = Mock()
+        verifier = SimpleNamespace(
+            provider="codex", model="gpt-5.4-mini", enforces_deadline=True,
+        )
+        runner = V12NativeConditionRunner(
+            SimpleNamespace(supports_idempotent_replay=True, enforces_deadline=True),
+            SimpleNamespace(), verifier, evidence_collector=collector,
+        )
+        review = SimpleNamespace(step=ConditionStep("review", "review", "reviewer-functional"))
+        implementation = SimpleNamespace(step=ConditionStep("implementation", "implementation", "executor"))
+
+        runner._prepare_step(implementation)
+        runner._prepare_step(review)
+        runner._prepare_verification(review)
+
+        self.assertEqual(collector.collect_for.call_count, 2)
+
     def test_runner_uses_harness_free_v12_state_identity(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
