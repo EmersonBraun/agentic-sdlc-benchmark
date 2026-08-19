@@ -16,7 +16,7 @@ from .v12_native_backend import NativeStepExecution, NativeStepRequest, V12RoleE
 
 EXPECTED_ORCA_VERSION = "1.4.184"
 PLANNER_STEPS = {"requirements", "planning", "decomposition", "documentation", "merge"}
-MUTATING_STEPS = {"implementation", "local-testing", "pull-request", "ci-qa", "documentation", "merge"}
+READ_ONLY_STEPS = {"requirements", "planning", "decomposition", "review"}
 
 
 @dataclass(frozen=True)
@@ -100,7 +100,7 @@ class OrcaV12RoleExecutor:
             run, created_ms = self._run(request)
             overhead_ms += created_ms
             overhead_ms += self._validate_clean_worktree(request)
-            if request.step == "implementation":
+            if request.step == "implementation" or request.step in READ_ONLY_STEPS:
                 starting_head, head_ms = self._git_head(request)
                 overhead_ms += head_ms
             prompt, sentinel = self._prompt(request)
@@ -109,6 +109,7 @@ class OrcaV12RoleExecutor:
             worker, worker_ms = self._create_ready_worker(run, request)
             overhead_ms += worker_ms
             self._workers[key] = worker
+            self._orphaned_terminals.discard(worker)
             capture_cursor, model_capture, cursor_ms = self._capture_baseline(worker, request)
             overhead_ms += cursor_ms
             dispatch_started = True
@@ -138,7 +139,10 @@ class OrcaV12RoleExecutor:
                 ending_head, head_ms = self._git_head(request)
                 overhead_ms += head_ms
                 if ending_head == starting_head:
-                    raise RuntimeError("ORCA implementation produced no committed product delta")
+                    if request.step == "implementation":
+                        raise RuntimeError("ORCA implementation produced no committed product delta")
+                elif request.step in READ_ONLY_STEPS:
+                    raise RuntimeError("ORCA read-only stage changed the measured product HEAD")
             if self._remaining(request) <= 0:
                 raise subprocess.TimeoutExpired("orca", 0)
             overhead_ms += self._close_worker(key, request)
@@ -277,6 +281,7 @@ class OrcaV12RoleExecutor:
         handle = self._nested(created.value, "result", "terminal", "handle")
         if not isinstance(handle, str):
             raise RuntimeError("ORCA worker identity missing")
+        self._orphaned_terminals.add(handle)
         duration = created.duration_ms
         try:
             for _ in range(2):
@@ -292,7 +297,11 @@ class OrcaV12RoleExecutor:
                     stable_sleep = min(self.stable_idle_seconds, self._remaining(request))
                     time.sleep(stable_sleep)
         except Exception:
-            self._close_terminal(handle)
+            try:
+                self._close_terminal(handle)
+                self._orphaned_terminals.discard(handle)
+            except Exception:
+                pass
             raise
         return handle, duration + stable_sleep * 1000
 
@@ -345,10 +354,12 @@ class OrcaV12RoleExecutor:
         delivery_id = self._nested(checked.value, "result", "deliveryId")
         matched: Mapping[str, Any] | None = None
         match_count = 0
+        worker_done_count = 0
         if isinstance(messages, list):
             for message in messages:
                 if not isinstance(message, Mapping) or message.get("type") != "worker_done":
                     continue
+                worker_done_count += 1
                 try:
                     payload = json.loads(str(message.get("payload", "{}")))
                 except json.JSONDecodeError:
@@ -360,9 +371,18 @@ class OrcaV12RoleExecutor:
                 ):
                     matched = message
                     match_count += 1
+        allowed_side_messages = {"heartbeat", "_heartbeat", "status", "progress"}
+        unexpected = [] if not isinstance(messages, list) else [
+            message for message in messages
+            if not isinstance(message, Mapping) or (
+                message.get("type") != "worker_done"
+                and message.get("type") not in allowed_side_messages
+            )
+        ]
         if (
-            matched is None or match_count != 1 or not isinstance(delivery_id, str)
-            or not isinstance(messages, list) or len(messages) != 1
+            matched is None or match_count != 1 or worker_done_count != 1
+            or not isinstance(delivery_id, str)
+            or not isinstance(messages, list) or bool(unexpected)
         ):
             raise RuntimeError("ORCA worker_done delivery missing")
         ack = self.transport.run_json((
@@ -598,8 +618,6 @@ class OrcaV12RoleExecutor:
 
     @classmethod
     def _validate_clean_worktree(cls, request: NativeStepRequest) -> float:
-        if request.step not in MUTATING_STEPS:
-            return 0
         started = time.monotonic_ns()
         completed = subprocess.run(
             ("git", "-C", str(request.worktree), "status", "--porcelain"),

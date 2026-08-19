@@ -78,6 +78,12 @@ class OrcaV12ExecutorTests(unittest.TestCase):
         task = root / "tasks/public/pilot_greenfield_service_readiness.md"
         task.parent.mkdir(parents=True)
         task.write_text("task")
+        if not (root / ".git").exists():
+            subprocess.run(("git", "init", "-q", str(root)), check=True)
+            subprocess.run(("git", "-C", str(root), "config", "user.email", "benchmark@example.test"), check=True)
+            subprocess.run(("git", "-C", str(root), "config", "user.name", "Benchmark Test"), check=True)
+            subprocess.run(("git", "-C", str(root), "add", "."), check=True)
+            subprocess.run(("git", "-C", str(root), "commit", "-qm", "fixture"), check=True)
         return NativeStepRequest(
             run_id="run_orca-test", condition_id="orca__off",
             task_id="pilot_greenfield_service_readiness", step="decomposition",
