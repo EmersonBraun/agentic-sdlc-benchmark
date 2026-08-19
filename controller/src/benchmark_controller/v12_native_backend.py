@@ -36,6 +36,7 @@ class NativeStepRequest:
     task_path: Path
     handoff_path: Path | None
     agentskit_context_path: Path | None
+    evaluation_evidence_path: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -83,6 +84,11 @@ class V12NativeStageBackend:
         task_path = context.worktree / "tasks/public" / f"{context.assignment.task_id}.md"
         if not task_path.is_file():
             return StepResult("invalid-measurement", reason="frozen-task-missing-from-worktree")
+        bundle_directory = getattr(context.bundle, "directory", None)
+        evidence_path = (
+            Path(bundle_directory) / "private-evaluation/controller-attestation.json"
+            if bundle_directory is not None else None
+        )
         request = NativeStepRequest(
             run_id=context.assignment.run_id,
             condition_id=context.assignment.condition_id,
@@ -98,6 +104,7 @@ class V12NativeStageBackend:
             task_path=task_path,
             handoff_path=context.handoff_path,
             agentskit_context_path=context.agentskit_context_path,
+            evaluation_evidence_path=evidence_path if evidence_path and evidence_path.is_file() else None,
         )
         execution = self.executor.execute(request)
         validation_error = self._validate_execution(request, execution)
