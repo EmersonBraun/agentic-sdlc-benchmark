@@ -10,6 +10,18 @@ from benchmark_controller.v12_evaluation_evidence import ControllerEvidenceAttes
 
 
 class ControllerEvidenceCollectorTests(unittest.TestCase):
+    @staticmethod
+    def commit_private_plan(plan: Path) -> str:
+        subprocess.run(("git", "init", "-q"), cwd=plan.parent, check=True)
+        subprocess.run(("git", "config", "user.email", "private@example.test"), cwd=plan.parent, check=True)
+        subprocess.run(("git", "config", "user.name", "Private Test"), cwd=plan.parent, check=True)
+        subprocess.run(("git", "add", plan.name), cwd=plan.parent, check=True)
+        subprocess.run(("git", "commit", "-qm", "private fixture"), cwd=plan.parent, check=True)
+        return subprocess.run(
+            ("git", "rev-parse", "HEAD"), cwd=plan.parent,
+            capture_output=True, text=True, check=True,
+        ).stdout.strip()
+
     def test_executes_private_plan_and_emits_only_bounded_attestation(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -48,9 +60,9 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
             plan.write_text(json.dumps({
                 "schema_version": "controller-evidence-plan-v1.2",
                 "task_id": "pilot_task",
-                "private_source_commit": "e" * 40,
                 "commands": commands,
             }))
+            private_commit = self.commit_private_plan(plan)
 
             output = bundle / "private-evaluation/controller-attestation.json"
             result = ControllerEvidenceCollector().collect(
@@ -68,6 +80,7 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
                 product_commit=commit, ledger_prefix=ledger.read_bytes(),
             )
             self.assertTrue(all(attestation.document["hard_gates"].values()))
+            self.assertEqual(attestation.document["private_source_commit"], private_commit)
             self.assertEqual(
                 attestation.document["ledger_prefix_sha256"],
                 hashlib.sha256(ledger.read_bytes()).hexdigest(),
@@ -102,12 +115,14 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
             commands["hidden-tests"] = {
                 "argv": ["/bin/echo", "not-json"], "timeout_seconds": 5,
             }
-            plan = private / "evidence-plan.json"
+            plan = private / "source/evidence-plan.json"
+            plan.parent.mkdir()
             plan.write_text(json.dumps({
                 "schema_version": "controller-evidence-plan-v1.2",
-                "task_id": "pilot_task", "private_source_commit": "e" * 40,
+                "task_id": "pilot_task",
                 "commands": commands,
             }))
+            self.commit_private_plan(plan)
 
             with self.assertRaises(ValueError):
                 ControllerEvidenceCollector().collect(

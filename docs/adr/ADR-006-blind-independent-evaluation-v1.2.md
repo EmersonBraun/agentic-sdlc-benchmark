@@ -23,7 +23,9 @@ Evaluation is a controller-owned pipeline with four boundaries:
    branch, or original path. Immediately before every evaluation boundary it
    executes the frozen five-command private plan, records a content-minimized
    ledger event, and seals the attestation against the resulting ledger prefix.
-   Private commands and raw outputs are never copied into the ADE worktree.
+   The plan must be a tracked file in a clean private Git checkout; its source
+   commit is derived rather than self-declared. Private commands and raw outputs
+   are never copied into the ADE worktree.
 2. **Blind snapshot.** The evaluator receives a clean committed archive under a
    random opaque directory. Repository instruction surfaces (`AGENTS.md`,
    `CLAUDE.md`, `.agents`, `.codex`, and equivalent nested files) and benchmark

@@ -4,11 +4,10 @@
   "title": "Private controller evidence plan v1.2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "task_id", "private_source_commit", "commands"],
+  "required": ["schema_version", "task_id", "commands"],
   "properties": {
     "schema_version": {"const": "controller-evidence-plan-v1.2"},
     "task_id": {"type": "string", "minLength": 1},
-    "private_source_commit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
     "commands": {
       "type": "object",
       "additionalProperties": false,

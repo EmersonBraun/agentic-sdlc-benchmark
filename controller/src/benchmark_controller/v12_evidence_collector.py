@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import re
+import signal
 import subprocess
 import tempfile
 import time
@@ -40,18 +41,15 @@ class ControllerEvidenceCollector:
         private = context.bundle.directory / "private-evaluation"
         started = time.monotonic_ns()
 
-        def record_collection(command_evidence: list[dict[str, Any]]) -> None:
+        def record_collection() -> None:
             context.bundle.ledger.record(
-                stage_id="review",
+                stage_id=context.step.stage_id,
                 actor="controller",
-                event_type="controller.evidence.collected",
+                event_type="controller.evidence.collection-boundary",
                 time_category="instrumentation_overhead",
                 duration_ms=(time.monotonic_ns() - started) / 1_000_000,
-                status="completed",
+                status="started",
                 payload={
-                    "command_evidence_sha256": _sha(json.dumps(
-                        command_evidence, sort_keys=True, separators=(",", ":")
-                    ).encode()),
                     "raw_output_persisted": False,
                     "private_plan_disclosed": False,
                 },
@@ -59,7 +57,7 @@ class ControllerEvidenceCollector:
             )
 
         return self.collect(
-            plan_path=private / "evidence-plan.json",
+            plan_path=private / "source/evidence-plan.json",
             output_path=private / "controller-attestation.json",
             worktree=context.worktree,
             ledger_path=context.bundle.ledger.path,
@@ -67,13 +65,15 @@ class ControllerEvidenceCollector:
             task_manifest_sha256=context.bundle.manifest["task_manifest_sha256"],
             product_commit=head.stdout.strip(),
             ledger_recorder=record_collection,
+            deadline_epoch_ms=context.deadline_epoch_ms,
         )
 
     def collect(
         self, *, plan_path: Path, output_path: Path, worktree: Path,
         ledger_path: Path, task_id: str, task_manifest_sha256: str,
         product_commit: str,
-        ledger_recorder: Callable[[list[dict[str, Any]]], None] | None = None,
+        ledger_recorder: Callable[[], None] | None = None,
+        deadline_epoch_ms: float | None = None,
     ) -> Path:
         worktree = worktree.resolve()
         plan_path = plan_path.resolve()
@@ -84,8 +84,11 @@ class ControllerEvidenceCollector:
         if not SHA1.fullmatch(product_commit) or not SHA256.fullmatch(task_manifest_sha256):
             raise ValueError("collector source identity is invalid")
         self._verify_product(worktree, product_commit)
+        private_source_commit = self._verify_private_source(plan_path)
         plan = self._load_plan(plan_path, task_id)
         output_path.unlink(missing_ok=True)
+        if ledger_recorder is not None:
+            ledger_recorder()
         ledger_before = ledger_path.read_bytes()
         command_evidence: list[dict[str, Any]] = []
         hidden_summary: Mapping[str, Any] | None = None
@@ -93,10 +96,12 @@ class ControllerEvidenceCollector:
         for kind in sorted(COMMAND_KINDS):
             command = plan["commands"][kind]
             argv = self._argv(command["argv"], worktree, ledger_path, output_path.parent.parent)
-            completed = subprocess.run(
-                argv, cwd=worktree, capture_output=True, check=False,
-                timeout=float(command["timeout_seconds"]), env=self._environment(worktree),
-            )
+            timeout = float(command["timeout_seconds"])
+            if deadline_epoch_ms is not None:
+                timeout = min(timeout, (deadline_epoch_ms - time.time() * 1000) / 1000)
+            if timeout <= 0:
+                raise subprocess.TimeoutExpired(argv, 0)
+            completed = self._run_command(argv, worktree, timeout)
             output = completed.stdout + completed.stderr
             command_evidence.append({
                 "kind": kind,
@@ -120,8 +125,6 @@ class ControllerEvidenceCollector:
         if gates["essential-hidden-tests"] is not hidden_pass:
             raise ValueError("hidden-test exit status contradicts its bounded summary")
         gates["essential-hidden-tests"] = hidden_pass
-        if ledger_recorder is not None:
-            ledger_recorder(command_evidence)
         ledger_attested = ledger_path.read_bytes()
         document = {
             "schema_version": "controller-evidence-attestation-v1.2",
@@ -129,7 +132,7 @@ class ControllerEvidenceCollector:
             "task_id": task_id,
             "task_manifest_sha256": task_manifest_sha256,
             "product_commit": product_commit,
-            "private_source_commit": plan["private_source_commit"],
+            "private_source_commit": private_source_commit,
             "hard_gates": gates,
             "hidden_test_summary": dict(hidden_summary),
             "ledger_prefix_sha256": _sha(ledger_attested),
@@ -142,14 +145,13 @@ class ControllerEvidenceCollector:
     def _load_plan(path: Path, task_id: str) -> Mapping[str, Any]:
         value = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(value, Mapping) or set(value) != {
-            "schema_version", "task_id", "private_source_commit", "commands",
+            "schema_version", "task_id", "commands",
         }:
             raise ValueError("private evidence plan shape is invalid")
         commands = value.get("commands")
         if not all((
             value.get("schema_version") == "controller-evidence-plan-v1.2",
             value.get("task_id") == task_id,
-            bool(SHA1.fullmatch(str(value.get("private_source_commit", "")))),
             isinstance(commands, Mapping),
             set(commands or {}) == COMMAND_KINDS,
         )):
@@ -167,6 +169,61 @@ class ControllerEvidenceCollector:
             ):
                 raise ValueError("private evidence command is invalid")
         return value
+
+    def _run_command(
+        self, argv: tuple[str, ...], worktree: Path, timeout: float,
+    ) -> subprocess.CompletedProcess[bytes]:
+        process = subprocess.Popen(
+            argv, cwd=worktree, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            env=self._environment(worktree), start_new_session=True,
+        )
+        try:
+            stdout, stderr = process.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            self._kill_process_group(process.pid)
+            process.wait()
+            raise
+        self._kill_process_group(process.pid)
+        return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
+
+    @staticmethod
+    def _kill_process_group(pid: int) -> None:
+        try:
+            os.killpg(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+
+    @staticmethod
+    def _verify_private_source(plan_path: Path) -> str:
+        root = subprocess.run(
+            ("git", "-C", str(plan_path.parent), "rev-parse", "--show-toplevel"),
+            capture_output=True, text=True, check=False,
+        )
+        if root.returncode:
+            raise RuntimeError("private evidence plan is not in a Git source")
+        repository = Path(root.stdout.strip()).resolve()
+        relative = plan_path.relative_to(repository).as_posix()
+        head = subprocess.run(
+            ("git", "-C", str(repository), "rev-parse", "HEAD"),
+            capture_output=True, text=True, check=False,
+        )
+        status = subprocess.run(
+            ("git", "-C", str(repository), "status", "--porcelain", "--untracked-files=all"),
+            capture_output=True, text=True, check=False,
+        )
+        committed = subprocess.run(
+            ("git", "-C", str(repository), "show", f"HEAD:{relative}"),
+            capture_output=True, check=False,
+        )
+        if (
+            head.returncode or status.returncode or status.stdout
+            or committed.returncode or committed.stdout != plan_path.read_bytes()
+        ):
+            raise RuntimeError("private evidence plan is not clean and commit-bound")
+        commit = head.stdout.strip()
+        if not SHA1.fullmatch(commit):
+            raise RuntimeError("private evidence source commit is invalid")
+        return commit
 
     @staticmethod
     def _argv(values: list[str], worktree: Path, ledger: Path, bundle: Path) -> tuple[str, ...]:
