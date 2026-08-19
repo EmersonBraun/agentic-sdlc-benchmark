@@ -30,6 +30,13 @@ def _sha(payload: bytes) -> str:
 class ControllerEvidenceCollector:
     """Deep boundary: private commands in, redacted commit-bound evidence out."""
 
+    def __init__(self, private_source_repository: Path | None = None) -> None:
+        configured = private_source_repository or (
+            Path(os.environ["BENCHMARK_PRIVATE_EVALUATION_REPOSITORY"])
+            if os.environ.get("BENCHMARK_PRIVATE_EVALUATION_REPOSITORY") else None
+        )
+        self.private_source_repository = configured.resolve() if configured else None
+
     def collect_for(self, context: Any) -> Path:
         """Refresh evidence immediately before one independent evaluation."""
         head = subprocess.run(
@@ -39,6 +46,7 @@ class ControllerEvidenceCollector:
         if head.returncode:
             raise RuntimeError("collector cannot resolve product commit")
         private = context.bundle.directory / "private-evaluation"
+        self._materialize_source(private / "source")
         started = time.monotonic_ns()
 
         def record_collection() -> None:
@@ -68,6 +76,22 @@ class ControllerEvidenceCollector:
             deadline_epoch_ms=context.deadline_epoch_ms,
         )
 
+    def _materialize_source(self, target: Path) -> None:
+        if target.is_dir():
+            return
+        if target.exists():
+            raise RuntimeError("private evidence source target is not a directory")
+        if self.private_source_repository is None:
+            raise RuntimeError("private evidence source repository is not configured")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        completed = subprocess.run(
+            ("git", "clone", "--quiet", "--no-hardlinks", "--local",
+             str(self.private_source_repository), str(target)),
+            capture_output=True, check=False,
+        )
+        if completed.returncode:
+            raise RuntimeError("private evidence source materialization failed")
+
     def collect(
         self, *, plan_path: Path, output_path: Path, worktree: Path,
         ledger_path: Path, task_id: str, task_manifest_sha256: str,
@@ -95,7 +119,10 @@ class ControllerEvidenceCollector:
         gates: dict[str, bool] = {}
         for kind in sorted(COMMAND_KINDS):
             command = plan["commands"][kind]
-            argv = self._argv(command["argv"], worktree, ledger_path, output_path.parent.parent)
+            argv = self._argv(
+                command["argv"], worktree, ledger_path, output_path.parent.parent,
+                plan_path.parent,
+            )
             timeout = float(command["timeout_seconds"])
             if deadline_epoch_ms is not None:
                 timeout = min(timeout, (deadline_epoch_ms - time.time() * 1000) / 1000)
@@ -228,11 +255,19 @@ class ControllerEvidenceCollector:
         return commit
 
     @staticmethod
-    def _argv(values: list[str], worktree: Path, ledger: Path, bundle: Path) -> tuple[str, ...]:
+    def _argv(
+        values: list[str], worktree: Path, ledger: Path, bundle: Path,
+        private_source: Path,
+    ) -> tuple[str, ...]:
         replacements = {
-            "{worktree}": str(worktree), "{ledger}": str(ledger), "{bundle}": str(bundle),
+            "{worktree}": str(worktree), "{ledger}": str(ledger),
+            "{bundle}": str(bundle), "{private_source}": str(private_source),
         }
-        return tuple(replacements.get(value, value) for value in values)
+        return tuple(
+            value.replace("{private_source}", replacements["{private_source}"])
+            if "{private_source}" in value else replacements.get(value, value)
+            for value in values
+        )
 
     @staticmethod
     def _environment(worktree: Path) -> Mapping[str, str]:

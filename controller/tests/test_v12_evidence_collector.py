@@ -15,7 +15,7 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
         subprocess.run(("git", "init", "-q"), cwd=plan.parent, check=True)
         subprocess.run(("git", "config", "user.email", "private@example.test"), cwd=plan.parent, check=True)
         subprocess.run(("git", "config", "user.name", "Private Test"), cwd=plan.parent, check=True)
-        subprocess.run(("git", "add", plan.name), cwd=plan.parent, check=True)
+        subprocess.run(("git", "add", "."), cwd=plan.parent, check=True)
         subprocess.run(("git", "commit", "-qm", "private fixture"), cwd=plan.parent, check=True)
         return subprocess.run(
             ("git", "rev-parse", "HEAD"), cwd=plan.parent,
@@ -48,7 +48,7 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
                 commands[kind] = {"argv": ["/usr/bin/true"], "timeout_seconds": 5}
             commands["hidden-tests"] = {
                 "argv": [
-                    "/bin/echo",
+                    "{private_source}/emit-hidden-summary",
                     json.dumps({
                         "total": 5, "passed": 5, "failed": 0,
                         "critical_mutants_killed": True,
@@ -62,6 +62,7 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
                 "task_id": "pilot_task",
                 "commands": commands,
             }))
+            (plan.parent / "emit-hidden-summary").symlink_to("/bin/echo")
             private_commit = self.commit_private_plan(plan)
 
             output = bundle / "private-evaluation/controller-attestation.json"
@@ -131,6 +132,25 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
                     task_manifest_sha256="c" * 64, product_commit=commit,
                 )
             self.assertFalse(output.exists())
+
+    def test_materializes_frozen_private_source_without_hardlinks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source"
+            source.mkdir()
+            plan = source / "evidence-plan.json"
+            plan.write_text("{}")
+            commit = self.commit_private_plan(plan)
+            target = root / "bundle/private-evaluation/source"
+
+            ControllerEvidenceCollector(source)._materialize_source(target)
+
+            observed = subprocess.run(
+                ("git", "rev-parse", "HEAD"), cwd=target,
+                capture_output=True, text=True, check=True,
+            ).stdout.strip()
+            self.assertEqual(observed, commit)
+            self.assertNotEqual((source / ".git/objects").stat().st_ino, (target / ".git/objects").stat().st_ino)
 
 
 if __name__ == "__main__":
