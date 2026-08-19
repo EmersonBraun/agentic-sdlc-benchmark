@@ -323,6 +323,9 @@ class V12NativeCollectionBackend:
         worktrees: WorktreeProvider,
         backend_factory: Callable[[MatrixAssignment, PreparedRunBundle], ConditionStepBackend],
         verifier_factory: Callable[[MatrixAssignment, PreparedRunBundle], CompletionVerifier],
+        evidence_collector_factory: Callable[
+            [MatrixAssignment, PreparedRunBundle], ControllerEvidenceCollector
+        ] | None = None,
         *,
         max_attempts: int = 3,
         retry_backoff_seconds: float = 1.0,
@@ -330,16 +333,22 @@ class V12NativeCollectionBackend:
         self.worktrees = worktrees
         self.backend_factory = backend_factory
         self.verifier_factory = verifier_factory
+        self.evidence_collector_factory = evidence_collector_factory
         self.max_attempts = max_attempts
         self.retry_backoff_seconds = retry_backoff_seconds
 
     def execute(self, assignment: MatrixAssignment, bundle: PreparedRunBundle) -> ExecutionOutcome:
         backend = self.backend_factory(assignment, bundle)
         try:
+            collector = (
+                self.evidence_collector_factory(assignment, bundle)
+                if self.evidence_collector_factory else ControllerEvidenceCollector()
+            )
             return V12NativeConditionRunner(
                 backend,
                 self.worktrees,
                 self.verifier_factory(assignment, bundle),
+                evidence_collector=collector,
                 max_attempts=self.max_attempts,
                 retry_backoff_seconds=self.retry_backoff_seconds,
             ).execute(assignment, bundle)

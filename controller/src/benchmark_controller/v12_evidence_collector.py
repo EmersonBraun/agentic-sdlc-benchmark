@@ -35,14 +35,10 @@ class ControllerEvidenceCollector:
         private_source_commit: str | None = None,
         registered_private_source_commit: str | None = None,
     ) -> None:
-        configured = private_source_repository or (
-            Path(os.environ["BENCHMARK_PRIVATE_EVALUATION_REPOSITORY"])
-            if os.environ.get("BENCHMARK_PRIVATE_EVALUATION_REPOSITORY") else None
+        self.private_source_repository = (
+            private_source_repository.resolve() if private_source_repository else None
         )
-        self.private_source_repository = configured.resolve() if configured else None
-        self.private_source_commit = private_source_commit or os.environ.get(
-            "BENCHMARK_PRIVATE_EVALUATION_COMMIT"
-        )
+        self.private_source_commit = private_source_commit
         self.registered_private_source_commit = registered_private_source_commit
 
     def collect_for(self, context: Any) -> Path:
@@ -158,6 +154,8 @@ class ControllerEvidenceCollector:
                 timeout = min(timeout, (deadline_epoch_ms - time.time() * 1000) / 1000)
             if timeout <= 0:
                 raise subprocess.TimeoutExpired(argv, 0)
+            if kind in {"build", "typecheck"}:
+                argv = self._sandboxed(argv, plan_path.parent)
             completed = self._run_command(argv, worktree, timeout)
             output = completed.stdout + completed.stderr
             command_evidence.append({
@@ -246,6 +244,12 @@ class ControllerEvidenceCollector:
         return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
 
     @staticmethod
+    def _sandboxed(argv: tuple[str, ...], denied_root: Path) -> tuple[str, ...]:
+        escaped = str(denied_root.resolve()).replace("\\", "\\\\").replace('"', '\\"')
+        profile = f'(version 1)(allow default)(deny file-read* (subpath "{escaped}"))'
+        return ("/usr/bin/sandbox-exec", "-p", profile, *argv)
+
+    @staticmethod
     def _kill_process_group(pid: int) -> None:
         try:
             os.killpg(pid, signal.SIGKILL)
@@ -291,6 +295,13 @@ class ControllerEvidenceCollector:
         for item in tracked.stdout.split(b"\0"):
             if item and (repository / os.fsdecode(item)).is_symlink():
                 raise RuntimeError("private evidence source contains a symlink")
+        ignored = subprocess.run(
+            ("git", "-C", str(repository), "ls-files", "--others", "-i",
+             "--exclude-standard", "-z"),
+            capture_output=True, check=False,
+        )
+        if ignored.returncode or ignored.stdout:
+            raise RuntimeError("private evidence source contains ignored material")
         return commit
 
     @staticmethod

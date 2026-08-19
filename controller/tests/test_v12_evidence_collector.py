@@ -167,6 +167,21 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
                     source, commit, registered_private_source_commit=commit,
                 )._configured_plan("pilot_task")
 
+    def test_candidate_process_cannot_read_private_source(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            private = root / "private"
+            private.mkdir()
+            secret = private / "hidden-test.txt"
+            secret.write_text("oracle")
+            argv = ControllerEvidenceCollector._sandboxed(
+                ("python3", "-c", f"open({str(secret)!r}).read()"), private,
+            )
+
+            completed = subprocess.run(argv, capture_output=True, check=False)
+
+            self.assertNotEqual(completed.returncode, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
