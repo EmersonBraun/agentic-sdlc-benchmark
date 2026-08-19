@@ -13,6 +13,17 @@ from typing import Any, Mapping, Protocol, Sequence
 from .condition_runner import PRE_MERGE_QUALITY_GATES, REQUIRED_QUALITY_GATES, StepContext
 from .v12_native_backend import NativeStepExecution, NativeStepRequest
 
+RUBRIC_WEIGHTS = {
+    "functional_correctness": 40,
+    "security_authorization": 15,
+    "regressions": 15,
+    "tests": 10,
+    "architecture_maintainability": 10,
+    "documentation_operations": 5,
+    "scope_discipline": 5,
+}
+EXTERNAL_ONLY_GATES = {"essential-hidden-tests", "ledger"}
+
 
 @dataclass(frozen=True)
 class CodexCommandResult:
@@ -44,14 +55,14 @@ class CodexEvaluatorV12RoleExecutor:
 
     def __init__(self, transport: CodexTransport | None = None) -> None:
         self.transport = transport or SubprocessCodexTransport()
-        self._cache: dict[tuple[str, str], NativeStepExecution] = {}
+        self._cache: dict[str, NativeStepExecution] = {}
 
     def execute(self, request: NativeStepRequest) -> NativeStepExecution:
         if (request.role, request.provider, request.model) != (
             "independent_evaluator", "codex", "gpt-5.4-mini",
         ):
             return self._outcome(request, "failed", "evaluator-role-binding-mismatch")
-        key = (request.run_id, request.step)
+        key = request.idempotency_key
         if key in self._cache:
             return self._cache[key]
         remaining = self._remaining(request)
@@ -60,7 +71,10 @@ class CodexEvaluatorV12RoleExecutor:
         prompt = self._prompt(request)
         argv = (
             "codex", "exec", "-m", "gpt-5.4-mini", "-s", "read-only",
-            "--ephemeral", "--ignore-user-config", "--json", "-C",
+            "--ephemeral", "--ignore-user-config",
+            "--disable", "plugins", "--disable", "remote_plugin",
+            "--disable", "skill_search", "--disable", "apps",
+            "--disable", "multi_agent", "--json", "-C",
             str(request.worktree), prompt,
         )
         started = time.monotonic_ns()
@@ -82,6 +96,10 @@ class CodexEvaluatorV12RoleExecutor:
                     "raw_output_persisted": False,
                     "sandbox": "read-only",
                     "ephemeral": True,
+                    "disabled_capabilities": [
+                        "apps", "multi_agent", "plugins", "remote_plugin", "skill_search",
+                    ],
+                    "external_only_gates": sorted(EXTERNAL_ONLY_GATES),
                     "usage_observation": {
                         "token_breakdown_observed": usage_observed,
                         "cost_observed": False,
@@ -118,6 +136,10 @@ class CodexEvaluatorV12RoleExecutor:
 
     @staticmethod
     def _proof(events: list[Mapping[str, Any]]) -> dict[str, Any]:
+        completed = [event for event in events if event.get("type") == "turn.completed"]
+        failed = [event for event in events if event.get("type") in {"turn.failed", "error"}]
+        if len(completed) != 1 or failed:
+            raise RuntimeError("Codex evaluator turn did not complete cleanly")
         messages = [
             item.get("text")
             for event in events if event.get("type") == "item.completed"
@@ -140,7 +162,22 @@ class CodexEvaluatorV12RoleExecutor:
                 proofs.append(proof)
         if len(proofs) != 1:
             raise RuntimeError("Codex evaluator final proof is missing or ambiguous")
-        return dict(proofs[0])
+        normalized = dict(proofs[0])
+        scores = normalized.get("scores")
+        if not isinstance(scores, Mapping) or set(scores) != set(RUBRIC_WEIGHTS):
+            raise RuntimeError("Codex evaluator omitted frozen rubric scores")
+        if any(
+            not isinstance(value, (int, float)) or isinstance(value, bool) or not 0 <= value <= 100
+            for value in scores.values()
+        ):
+            raise RuntimeError("Codex evaluator rubric score is invalid")
+        normalized["product_quality_score"] = round(sum(
+            float(scores[name]) * weight / 100 for name, weight in RUBRIC_WEIGHTS.items()
+        ), 3)
+        gates = normalized.get("verified_gates")
+        if not isinstance(gates, list) or EXTERNAL_ONLY_GATES.intersection(gates):
+            raise RuntimeError("Codex evaluator claimed externally verified gates")
+        return normalized
 
     @staticmethod
     def _usage(events: list[Mapping[str, Any]]) -> tuple[dict[str, int], bool]:
@@ -167,13 +204,18 @@ class CodexEvaluatorV12RoleExecutor:
     @staticmethod
     def _prompt(request: NativeStepRequest) -> str:
         gates = PRE_MERGE_QUALITY_GATES if request.step == "review" else REQUIRED_QUALITY_GATES
+        inspectable = set(gates) - EXTERNAL_ONLY_GATES
         return (
             "Act as the independent evaluator for a controlled SDLC benchmark. "
             "Inspect the current repository read-only. Run only non-mutating checks. "
             "Return exactly one compact JSON object with key completion_proof containing "
-            "verified_gates (an array), product_quality_score (0-100), and, for merge only, "
+            "verified_gates (an array), scores (an object with every frozen rubric dimension), "
+            "and, for merge only, "
             "merge_commit equal to git HEAD. Include a gate only when supported by repository "
-            "evidence. Required gates are: " + ", ".join(sorted(gates)) + "."
+            "evidence. Never claim ledger or essential-hidden-tests; those require controller-owned "
+            "evidence outside this worktree. Inspectable gates are: "
+            + ", ".join(sorted(inspectable)) + ". Frozen rubric weights are: "
+            + json.dumps(RUBRIC_WEIGHTS, sort_keys=True) + ". Score every dimension from 0 to 100."
         )
 
     @staticmethod
@@ -225,7 +267,18 @@ class CodexV12CompletionVerifier:
         )
         execution = self.executor.execute(request)
         self._record(context, execution, step)
-        return execution.status == "completed" and dict(execution.completion_proof or {}) == dict(proof)
+        evaluated = execution.completion_proof or {}
+        required = PRE_MERGE_QUALITY_GATES if step == "review" else REQUIRED_QUALITY_GATES
+        return all((
+            execution.status == "completed",
+            set(evaluated.get("verified_gates", [])) == required,
+            set(proof.get("verified_gates", [])) == required,
+            isinstance(evaluated.get("product_quality_score"), (int, float)),
+            evaluated.get("product_quality_score", 0) >= 80,
+            isinstance(proof.get("product_quality_score"), (int, float)),
+            proof.get("product_quality_score", 0) >= 80,
+            step != "merge" or evaluated.get("merge_commit") == proof.get("merge_commit"),
+        ))
 
     @staticmethod
     def _record(context: StepContext, execution: NativeStepExecution, step: str) -> None:
