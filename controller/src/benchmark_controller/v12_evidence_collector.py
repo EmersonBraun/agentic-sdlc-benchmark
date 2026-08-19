@@ -30,12 +30,18 @@ def _sha(payload: bytes) -> str:
 class ControllerEvidenceCollector:
     """Deep boundary: private commands in, redacted commit-bound evidence out."""
 
-    def __init__(self, private_source_repository: Path | None = None) -> None:
+    def __init__(
+        self, private_source_repository: Path | None = None,
+        private_source_commit: str | None = None,
+    ) -> None:
         configured = private_source_repository or (
             Path(os.environ["BENCHMARK_PRIVATE_EVALUATION_REPOSITORY"])
             if os.environ.get("BENCHMARK_PRIVATE_EVALUATION_REPOSITORY") else None
         )
         self.private_source_repository = configured.resolve() if configured else None
+        self.private_source_commit = private_source_commit or os.environ.get(
+            "BENCHMARK_PRIVATE_EVALUATION_COMMIT"
+        )
 
     def collect_for(self, context: Any) -> Path:
         """Refresh evidence immediately before one independent evaluation."""
@@ -46,7 +52,7 @@ class ControllerEvidenceCollector:
         if head.returncode:
             raise RuntimeError("collector cannot resolve product commit")
         private = context.bundle.directory / "private-evaluation"
-        self._materialize_source(private / "source")
+        plan_path = self._configured_plan()
         started = time.monotonic_ns()
 
         def record_collection() -> None:
@@ -65,7 +71,7 @@ class ControllerEvidenceCollector:
             )
 
         return self.collect(
-            plan_path=private / "source/evidence-plan.json",
+            plan_path=plan_path,
             output_path=private / "controller-attestation.json",
             worktree=context.worktree,
             ledger_path=context.bundle.ledger.path,
@@ -74,23 +80,21 @@ class ControllerEvidenceCollector:
             product_commit=head.stdout.strip(),
             ledger_recorder=record_collection,
             deadline_epoch_ms=context.deadline_epoch_ms,
+            expected_private_source_commit=self.private_source_commit,
         )
 
-    def _materialize_source(self, target: Path) -> None:
-        if target.is_dir():
-            return
-        if target.exists():
-            raise RuntimeError("private evidence source target is not a directory")
-        if self.private_source_repository is None:
+    def _configured_plan(self) -> Path:
+        if self.private_source_repository is None or self.private_source_commit is None:
             raise RuntimeError("private evidence source repository is not configured")
-        target.parent.mkdir(parents=True, exist_ok=True)
-        completed = subprocess.run(
-            ("git", "clone", "--quiet", "--no-hardlinks", "--local",
-             str(self.private_source_repository), str(target)),
-            capture_output=True, check=False,
-        )
-        if completed.returncode:
-            raise RuntimeError("private evidence source materialization failed")
+        if not SHA1.fullmatch(self.private_source_commit):
+            raise RuntimeError("configured private evidence commit is invalid")
+        if self.private_source_repository.is_symlink():
+            raise RuntimeError("private evidence source cannot be a symlink")
+        plan = self.private_source_repository / "evidence-plan.json"
+        observed = self._verify_private_source(plan)
+        if observed != self.private_source_commit:
+            raise RuntimeError("private evidence source does not match the frozen commit")
+        return plan
 
     def collect(
         self, *, plan_path: Path, output_path: Path, worktree: Path,
@@ -98,6 +102,7 @@ class ControllerEvidenceCollector:
         product_commit: str,
         ledger_recorder: Callable[[], None] | None = None,
         deadline_epoch_ms: float | None = None,
+        expected_private_source_commit: str | None = None,
     ) -> Path:
         worktree = worktree.resolve()
         plan_path = plan_path.resolve()
@@ -109,6 +114,11 @@ class ControllerEvidenceCollector:
             raise ValueError("collector source identity is invalid")
         self._verify_product(worktree, product_commit)
         private_source_commit = self._verify_private_source(plan_path)
+        if (
+            expected_private_source_commit is not None
+            and private_source_commit != expected_private_source_commit
+        ):
+            raise RuntimeError("private evidence source commit mismatch")
         plan = self._load_plan(plan_path, task_id)
         output_path.unlink(missing_ok=True)
         if ledger_recorder is not None:
@@ -252,6 +262,15 @@ class ControllerEvidenceCollector:
         commit = head.stdout.strip()
         if not SHA1.fullmatch(commit):
             raise RuntimeError("private evidence source commit is invalid")
+        tracked = subprocess.run(
+            ("git", "-C", str(repository), "ls-files", "-z"),
+            capture_output=True, check=False,
+        )
+        if tracked.returncode:
+            raise RuntimeError("private evidence source inventory is unavailable")
+        for item in tracked.stdout.split(b"\0"):
+            if item and (repository / os.fsdecode(item)).is_symlink():
+                raise RuntimeError("private evidence source contains a symlink")
         return commit
 
     @staticmethod

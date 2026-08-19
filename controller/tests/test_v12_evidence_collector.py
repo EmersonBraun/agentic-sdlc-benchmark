@@ -62,7 +62,9 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
                 "task_id": "pilot_task",
                 "commands": commands,
             }))
-            (plan.parent / "emit-hidden-summary").symlink_to("/bin/echo")
+            executable = plan.parent / "emit-hidden-summary"
+            executable.write_text("#!/bin/sh\nexec /bin/echo \"$@\"\n")
+            executable.chmod(0o755)
             private_commit = self.commit_private_plan(plan)
 
             output = bundle / "private-evaluation/controller-attestation.json"
@@ -133,7 +135,7 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
                 )
             self.assertFalse(output.exists())
 
-    def test_materializes_frozen_private_source_without_hardlinks(self):
+    def test_configured_private_source_must_match_frozen_commit(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source = root / "source"
@@ -141,16 +143,23 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
             plan = source / "evidence-plan.json"
             plan.write_text("{}")
             commit = self.commit_private_plan(plan)
-            target = root / "bundle/private-evaluation/source"
+            self.assertEqual(
+                ControllerEvidenceCollector(source, commit)._configured_plan(), plan.resolve()
+            )
+            with self.assertRaisesRegex(RuntimeError, "frozen commit"):
+                ControllerEvidenceCollector(source, "f" * 40)._configured_plan()
 
-            ControllerEvidenceCollector(source)._materialize_source(target)
+    def test_private_source_rejects_tracked_symlinks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "source"
+            source.mkdir()
+            plan = source / "evidence-plan.json"
+            plan.write_text("{}")
+            (source / "external").symlink_to("/bin/true")
+            commit = self.commit_private_plan(plan)
 
-            observed = subprocess.run(
-                ("git", "rev-parse", "HEAD"), cwd=target,
-                capture_output=True, text=True, check=True,
-            ).stdout.strip()
-            self.assertEqual(observed, commit)
-            self.assertNotEqual((source / ".git/objects").stat().st_ino, (target / ".git/objects").stat().st_ino)
+            with self.assertRaisesRegex(RuntimeError, "symlink"):
+                ControllerEvidenceCollector(source, commit)._configured_plan()
 
 
 if __name__ == "__main__":
