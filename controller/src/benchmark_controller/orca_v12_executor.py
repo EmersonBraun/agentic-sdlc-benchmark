@@ -323,9 +323,14 @@ class OrcaV12RoleExecutor:
     ) -> tuple[Mapping[str, Any], float]:
         command_ms = 0.0
         while self._remaining(request) > 0:
-            shown = self.transport.run_json((
-                "orchestration", "dispatch-show", "--task", task_id, "--json",
-            ), timeout_seconds=self._timeout(request, 15))
+            command_started = time.monotonic_ns()
+            try:
+                shown = self.transport.run_json((
+                    "orchestration", "dispatch-show", "--task", task_id, "--json",
+                ), timeout_seconds=self._timeout(request, 15))
+            except Exception:
+                polling_clock[0] = command_ms + self._elapsed(command_started)
+                raise
             command_ms += shown.duration_ms
             polling_clock[0] = command_ms
             dispatch = self._nested(shown.value, "result", "dispatch")
@@ -333,9 +338,14 @@ class OrcaV12RoleExecutor:
                 if dispatch.get("status") != "completed":
                     raise RuntimeError("ORCA Dispatch failed")
                 return dispatch, command_ms
-            terminal = self.transport.run_json((
-                "terminal", "show", "--terminal", worker, "--json",
-            ), timeout_seconds=self._timeout(request, 15))
+            command_started = time.monotonic_ns()
+            try:
+                terminal = self.transport.run_json((
+                    "terminal", "show", "--terminal", worker, "--json",
+                ), timeout_seconds=self._timeout(request, 15))
+            except Exception:
+                polling_clock[0] = command_ms + self._elapsed(command_started)
+                raise
             command_ms += terminal.duration_ms
             polling_clock[0] = command_ms
             if self._nested(terminal.value, "result", "terminal", "connected") is False:
