@@ -82,6 +82,14 @@ creation-to-last-activity turn interval; remaining spawn wall time is setup
 overhead.
 Raw output is not published, and every stage receives terminal cleanup.
 
+The ORCA implementation binds one lightweight Run and coordinator terminal to
+the measured condition worktree. Each stage becomes a capability-bound Task and
+is dispatched only after its native Codex or Grok TUI reaches stable readiness.
+Completion requires a settled Dispatch, revoked capability, accepted and
+acknowledged `worker_done`, model/sentinel evidence, and verified worker cleanup.
+Dispatch execution is effective work; ORCA commands and lifecycle polling are
+orchestration overhead. Raw terminal output and capability values are redacted.
+
 Checkpoints are not permission to resume a measurement after process failure.
 They support bounded retries during one process and idempotent cleanup after a
 terminal state. Interrupted measurements remain invalid and are replaced by a

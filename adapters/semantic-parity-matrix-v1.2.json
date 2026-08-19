@@ -99,8 +99,9 @@
   "source_hashes": {
     "controller/src/benchmark_controller/agent_orchestrator_v12_executor.py": "4b12330d564b146d656e52534adf8b88c078d5cf9d23f3fffc17c04840ec78fd",
     "controller/src/benchmark_controller/compozy_v12_executor.py": "fd144ced29e43dbb39f7a143282fd854e1e09412235cde7a61d44b0fece69b1b",
+    "controller/src/benchmark_controller/orca_v12_executor.py": "4f0a6ed49ecea02bc89e853bbbab21e5eadeeadb5dd2d91bb77ccfe4e5b6d1bf",
     "controller/src/benchmark_controller/v12_ade_backends.py": "2acd1e11ab20594f9eeae27a6edbe5e80c28d706c0964b56a6eab9c70e1087d0",
-    "controller/src/benchmark_controller/v12_execution.py": "1ec39665cd6e77a1b5376ede3bfbca48b4cb65baa5259e5de665dd1a7154752b",
+    "controller/src/benchmark_controller/v12_execution.py": "11645e249f87f472143ba397802c5524d3a05c96d766f1e4fcd2fff43e6e1dff",
     "controller/src/benchmark_controller/v12_integration.py": "776f847be18ace08d3e0acf78e288d3d8dd24ae74c8b36398a9ceed0a4ea54e8",
     "controller/src/benchmark_controller/v12_native_backend.py": "b0c59aac14952d54511a82b06cc36292fe7d67419b8eec7c4fe02b08ffedd647",
     "controller/src/benchmark_controller/v12_runner.py": "e493218a448e8fd6aa7ccdd13b3e61959889bff5efb9b300f538b3dfd8f67099",

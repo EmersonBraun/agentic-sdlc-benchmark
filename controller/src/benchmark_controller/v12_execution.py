@@ -31,6 +31,7 @@ V12_REQUIRED_SOURCE_REFS = {
     "controller/src/benchmark_controller/v12_native_backend.py",
     "controller/src/benchmark_controller/compozy_v12_executor.py",
     "controller/src/benchmark_controller/agent_orchestrator_v12_executor.py",
+    "controller/src/benchmark_controller/orca_v12_executor.py",
 }
 
 
