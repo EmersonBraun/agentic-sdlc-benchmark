@@ -13,6 +13,7 @@ from typing import Any, Mapping, Protocol, Sequence
 from .compozy_grok import validate_provider_config
 from .condition_runner import PRE_MERGE_QUALITY_GATES, REQUIRED_QUALITY_GATES
 from .v12_native_backend import NativeStepExecution, NativeStepRequest
+from .v12_native_backend import V12RoleExecutor
 
 
 def _sha(value: str) -> str:
@@ -57,15 +58,23 @@ class CompozyV12RoleExecutor:
     supports_idempotent_replay = True
     enforces_deadline = True
 
-    def __init__(self, control_root: Path, transport: CompozyTransport | None = None) -> None:
+    def __init__(
+        self, control_root: Path, transport: CompozyTransport | None = None,
+        evaluator: V12RoleExecutor | None = None,
+    ) -> None:
         self.control_root = control_root.resolve()
         self.control_root.mkdir(parents=True, exist_ok=True)
         self.transport = transport or SubprocessCompozyTransport()
+        self.evaluator = evaluator
         self._sessions: dict[str, str] = {}
         self._cache: dict[str, NativeStepExecution] = {}
         self._provider_checked = False
 
     def execute(self, request: NativeStepRequest) -> NativeStepExecution:
+        if request.role == "independent_evaluator":
+            if self.evaluator is None:
+                return self._outcome(request, "retry", reason="independent-evaluator-unavailable")
+            return self.evaluator.execute(request)
         cached = self._cache.get(request.idempotency_key)
         if cached is not None:
             return cached
@@ -156,6 +165,9 @@ class CompozyV12RoleExecutor:
             failed = failed or not stopped
         if failed:
             raise RuntimeError("Compozy terminal session cleanup failed")
+        evaluator_close = getattr(self.evaluator, "close", None)
+        if callable(evaluator_close):
+            evaluator_close()
 
     def _verify_provider_configuration(self, timeout_seconds: float) -> float:
         if self._provider_checked:
