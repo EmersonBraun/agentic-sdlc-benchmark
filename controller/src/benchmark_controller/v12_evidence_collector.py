@@ -115,6 +115,8 @@ class ControllerEvidenceCollector:
         if ledger_path.read_bytes() != ledger_before:
             raise RuntimeError("evidence command mutated the append-only ledger")
         self._verify_product(worktree, product_commit)
+        if self._verify_private_source(plan_path) != private_source_commit:
+            raise RuntimeError("private evidence source changed during collection")
         if hidden_summary is None:
             raise RuntimeError("hidden-test summary is unavailable")
         hidden_pass = (
