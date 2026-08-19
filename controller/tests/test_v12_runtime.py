@@ -16,17 +16,24 @@ class V12RuntimeFactoryTests(unittest.TestCase):
             "orca": OrcaV12RoleExecutor,
         }
         with tempfile.TemporaryDirectory() as directory:
+            private = Path(directory) / "private"
+            private.mkdir()
             for ade, executor_type in expected.items():
                 executor, verifier = build_v12_role_executor(
                     ade, control_root=Path(directory), ao_project="benchmark",
+                    private_evaluation_root=private,
                 )
                 self.assertIsInstance(executor, executor_type)
                 self.assertIs(executor.evaluator, verifier.executor)
                 self.assertEqual((verifier.provider, verifier.model), ("codex", "gpt-5.4-mini"))
+                self.assertEqual(executor.transport.denied_root, private)
 
     def test_unknown_ade_has_no_fallback(self):
         with tempfile.TemporaryDirectory() as directory:
+            private = Path(directory) / "private"
+            private.mkdir()
             with self.assertRaisesRegex(ValueError, "unsupported"):
                 build_v12_role_executor(
                     "unknown", control_root=Path(directory), ao_project="benchmark",
+                    private_evaluation_root=private,
                 )

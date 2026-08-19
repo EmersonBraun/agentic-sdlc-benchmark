@@ -325,7 +325,7 @@ class V12NativeCollectionBackend:
         verifier_factory: Callable[[MatrixAssignment, PreparedRunBundle], CompletionVerifier],
         evidence_collector_factory: Callable[
             [MatrixAssignment, PreparedRunBundle], ControllerEvidenceCollector
-        ] | None = None,
+        ],
         *,
         max_attempts: int = 3,
         retry_backoff_seconds: float = 1.0,
@@ -340,10 +340,7 @@ class V12NativeCollectionBackend:
     def execute(self, assignment: MatrixAssignment, bundle: PreparedRunBundle) -> ExecutionOutcome:
         backend = self.backend_factory(assignment, bundle)
         try:
-            collector = (
-                self.evidence_collector_factory(assignment, bundle)
-                if self.evidence_collector_factory else ControllerEvidenceCollector()
-            )
+            collector = self.evidence_collector_factory(assignment, bundle)
             return V12NativeConditionRunner(
                 backend,
                 self.worktrees,

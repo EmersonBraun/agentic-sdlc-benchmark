@@ -154,8 +154,11 @@ class ControllerEvidenceCollector:
                 timeout = min(timeout, (deadline_epoch_ms - time.time() * 1000) / 1000)
             if timeout <= 0:
                 raise subprocess.TimeoutExpired(argv, 0)
-            if kind in {"build", "typecheck"}:
-                argv = self._sandboxed(argv, plan_path.parent)
+            allowed_private_files = tuple(
+                Path(value).resolve() for value in argv
+                if value.startswith(str(plan_path.parent.resolve())) and Path(value).is_file()
+            )
+            argv = self._sandboxed(argv, plan_path.parent, allowed_private_files)
             completed = self._run_command(argv, worktree, timeout)
             output = completed.stdout + completed.stderr
             command_evidence.append({
@@ -244,9 +247,20 @@ class ControllerEvidenceCollector:
         return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
 
     @staticmethod
-    def _sandboxed(argv: tuple[str, ...], denied_root: Path) -> tuple[str, ...]:
+    def _sandboxed(
+        argv: tuple[str, ...], denied_root: Path,
+        allowed_private_files: tuple[Path, ...] = (),
+    ) -> tuple[str, ...]:
         escaped = str(denied_root.resolve()).replace("\\", "\\\\").replace('"', '\\"')
-        profile = f'(version 1)(allow default)(deny file-read* (subpath "{escaped}"))'
+        exceptions = "".join(
+            '(allow file-read* (literal "'
+            + str(path).replace("\\", "\\\\").replace('"', '\\"') + '"))'
+            for path in allowed_private_files
+        )
+        profile = (
+            f'(version 1)(allow default)(deny file-read* (subpath "{escaped}"))'
+            + exceptions
+        )
         return ("/usr/bin/sandbox-exec", "-p", profile, *argv)
 
     @staticmethod

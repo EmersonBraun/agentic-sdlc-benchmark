@@ -35,6 +35,7 @@ V12_REQUIRED_SOURCE_REFS = {
     "controller/src/benchmark_controller/codex_evaluator_v12.py",
     "controller/src/benchmark_controller/v12_evaluation_evidence.py",
     "controller/src/benchmark_controller/v12_evidence_collector.py",
+    "controller/src/benchmark_controller/v12_process_sandbox.py",
     "controller/src/benchmark_controller/v12_runtime.py",
     "protocol/evaluator-rubric-v1.2.json",
     "schemas/controller-evidence-attestation-v1.2.schema.json",
