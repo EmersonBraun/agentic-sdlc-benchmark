@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema_version": "evaluator-rubric-v1.2",
+  "protocol_version": "v1.2",
+  "score_anchors": {
+    "0": "No credible evidence or the solution is absent, unsafe, or unusable.",
+    "25": "A fragment exists but core requirements or evidence are missing.",
+    "50": "The main happy path works, with material correctness or quality gaps.",
+    "75": "Requirements are substantially met; remaining findings are non-critical and bounded.",
+    "100": "All admissible evidence supports complete, robust, production-quality behavior with no unresolved finding."
+  },
+  "dimensions": {
+    "functional_correctness": {
+      "weight": 40,
+      "evidence": ["canonical requirements", "public tests", "controller hidden-test attestation", "final committed diff"],
+      "deductions": ["missing mandatory behavior", "incorrect edge or failure behavior", "contract regression"]
+    },
+    "security_authorization": {
+      "weight": 15,
+      "evidence": ["security test attestation", "final committed diff", "sanitized runtime evidence"],
+      "deductions": ["secret exposure", "unsafe error disclosure", "authorization or isolation defect"]
+    },
+    "regressions": {
+      "weight": 15,
+      "evidence": ["regression test attestation", "existing contract preservation", "final committed diff"],
+      "deductions": ["existing behavior changed", "unrelated breakage", "backward-incompatible contract"]
+    },
+    "tests": {
+      "weight": 10,
+      "evidence": ["public test results", "hidden-test attestation", "CI attestation"],
+      "deductions": ["missing required scenario", "non-deterministic test", "assertion-free or superficial coverage"]
+    },
+    "architecture_maintainability": {
+      "weight": 10,
+      "evidence": ["final committed diff", "repository architecture", "typecheck and build attestations"],
+      "deductions": ["unnecessary coupling", "duplicated policy", "unbounded complexity", "broken repository convention"]
+    },
+    "documentation_operations": {
+      "weight": 5,
+      "evidence": ["operator documentation", "deployment contract", "failure-mode documentation"],
+      "deductions": ["missing operational instructions", "undocumented contract", "misleading deployment guidance"]
+    },
+    "scope_discipline": {
+      "weight": 5,
+      "evidence": ["task scope", "final committed diff", "artifact inventory"],
+      "deductions": ["unrelated change", "hidden workaround", "benchmark-specific product code"]
+    }
+  },
+  "consensus": {
+    "initial_evaluations": 2,
+    "third_evaluation_score_spread_trigger": 15,
+    "aggregation": "median",
+    "persistent_disagreement": "abstain when the third score differs by more than 15 points from either initial score"
+  },
+  "quality_threshold": 80,
+  "critical_finding_policy": "Any unresolved critical or high finding fails quality regardless of score."
+}

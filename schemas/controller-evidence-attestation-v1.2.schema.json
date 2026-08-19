@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-sdlc-benchmark.org/schemas/controller-evidence-attestation-v1.2.schema.json",
+  "title": "Controller Evidence Attestation v1.2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "protocol_version", "task_id", "task_manifest_sha256",
+    "product_commit", "private_source_commit", "hard_gates", "hidden_test_summary",
+    "ledger_prefix_sha256", "command_evidence"
+  ],
+  "properties": {
+    "schema_version": {"const": "controller-evidence-attestation-v1.2"},
+    "protocol_version": {"const": "v1.2"},
+    "task_id": {"type": "string", "pattern": "^(pilot|main|holdout)_[A-Za-z0-9_-]+$"},
+    "task_manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "product_commit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+    "private_source_commit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+    "hard_gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["build", "typecheck", "ci", "essential-hidden-tests", "ledger"],
+      "properties": {
+        "build": {"type": "boolean"},
+        "typecheck": {"type": "boolean"},
+        "ci": {"type": "boolean"},
+        "essential-hidden-tests": {"type": "boolean"},
+        "ledger": {"type": "boolean"}
+      }
+    },
+    "hidden_test_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "passed", "failed", "critical_mutants_killed", "noncritical_mutant_kill_rate"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 1},
+        "passed": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0},
+        "critical_mutants_killed": {"type": "boolean"},
+        "noncritical_mutant_kill_rate": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "ledger_prefix_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "command_evidence": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "command_sha256", "output_sha256", "exit_code"],
+        "properties": {
+          "kind": {"enum": ["build", "typecheck", "ci", "hidden-tests", "ledger-validation"]},
+          "command_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "output_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "exit_code": {"type": "integer"}
+        }
+      }
+    }
+  }
+}

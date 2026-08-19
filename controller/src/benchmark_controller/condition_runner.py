@@ -210,7 +210,15 @@ class CompletionVerifier(Protocol):
 
     enforces_deadline: bool
 
-    def verify(self, context: StepContext, proof: Mapping[str, Any]) -> bool: ...
+    def verify(
+        self, context: StepContext, proof: Mapping[str, Any]
+    ) -> bool | "VerificationDecision": ...
+
+
+@dataclass(frozen=True)
+class VerificationDecision:
+    accepted: bool
+    canonical_proof: Mapping[str, Any] | None = None
 
 
 class RetryableConditionError(RuntimeError):
@@ -397,7 +405,8 @@ class ComposedConditionRunner:
 
     def _verify(self, context: StepContext, proof: Mapping[str, Any], *, phase: str) -> bool:
         ledger_lines_before = self._ledger_line_count(context.bundle)
-        decision = bool(self.verifier.verify(context, proof))
+        result = self.verifier.verify(context, proof)
+        decision = result.accepted if isinstance(result, VerificationDecision) else bool(result)
         accounting_valid = self._has_backend_timing_evidence(
             context.bundle,
             ledger_lines_before,
@@ -405,6 +414,13 @@ class ComposedConditionRunner:
             accounting_tool=context.accounting_tool,
         )
         decision = decision and accounting_valid
+        canonical = result.canonical_proof if isinstance(result, VerificationDecision) else None
+        if decision and canonical is not None:
+            if not isinstance(proof, dict):
+                decision = False
+            else:
+                proof.clear()
+                proof.update(canonical)
         context.bundle.ledger.record(
             stage_id="review" if phase == "pre-merge" else "merge",
             actor="evaluator",
@@ -418,6 +434,7 @@ class ComposedConditionRunner:
                     json.dumps(dict(proof), sort_keys=True, separators=(",", ":")).encode()
                 ).hexdigest(),
                 "verifier": type(self.verifier).__name__,
+                "canonical_proof_published": decision and canonical is not None,
             },
             tool=self.runner_tool,
         )
