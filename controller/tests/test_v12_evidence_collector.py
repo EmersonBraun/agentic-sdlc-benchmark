@@ -144,10 +144,14 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
             plan.write_text("{}")
             commit = self.commit_private_plan(plan)
             self.assertEqual(
-                ControllerEvidenceCollector(source, commit)._configured_plan(), plan.resolve()
+                ControllerEvidenceCollector(
+                    source, commit, registered_private_source_commit=commit,
+                )._configured_plan("pilot_task"), plan.resolve()
             )
             with self.assertRaisesRegex(RuntimeError, "frozen commit"):
-                ControllerEvidenceCollector(source, "f" * 40)._configured_plan()
+                ControllerEvidenceCollector(
+                    source, "f" * 40, registered_private_source_commit=commit,
+                )._configured_plan("pilot_task")
 
     def test_private_source_rejects_tracked_symlinks(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -159,7 +163,9 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
             commit = self.commit_private_plan(plan)
 
             with self.assertRaisesRegex(RuntimeError, "symlink"):
-                ControllerEvidenceCollector(source, commit)._configured_plan()
+                ControllerEvidenceCollector(
+                    source, commit, registered_private_source_commit=commit,
+                )._configured_plan("pilot_task")
 
 
 if __name__ == "__main__":

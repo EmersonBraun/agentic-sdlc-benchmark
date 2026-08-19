@@ -33,6 +33,7 @@ class ControllerEvidenceCollector:
     def __init__(
         self, private_source_repository: Path | None = None,
         private_source_commit: str | None = None,
+        registered_private_source_commit: str | None = None,
     ) -> None:
         configured = private_source_repository or (
             Path(os.environ["BENCHMARK_PRIVATE_EVALUATION_REPOSITORY"])
@@ -42,6 +43,7 @@ class ControllerEvidenceCollector:
         self.private_source_commit = private_source_commit or os.environ.get(
             "BENCHMARK_PRIVATE_EVALUATION_COMMIT"
         )
+        self.registered_private_source_commit = registered_private_source_commit
 
     def collect_for(self, context: Any) -> Path:
         """Refresh evidence immediately before one independent evaluation."""
@@ -52,7 +54,7 @@ class ControllerEvidenceCollector:
         if head.returncode:
             raise RuntimeError("collector cannot resolve product commit")
         private = context.bundle.directory / "private-evaluation"
-        plan_path = self._configured_plan()
+        plan_path = self._configured_plan(context.assignment.task_id)
         started = time.monotonic_ns()
 
         def record_collection() -> None:
@@ -83,11 +85,14 @@ class ControllerEvidenceCollector:
             expected_private_source_commit=self.private_source_commit,
         )
 
-    def _configured_plan(self) -> Path:
+    def _configured_plan(self, task_id: str) -> Path:
         if self.private_source_repository is None or self.private_source_commit is None:
             raise RuntimeError("private evidence source repository is not configured")
         if not SHA1.fullmatch(self.private_source_commit):
             raise RuntimeError("configured private evidence commit is invalid")
+        registered = self.registered_private_source_commit or self._registered_commit(task_id)
+        if self.private_source_commit != registered:
+            raise RuntimeError("configured private evidence commit is not the public frozen commit")
         if self.private_source_repository.is_symlink():
             raise RuntimeError("private evidence source cannot be a symlink")
         plan = self.private_source_repository / "evidence-plan.json"
@@ -95,6 +100,21 @@ class ControllerEvidenceCollector:
         if observed != self.private_source_commit:
             raise RuntimeError("private evidence source does not match the frozen commit")
         return plan
+
+    @staticmethod
+    def _registered_commit(task_id: str) -> str:
+        path = Path(__file__).resolve().parents[3] / "adapters/private-evaluator-v1.2-readiness.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        commit = value.get("private_source_commit") if isinstance(value, Mapping) else None
+        if not all((
+            value.get("schema_version") == "private-evaluator-readiness-v1.2",
+            value.get("status") == "passed",
+            value.get("task_id") == task_id,
+            isinstance(commit, str),
+            bool(SHA1.fullmatch(commit or "")),
+        )):
+            raise RuntimeError("public frozen private-evaluator registration is invalid")
+        return commit
 
     def collect(
         self, *, plan_path: Path, output_path: Path, worktree: Path,
