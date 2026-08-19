@@ -7,6 +7,7 @@ from benchmark_controller.v12_process_sandbox import sandbox_argv
 
 
 class V12ProcessSandboxTests(unittest.TestCase):
+    @unittest.skipUnless(Path("/usr/bin/sandbox-exec").is_file(), "requires macOS sandbox")
     def test_measured_agent_process_cannot_read_private_evaluation(self):
         with tempfile.TemporaryDirectory() as directory:
             private = Path(directory) / "private"

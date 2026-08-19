@@ -34,12 +34,16 @@ class ControllerEvidenceCollector:
         self, private_source_repository: Path | None = None,
         private_source_commit: str | None = None,
         registered_private_source_commit: str | None = None,
+        sandbox_factory: Callable[
+            [tuple[str, ...], Path, tuple[Path, ...]], tuple[str, ...]
+        ] | None = None,
     ) -> None:
         self.private_source_repository = (
             private_source_repository.resolve() if private_source_repository else None
         )
         self.private_source_commit = private_source_commit
         self.registered_private_source_commit = registered_private_source_commit
+        self.sandbox_factory = sandbox_factory or self._sandboxed
 
     def collect_for(self, context: Any) -> Path:
         """Refresh evidence immediately before one independent evaluation."""
@@ -158,7 +162,7 @@ class ControllerEvidenceCollector:
                 Path(value).resolve() for value in argv
                 if value.startswith(str(plan_path.parent.resolve())) and Path(value).is_file()
             )
-            argv = self._sandboxed(argv, plan_path.parent, allowed_private_files)
+            argv = self.sandbox_factory(argv, plan_path.parent, allowed_private_files)
             completed = self._run_command(argv, worktree, timeout)
             output = completed.stdout + completed.stderr
             command_evidence.append({
