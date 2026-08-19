@@ -13,6 +13,7 @@ from typing import Any, Mapping, Protocol, Sequence
 
 from .condition_runner import PRE_MERGE_QUALITY_GATES, REQUIRED_QUALITY_GATES
 from .v12_native_backend import NativeStepExecution, NativeStepRequest, V12RoleExecutor
+from .v12_process_sandbox import sandbox_argv
 
 EXPECTED_ORCA_VERSION = "1.4.184"
 PLANNER_STEPS = {"requirements", "planning", "decomposition", "documentation", "merge"}
@@ -30,13 +31,19 @@ class OrcaTransport(Protocol):
 
 
 class SubprocessOrcaTransport:
-    def __init__(self, executable: Path = Path("/usr/local/bin/orca")) -> None:
+    def __init__(
+        self, executable: Path = Path("/usr/local/bin/orca"), denied_root: Path | None = None,
+    ) -> None:
         self.executable = executable
+        self.denied_root = denied_root
 
     def run_json(self, argv: Sequence[str], *, timeout_seconds: float) -> OrcaCommandResult:
         started = time.monotonic_ns()
+        command = (str(self.executable), *argv)
+        if self.denied_root is not None:
+            command = sandbox_argv(command, self.denied_root)
         completed = subprocess.run(
-            (str(self.executable), *argv), capture_output=True, text=True,
+            command, capture_output=True, text=True,
             check=False, timeout=timeout_seconds,
         )
         duration_ms = (time.monotonic_ns() - started) / 1_000_000

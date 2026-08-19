@@ -1,0 +1,28 @@
+{
+  "schema_version": "private-evaluator-readiness-v1.2",
+  "status": "passed",
+  "analysis_eligible": false,
+  "task_id": "pilot_greenfield_service_readiness",
+  "public_base_commit": "770c32bab141c4fd0b48114e95f686d2cd56dbe0",
+  "private_source_commit": "1c54f54fc91c75431f6d0449127b86dab970651f",
+  "private_source_tag": "pilot-evaluator-v1.2.2",
+  "private_source_disclosed": false,
+  "reference_solution_patch_sha256": "c1d74ae78a2696c8edce7c649fb9bb58c9ca1250c2560d034878f8a0d6fd8e5c",
+  "evidence_plan_sha256": "65f7f323ee1fd4363d61e36f7a5629c134e14e9e6b704214427dec01f455d8c4",
+  "reference_attestation_sha256": "deb8d82533ae2636ae4d43c5c2d4c925e576c7fe8993526d5f6b5ab800c5358b",
+  "hidden_test_summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "critical_mutants_killed": true,
+    "noncritical_mutant_kill_rate": 1.0
+  },
+  "hard_gates": {
+    "build": true,
+    "typecheck": true,
+    "ci": true,
+    "essential-hidden-tests": true,
+    "ledger": true
+  },
+  "raw_private_output_persisted_publicly": false
+}

@@ -14,6 +14,7 @@ from typing import Any, Mapping, Protocol, Sequence
 
 from .condition_runner import PRE_MERGE_QUALITY_GATES, REQUIRED_QUALITY_GATES
 from .v12_native_backend import NativeStepExecution, NativeStepRequest, V12RoleExecutor
+from .v12_process_sandbox import sandbox_argv
 
 SESSION_PATTERN = re.compile(r"spawned session ([A-Za-z0-9_-]+)")
 ANSI_PATTERN = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
@@ -33,10 +34,16 @@ class AOTransport(Protocol):
 
 
 class SubprocessAOTransport:
+    def __init__(self, denied_root: Path | None = None) -> None:
+        self.denied_root = denied_root
+
     def run(self, argv: Sequence[str], *, timeout_seconds: float) -> AOCommandResult:
         started = time.monotonic_ns()
+        command = tuple(argv)
+        if self.denied_root is not None:
+            command = sandbox_argv(command, self.denied_root)
         completed = subprocess.run(
-            tuple(argv), capture_output=True, text=True, check=False, timeout=timeout_seconds,
+            command, capture_output=True, text=True, check=False, timeout=timeout_seconds,
         )
         duration_ms = (time.monotonic_ns() - started) / 1_000_000
         if completed.returncode != 0:

@@ -11,11 +11,15 @@ from benchmark_controller.v12_evaluation_evidence import ControllerEvidenceAttes
 
 class ControllerEvidenceCollectorTests(unittest.TestCase):
     @staticmethod
+    def unsandboxed(argv, denied_root, allowed_private_files):
+        return argv
+
+    @staticmethod
     def commit_private_plan(plan: Path) -> str:
         subprocess.run(("git", "init", "-q"), cwd=plan.parent, check=True)
         subprocess.run(("git", "config", "user.email", "private@example.test"), cwd=plan.parent, check=True)
         subprocess.run(("git", "config", "user.name", "Private Test"), cwd=plan.parent, check=True)
-        subprocess.run(("git", "add", plan.name), cwd=plan.parent, check=True)
+        subprocess.run(("git", "add", "."), cwd=plan.parent, check=True)
         subprocess.run(("git", "commit", "-qm", "private fixture"), cwd=plan.parent, check=True)
         return subprocess.run(
             ("git", "rev-parse", "HEAD"), cwd=plan.parent,
@@ -48,7 +52,7 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
                 commands[kind] = {"argv": ["/usr/bin/true"], "timeout_seconds": 5}
             commands["hidden-tests"] = {
                 "argv": [
-                    "/bin/echo",
+                    "{private_source}/emit-hidden-summary",
                     json.dumps({
                         "total": 5, "passed": 5, "failed": 0,
                         "critical_mutants_killed": True,
@@ -62,10 +66,13 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
                 "task_id": "pilot_task",
                 "commands": commands,
             }))
+            executable = plan.parent / "emit-hidden-summary"
+            executable.write_text("#!/bin/sh\nexec /bin/echo \"$@\"\n")
+            executable.chmod(0o755)
             private_commit = self.commit_private_plan(plan)
 
             output = bundle / "private-evaluation/controller-attestation.json"
-            result = ControllerEvidenceCollector().collect(
+            result = ControllerEvidenceCollector(sandbox_factory=self.unsandboxed).collect(
                 plan_path=plan, output_path=output, worktree=worktree,
                 ledger_path=ledger, task_id="pilot_task",
                 task_manifest_sha256="c" * 64, product_commit=commit,
@@ -125,12 +132,60 @@ class ControllerEvidenceCollectorTests(unittest.TestCase):
             self.commit_private_plan(plan)
 
             with self.assertRaises(ValueError):
-                ControllerEvidenceCollector().collect(
+                ControllerEvidenceCollector(sandbox_factory=self.unsandboxed).collect(
                     plan_path=plan, output_path=output, worktree=worktree,
                     ledger_path=ledger, task_id="pilot_task",
                     task_manifest_sha256="c" * 64, product_commit=commit,
                 )
             self.assertFalse(output.exists())
+
+    def test_configured_private_source_must_match_frozen_commit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source"
+            source.mkdir()
+            plan = source / "evidence-plan.json"
+            plan.write_text("{}")
+            commit = self.commit_private_plan(plan)
+            self.assertEqual(
+                ControllerEvidenceCollector(
+                    source, commit, registered_private_source_commit=commit,
+                )._configured_plan("pilot_task"), plan.resolve()
+            )
+            with self.assertRaisesRegex(RuntimeError, "frozen commit"):
+                ControllerEvidenceCollector(
+                    source, "f" * 40, registered_private_source_commit=commit,
+                )._configured_plan("pilot_task")
+
+    def test_private_source_rejects_tracked_symlinks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "source"
+            source.mkdir()
+            plan = source / "evidence-plan.json"
+            plan.write_text("{}")
+            (source / "external").symlink_to("/bin/true")
+            commit = self.commit_private_plan(plan)
+
+            with self.assertRaisesRegex(RuntimeError, "symlink"):
+                ControllerEvidenceCollector(
+                    source, commit, registered_private_source_commit=commit,
+                )._configured_plan("pilot_task")
+
+    @unittest.skipUnless(Path("/usr/bin/sandbox-exec").is_file(), "requires macOS sandbox")
+    def test_candidate_process_cannot_read_private_source(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            private = root / "private"
+            private.mkdir()
+            secret = private / "hidden-test.txt"
+            secret.write_text("oracle")
+            argv = ControllerEvidenceCollector._sandboxed(
+                ("python3", "-c", f"open({str(secret)!r}).read()"), private,
+            )
+
+            completed = subprocess.run(argv, capture_output=True, check=False)
+
+            self.assertNotEqual(completed.returncode, 0)
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ from .compozy_grok import validate_provider_config
 from .condition_runner import PRE_MERGE_QUALITY_GATES, REQUIRED_QUALITY_GATES
 from .v12_native_backend import NativeStepExecution, NativeStepRequest
 from .v12_native_backend import V12RoleExecutor
+from .v12_process_sandbox import sandbox_argv
 
 
 def _sha(value: str) -> str:
@@ -33,13 +34,17 @@ class CompozyTransport(Protocol):
 class SubprocessCompozyTransport:
     """Run bounded Compozy JSON commands without publishing prompt or output content."""
 
-    def __init__(self, executable: str = "compozy") -> None:
+    def __init__(self, executable: str = "compozy", denied_root: Path | None = None) -> None:
         self.executable = executable
+        self.denied_root = denied_root
 
     def run_json(self, argv: Sequence[str], *, timeout_seconds: float) -> CommandResult:
         started = time.monotonic_ns()
+        command = (self.executable, *argv)
+        if self.denied_root is not None:
+            command = sandbox_argv(command, self.denied_root)
         completed = subprocess.run(
-            (self.executable, *argv), capture_output=True, text=True, check=False,
+            command, capture_output=True, text=True, check=False,
             timeout=timeout_seconds,
         )
         duration_ms = (time.monotonic_ns() - started) / 1_000_000

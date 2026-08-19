@@ -30,6 +30,21 @@ def _sha(payload: bytes) -> str:
 class ControllerEvidenceCollector:
     """Deep boundary: private commands in, redacted commit-bound evidence out."""
 
+    def __init__(
+        self, private_source_repository: Path | None = None,
+        private_source_commit: str | None = None,
+        registered_private_source_commit: str | None = None,
+        sandbox_factory: Callable[
+            [tuple[str, ...], Path, tuple[Path, ...]], tuple[str, ...]
+        ] | None = None,
+    ) -> None:
+        self.private_source_repository = (
+            private_source_repository.resolve() if private_source_repository else None
+        )
+        self.private_source_commit = private_source_commit
+        self.registered_private_source_commit = registered_private_source_commit
+        self.sandbox_factory = sandbox_factory or self._sandboxed
+
     def collect_for(self, context: Any) -> Path:
         """Refresh evidence immediately before one independent evaluation."""
         head = subprocess.run(
@@ -39,6 +54,7 @@ class ControllerEvidenceCollector:
         if head.returncode:
             raise RuntimeError("collector cannot resolve product commit")
         private = context.bundle.directory / "private-evaluation"
+        plan_path = self._configured_plan(context.assignment.task_id)
         started = time.monotonic_ns()
 
         def record_collection() -> None:
@@ -57,7 +73,7 @@ class ControllerEvidenceCollector:
             )
 
         return self.collect(
-            plan_path=private / "source/evidence-plan.json",
+            plan_path=plan_path,
             output_path=private / "controller-attestation.json",
             worktree=context.worktree,
             ledger_path=context.bundle.ledger.path,
@@ -66,7 +82,39 @@ class ControllerEvidenceCollector:
             product_commit=head.stdout.strip(),
             ledger_recorder=record_collection,
             deadline_epoch_ms=context.deadline_epoch_ms,
+            expected_private_source_commit=self.private_source_commit,
         )
+
+    def _configured_plan(self, task_id: str) -> Path:
+        if self.private_source_repository is None or self.private_source_commit is None:
+            raise RuntimeError("private evidence source repository is not configured")
+        if not SHA1.fullmatch(self.private_source_commit):
+            raise RuntimeError("configured private evidence commit is invalid")
+        registered = self.registered_private_source_commit or self._registered_commit(task_id)
+        if self.private_source_commit != registered:
+            raise RuntimeError("configured private evidence commit is not the public frozen commit")
+        if self.private_source_repository.is_symlink():
+            raise RuntimeError("private evidence source cannot be a symlink")
+        plan = self.private_source_repository / "evidence-plan.json"
+        observed = self._verify_private_source(plan)
+        if observed != self.private_source_commit:
+            raise RuntimeError("private evidence source does not match the frozen commit")
+        return plan
+
+    @staticmethod
+    def _registered_commit(task_id: str) -> str:
+        path = Path(__file__).resolve().parents[3] / "adapters/private-evaluator-v1.2-readiness.json"
+        value = json.loads(path.read_text(encoding="utf-8"))
+        commit = value.get("private_source_commit") if isinstance(value, Mapping) else None
+        if not all((
+            value.get("schema_version") == "private-evaluator-readiness-v1.2",
+            value.get("status") == "passed",
+            value.get("task_id") == task_id,
+            isinstance(commit, str),
+            bool(SHA1.fullmatch(commit or "")),
+        )):
+            raise RuntimeError("public frozen private-evaluator registration is invalid")
+        return commit
 
     def collect(
         self, *, plan_path: Path, output_path: Path, worktree: Path,
@@ -74,6 +122,7 @@ class ControllerEvidenceCollector:
         product_commit: str,
         ledger_recorder: Callable[[], None] | None = None,
         deadline_epoch_ms: float | None = None,
+        expected_private_source_commit: str | None = None,
     ) -> Path:
         worktree = worktree.resolve()
         plan_path = plan_path.resolve()
@@ -85,6 +134,11 @@ class ControllerEvidenceCollector:
             raise ValueError("collector source identity is invalid")
         self._verify_product(worktree, product_commit)
         private_source_commit = self._verify_private_source(plan_path)
+        if (
+            expected_private_source_commit is not None
+            and private_source_commit != expected_private_source_commit
+        ):
+            raise RuntimeError("private evidence source commit mismatch")
         plan = self._load_plan(plan_path, task_id)
         output_path.unlink(missing_ok=True)
         if ledger_recorder is not None:
@@ -95,12 +149,20 @@ class ControllerEvidenceCollector:
         gates: dict[str, bool] = {}
         for kind in sorted(COMMAND_KINDS):
             command = plan["commands"][kind]
-            argv = self._argv(command["argv"], worktree, ledger_path, output_path.parent.parent)
+            argv = self._argv(
+                command["argv"], worktree, ledger_path, output_path.parent.parent,
+                plan_path.parent,
+            )
             timeout = float(command["timeout_seconds"])
             if deadline_epoch_ms is not None:
                 timeout = min(timeout, (deadline_epoch_ms - time.time() * 1000) / 1000)
             if timeout <= 0:
                 raise subprocess.TimeoutExpired(argv, 0)
+            allowed_private_files = tuple(
+                Path(value).resolve() for value in argv
+                if value.startswith(str(plan_path.parent.resolve())) and Path(value).is_file()
+            )
+            argv = self.sandbox_factory(argv, plan_path.parent, allowed_private_files)
             completed = self._run_command(argv, worktree, timeout)
             output = completed.stdout + completed.stderr
             command_evidence.append({
@@ -189,6 +251,23 @@ class ControllerEvidenceCollector:
         return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
 
     @staticmethod
+    def _sandboxed(
+        argv: tuple[str, ...], denied_root: Path,
+        allowed_private_files: tuple[Path, ...] = (),
+    ) -> tuple[str, ...]:
+        escaped = str(denied_root.resolve()).replace("\\", "\\\\").replace('"', '\\"')
+        exceptions = "".join(
+            '(allow file-read* (literal "'
+            + str(path).replace("\\", "\\\\").replace('"', '\\"') + '"))'
+            for path in allowed_private_files
+        )
+        profile = (
+            f'(version 1)(allow default)(deny file-read* (subpath "{escaped}"))'
+            + exceptions
+        )
+        return ("/usr/bin/sandbox-exec", "-p", profile, *argv)
+
+    @staticmethod
     def _kill_process_group(pid: int) -> None:
         try:
             os.killpg(pid, signal.SIGKILL)
@@ -225,14 +304,38 @@ class ControllerEvidenceCollector:
         commit = head.stdout.strip()
         if not SHA1.fullmatch(commit):
             raise RuntimeError("private evidence source commit is invalid")
+        tracked = subprocess.run(
+            ("git", "-C", str(repository), "ls-files", "-z"),
+            capture_output=True, check=False,
+        )
+        if tracked.returncode:
+            raise RuntimeError("private evidence source inventory is unavailable")
+        for item in tracked.stdout.split(b"\0"):
+            if item and (repository / os.fsdecode(item)).is_symlink():
+                raise RuntimeError("private evidence source contains a symlink")
+        ignored = subprocess.run(
+            ("git", "-C", str(repository), "ls-files", "--others", "-i",
+             "--exclude-standard", "-z"),
+            capture_output=True, check=False,
+        )
+        if ignored.returncode or ignored.stdout:
+            raise RuntimeError("private evidence source contains ignored material")
         return commit
 
     @staticmethod
-    def _argv(values: list[str], worktree: Path, ledger: Path, bundle: Path) -> tuple[str, ...]:
+    def _argv(
+        values: list[str], worktree: Path, ledger: Path, bundle: Path,
+        private_source: Path,
+    ) -> tuple[str, ...]:
         replacements = {
-            "{worktree}": str(worktree), "{ledger}": str(ledger), "{bundle}": str(bundle),
+            "{worktree}": str(worktree), "{ledger}": str(ledger),
+            "{bundle}": str(bundle), "{private_source}": str(private_source),
         }
-        return tuple(replacements.get(value, value) for value in values)
+        return tuple(
+            value.replace("{private_source}", replacements["{private_source}"])
+            if "{private_source}" in value else replacements.get(value, value)
+            for value in values
+        )
 
     @staticmethod
     def _environment(worktree: Path) -> Mapping[str, str]:

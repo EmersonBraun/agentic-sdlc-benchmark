@@ -268,6 +268,7 @@ class V12RunnerTests(unittest.TestCase):
         backend = SimpleNamespace(close=Mock())
         collection = V12NativeCollectionBackend(
             object(), lambda assignment, bundle: backend, lambda assignment, bundle: object(),
+            lambda assignment, bundle: object(),
         )
         expected = SimpleNamespace(terminal_state="MERGED")
         current_bundle = SimpleNamespace(ledger=SimpleNamespace(record=Mock()))
