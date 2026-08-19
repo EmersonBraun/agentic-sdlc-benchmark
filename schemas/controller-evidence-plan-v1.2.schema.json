@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-sdlc-benchmark.org/schemas/controller-evidence-plan-v1.2.schema.json",
+  "title": "Private controller evidence plan v1.2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "task_id", "private_source_commit", "commands"],
+  "properties": {
+    "schema_version": {"const": "controller-evidence-plan-v1.2"},
+    "task_id": {"type": "string", "minLength": 1},
+    "private_source_commit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+    "commands": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["build", "typecheck", "ci", "hidden-tests", "ledger-validation"],
+      "properties": {
+        "build": {"$ref": "#/$defs/command"},
+        "typecheck": {"$ref": "#/$defs/command"},
+        "ci": {"$ref": "#/$defs/command"},
+        "hidden-tests": {"$ref": "#/$defs/command"},
+        "ledger-validation": {"$ref": "#/$defs/command"}
+      }
+    }
+  },
+  "$defs": {
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["argv", "timeout_seconds"],
+      "properties": {
+        "argv": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "timeout_seconds": {"type": "number", "exclusiveMinimum": 0, "maximum": 3600}
+      }
+    }
+  }
+}

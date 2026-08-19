@@ -20,7 +20,10 @@ Evaluation is a controller-owned pipeline with four boundaries:
    CI, ledger, and artifact integrity outside the measured agent worktree. It
    emits a schema-validated redacted attestation bound to the task manifest and
    product commit. The attestation contains no condition, ADE, AgentsKit, model,
-   branch, or original path.
+   branch, or original path. Immediately before every evaluation boundary it
+   executes the frozen five-command private plan, records a content-minimized
+   ledger event, and seals the attestation against the resulting ledger prefix.
+   Private commands and raw outputs are never copied into the ADE worktree.
 2. **Blind snapshot.** The evaluator receives a clean committed archive under a
    random opaque directory. Repository instruction surfaces (`AGENTS.md`,
    `CLAUDE.md`, `.agents`, `.codex`, and equivalent nested files) and benchmark
@@ -60,4 +63,3 @@ runner persists that proof as the sole publishable quality result.
 - Raw hidden tests, prompts, model replies, and treatment identifiers remain
   private; public outputs contain only hashes, bounded counts, scores, and gates.
 - The same evaluator pipeline is used for all six conditions without fallback.
-

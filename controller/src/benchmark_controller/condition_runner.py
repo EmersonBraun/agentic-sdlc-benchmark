@@ -404,6 +404,7 @@ class ComposedConditionRunner:
         return ExecutionOutcome("MERGED", tuple(artifacts))
 
     def _verify(self, context: StepContext, proof: Mapping[str, Any], *, phase: str) -> bool:
+        self._prepare_verification(context)
         ledger_lines_before = self._ledger_line_count(context.bundle)
         result = self.verifier.verify(context, proof)
         decision = result.accepted if isinstance(result, VerificationDecision) else bool(result)
@@ -439,6 +440,12 @@ class ComposedConditionRunner:
             tool=self.runner_tool,
         )
         return decision
+
+    def _prepare_step(self, context: StepContext) -> None:
+        """Controller-owned hook invoked immediately before a backend step."""
+
+    def _prepare_verification(self, context: StepContext) -> None:
+        """Controller-owned hook invoked immediately before independent verification."""
 
     def _complete_cleanup(
         self,
@@ -493,8 +500,7 @@ class ComposedConditionRunner:
             try:
                 started = time.monotonic_ns()
                 ledger_lines_before = self._ledger_line_count(bundle)
-                result = self.backend.execute_step(
-                    StepContext(
+                step_context = StepContext(
                         assignment,
                         bundle,
                         step,
@@ -505,7 +511,8 @@ class ComposedConditionRunner:
                         self._deadline_epoch_ms(bundle, state),
                         f"condition-accounting:{assignment.run_id}:{step.name}:{attempt}",
                     )
-                )
+                self._prepare_step(step_context)
+                result = self.backend.execute_step(step_context)
                 if not isinstance(result, StepResult):
                     raise TypeError("condition backend must return StepResult")
             except RetryableConditionError as exc:

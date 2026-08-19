@@ -21,6 +21,7 @@ from .condition_runner import (
 from .collection import ExecutionOutcome
 from .matrix import MatrixAssignment
 from .run_bundles import PreparedRunBundle
+from .v12_evidence_collector import ControllerEvidenceCollector
 
 HANDOFF_RELATIVE = Path("runtime-control/handoffs/codex-to-grok.json")
 AGENTSKIT_CONTEXT_RELATIVE = Path("runtime-control/agentskit/context.json")
@@ -57,6 +58,7 @@ class V12NativeConditionRunner(ComposedConditionRunner):
         backend: ConditionStepBackend,
         worktrees: WorktreeProvider,
         verifier: CompletionVerifier,
+        evidence_collector: ControllerEvidenceCollector | None = None,
         **kwargs: Any,
     ) -> None:
         if (
@@ -65,6 +67,14 @@ class V12NativeConditionRunner(ComposedConditionRunner):
         ) != ("codex", "gpt-5.4-mini"):
             raise ValueError("v1.2 requires the frozen independent evaluator")
         super().__init__(backend, worktrees, verifier, **kwargs)
+        self.evidence_collector = evidence_collector or ControllerEvidenceCollector()
+
+    def _prepare_step(self, context: StepContext) -> None:
+        if context.step.name == "review":
+            self.evidence_collector.collect_for(context)
+
+    def _prepare_verification(self, context: StepContext) -> None:
+        self.evidence_collector.collect_for(context)
 
     def _factors(self, assignment: MatrixAssignment) -> dict[str, Any]:
         if assignment.harness is not None:
