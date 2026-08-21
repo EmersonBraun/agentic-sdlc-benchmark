@@ -9,14 +9,16 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm prisma:generate && next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run",
+    "test": "pnpm prisma:generate && vitest run",
     "test:watch": "vitest",
     "prisma:generate": "prisma generate",
-    "prisma:validate": "prisma validate"
+    "prisma:validate": "prisma validate",
+    "smoke:ready": "curl -sS -i http://localhost:3000/health/ready"
   },
+
   "dependencies": {
     "@prisma/adapter-pg": "7.9.1",
     "@prisma/client": "7.9.1",
