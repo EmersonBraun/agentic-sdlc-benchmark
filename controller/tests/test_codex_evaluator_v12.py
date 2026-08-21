@@ -61,6 +61,16 @@ class ScoreTransport(Transport):
 
 
 class CodexEvaluatorV12Tests(unittest.TestCase):
+    def test_ledger_prefix_finds_attestation_snapshot_after_later_events(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "ledger.jsonl"
+            path.write_bytes(b"first\nsecond\nthird\n")
+            expected = __import__("hashlib").sha256(b"first\nsecond\n").hexdigest()
+            self.assertEqual(
+                CodexEvaluatorV12RoleExecutor._ledger_prefix(path, expected),
+                b"first\nsecond\n",
+            )
+
     def request(self, root: Path, **overrides):
         worktree = root / "worktree"
         worktree.mkdir(exist_ok=True)
@@ -130,6 +140,7 @@ class CodexEvaluatorV12Tests(unittest.TestCase):
             self.assertIn(("-m", "gpt-5.4-mini"), tuple(zip(argv, argv[1:])))
             self.assertIn(("-s", "read-only"), tuple(zip(argv, argv[1:])))
             self.assertIn("--ephemeral", argv)
+            self.assertIn("--skip-git-repo-check", argv)
             self.assertIn("--ignore-user-config", argv)
             for feature in ("plugins", "remote_plugin", "skill_search", "apps", "multi_agent"):
                 self.assertIn(feature, argv)
@@ -159,7 +170,7 @@ class CodexEvaluatorV12Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             result = CodexEvaluatorV12RoleExecutor(Ambiguous()).execute(self.request(Path(directory)))
             self.assertEqual(result.status, "failed")
-            self.assertEqual(result.reason, "invalid-evaluator-output")
+        self.assertTrue(result.reason.startswith("invalid-evaluator-output:"))
 
     def test_markdown_fenced_json_is_accepted_as_one_structured_proof(self):
         class Fenced(Transport):
