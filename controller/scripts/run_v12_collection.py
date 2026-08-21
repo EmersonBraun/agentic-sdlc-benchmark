@@ -69,10 +69,6 @@ class SyntheticV12EvidenceCollector:
                 "ci": True,
                 "essential-hidden-tests": True,
                 "ledger": True,
-                # Technical-pilot evidence assumes the frozen greenfield task
-                # has no migration change; official collection uses the
-                # private evidence plan instead.
-                "migrations": True,
             },
             "hidden_test_summary": {
                 "total": 1,

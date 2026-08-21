@@ -459,7 +459,15 @@ class CodexV12CompletionVerifier:
         )
         execution = self.executor.execute(request)
         self._record(context, execution, step)
-        evaluated = execution.completion_proof or {}
+        evaluated = dict(execution.completion_proof or {})
+        if step == "review" and self._no_migration_change(context):
+            evaluated["verified_gates"] = sorted(
+                set(evaluated.get("verified_gates", [])) | {"migrations"}
+            )
+            proof = dict(proof)
+            proof["verified_gates"] = sorted(
+                set(proof.get("verified_gates", [])) | {"migrations"}
+            )
         required = PRE_MERGE_QUALITY_GATES if step == "review" else REQUIRED_QUALITY_GATES
         accepted = all((
             execution.status == "completed",
@@ -472,6 +480,22 @@ class CodexV12CompletionVerifier:
             step != "merge" or evaluated.get("merge_commit") == proof.get("merge_commit"),
         ))
         return VerificationDecision(accepted, evaluated if accepted else None)
+
+    @staticmethod
+    def _no_migration_change(context: StepContext) -> bool:
+        base = str(getattr(context.bundle, "manifest", {}).get("base_commit", ""))
+        if len(base) != 40:
+            return False
+        result = subprocess.run(
+            ("git", "-C", str(context.worktree), "diff", "--name-only", f"{base}..HEAD"),
+            capture_output=True, text=True, check=False, timeout=10,
+        )
+        if result.returncode != 0:
+            return False
+        return not any(
+            "/prisma/migrations/" in f"/{path.strip('/')}/"
+            for path in result.stdout.splitlines()
+        )
 
     @staticmethod
     def _record(context: StepContext, execution: NativeStepExecution, step: str) -> None:
