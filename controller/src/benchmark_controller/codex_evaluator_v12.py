@@ -134,7 +134,9 @@ class CodexEvaluatorV12RoleExecutor:
                     usages.append(usage)
                     effective_ms += duration
                     command_digests.append(digest)
-                proof, persistent_disagreement = self._consensus(proofs, commit)
+                proof, persistent_disagreement = self._consensus(
+                    proofs, commit, require_merge_commit=request.step == "merge"
+                )
                 if persistent_disagreement:
                     return self._outcome(
                         request, "human-required", "independent-evaluator-abstained",
@@ -234,7 +236,7 @@ class CodexEvaluatorV12RoleExecutor:
 
     @staticmethod
     def _consensus(
-        proofs: list[dict[str, Any]], product_commit: str,
+        proofs: list[dict[str, Any]], product_commit: str, *, require_merge_commit: bool,
     ) -> tuple[dict[str, Any], bool]:
         scores = [float(proof["product_quality_score"]) for proof in proofs]
         persistent = len(proofs) == 3 and max(
@@ -251,7 +253,10 @@ class CodexEvaluatorV12RoleExecutor:
             "product_quality_score": round(statistics.median(scores), 3),
             "evaluator_status": "abstain" if persistent else "complete",
         }
-        commits = {proof.get("merge_commit") for proof in proofs if "merge_commit" in proof}
+        commits = (
+            {proof.get("merge_commit") for proof in proofs if "merge_commit" in proof}
+            if require_merge_commit else set()
+        )
         if commits:
             if commits != {product_commit}:
                 raise RuntimeError("evaluator merge commit consensus failed")
