@@ -23,6 +23,60 @@ pnpm dev
 
 The application is available at `http://localhost:3000`.
 
+## Health and readiness
+
+`/health` is a liveness signal only. It does not check dependencies:
+
+```bash
+curl -sS http://localhost:3000/health
+# {"service":"greenfield-product","status":"ok"}
+```
+
+`/readyz` is the deployment readiness probe. It performs a read-only Prisma/`pg` reachability check against PostgreSQL (`SELECT 1`) with a fail-fast timeout. Responses never include credentials, connection strings, SQL text, stack traces, or other secrets—only redacted diagnostic state via `checks.database`.
+
+### Ready response
+
+- HTTP `200`
+- Body: `{"service":"greenfield-product","status":"ready","checks":{"database":"ok"}}`
+
+### Not ready response
+
+- HTTP `503`
+- Body: `{"service":"greenfield-product","status":"not_ready","checks":{"database":"unavailable"}}`
+
+### Healthy app + database
+
+Start Postgres, generate the client, and run the app:
+
+```bash
+docker compose up -d postgres
+cp -n .env.example .env
+pnpm install --frozen-lockfile
+pnpm prisma:generate
+pnpm dev
+```
+
+Then:
+
+```bash
+curl -i -sS http://localhost:3000/readyz
+# HTTP/1.1 200
+# {"service":"greenfield-product","status":"ready","checks":{"database":"ok"}}
+```
+
+### Database unavailable
+
+With the app still running, stop Postgres (or point `DATABASE_URL` at a closed port) and call readiness again:
+
+```bash
+docker compose stop postgres
+curl -i -sS http://localhost:3000/readyz
+# HTTP/1.1 503
+# {"service":"greenfield-product","status":"not_ready","checks":{"database":"unavailable"}}
+```
+
+Restore the dependency with `docker compose start postgres` when finished.
+
 ## Verification
 
 ```bash
