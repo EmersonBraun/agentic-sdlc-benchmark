@@ -9,10 +9,10 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm prisma:generate && next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run",
+    "test": "pnpm prisma:generate && vitest run",
     "test:watch": "vitest",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",

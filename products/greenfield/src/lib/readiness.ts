@@ -1,5 +1,3 @@
-import { createPrismaClient } from "@/lib/prisma";
-
 /** Bounded wait for deployment-style readiness probes. */
 export const DATABASE_PROBE_TIMEOUT_MS = 2_000;
 
@@ -18,8 +16,12 @@ export type DatabaseProbe = () => Promise<void>;
  * Minimal Prisma-mediated PostgreSQL reachability probe.
  * Failures are intentionally swallowed by callers so responses never leak
  * credentials, connection strings, or driver/stack details.
+ *
+ * Prisma is loaded lazily so unit tests can exercise the readiness contract
+ * without requiring a generated client at import time.
  */
 export async function probeDatabaseWithPrisma(): Promise<void> {
+  const { createPrismaClient } = await import("@/lib/prisma");
   const prisma = createPrismaClient();
   try {
     await prisma.$queryRaw`SELECT 1`;
