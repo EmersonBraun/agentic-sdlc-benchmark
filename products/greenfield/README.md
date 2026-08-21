@@ -23,6 +23,62 @@ pnpm dev
 
 The application is available at `http://localhost:3000`.
 
+## Health and readiness
+
+`/health` is a lightweight liveness signal for process-alive checks. It does not inspect dependencies and remains unchanged for existing callers:
+
+```bash
+curl -s http://localhost:3000/health
+# {"service":"greenfield-product","status":"ok"}
+```
+
+`/readiness` is the deployment-facing readiness contract. Every request performs a live read-only Prisma check (`SELECT 1`) against PostgreSQL with a short timeout. Responses never include credentials, connection strings, stack traces, or raw Prisma errors.
+
+Ready (PostgreSQL reachable):
+
+```bash
+curl -i http://localhost:3000/readiness
+# HTTP/1.1 200 OK
+# {"status":"ready","checks":{"database":"ok"}}
+```
+
+Not ready (PostgreSQL unavailable or unreachable):
+
+```bash
+# Stop the database, then:
+curl -i http://localhost:3000/readiness
+# HTTP/1.1 503 Service Unavailable
+# {"status":"not_ready","checks":{"database":"unavailable"}}
+```
+
+### Local and Docker smoke path
+
+```bash
+# Start PostgreSQL for the ready path
+docker compose up -d postgres
+
+# Copy env if needed, then run the app
+cp -n .env.example .env
+pnpm install --frozen-lockfile
+pnpm prisma:generate
+pnpm dev
+
+# Ready check (database up)
+curl -s -o /tmp/ready.json -w "%{http_code}\n" http://localhost:3000/readiness
+# 200 and body {"status":"ready","checks":{"database":"ok"}}
+
+# Dependency-unavailable check
+docker compose stop postgres
+curl -s -o /tmp/not-ready.json -w "%{http_code}\n" http://localhost:3000/readiness
+# 503 and body {"status":"not_ready","checks":{"database":"unavailable"}}
+
+# Confirm liveness is unchanged while the database is down
+curl -s http://localhost:3000/health
+# {"service":"greenfield-product","status":"ok"}
+
+docker compose start postgres
+```
+
 ## Verification
 
 ```bash
