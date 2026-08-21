@@ -160,7 +160,7 @@ class OrcaV12ExecutorTests(unittest.TestCase):
             executor = OrcaV12RoleExecutor(transport=transport, stable_idle_seconds=0)
             result = executor.execute(self.request(root))
             self.assertEqual(result.status, "failed")
-            self.assertEqual(result.reason, "post-dispatch-evidence-invalid")
+            self.assertEqual(result.reason, "post-dispatch-native-completion-unverified")
 
     def test_mutating_stage_rejects_dirty_worktree_before_orca_side_effects(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -196,4 +196,4 @@ class OrcaV12ExecutorTests(unittest.TestCase):
                 self.request(root)
             )
             self.assertEqual(result.status, "failed")
-            self.assertEqual(result.reason, "post-dispatch-evidence-invalid")
+            self.assertEqual(result.reason, "post-dispatch-invalid-native-output")
