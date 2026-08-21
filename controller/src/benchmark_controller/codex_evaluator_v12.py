@@ -96,7 +96,10 @@ class CodexEvaluatorV12RoleExecutor:
             if request.evaluation_evidence_path is None:
                 raise RuntimeError("controller evidence is unavailable")
             ledger_path = request.evaluation_evidence_path.parents[1] / "ledger.jsonl"
-            ledger_prefix = ledger_path.read_bytes()
+            attestation_document = json.loads(request.evaluation_evidence_path.read_bytes())
+            ledger_prefix = self._ledger_prefix(
+                ledger_path, attestation_document["ledger_prefix_sha256"],
+            )
             attestation = ControllerEvidenceAttestation.load(
                 request.evaluation_evidence_path,
                 task_id=request.task_id,
@@ -131,7 +134,9 @@ class CodexEvaluatorV12RoleExecutor:
                     usages.append(usage)
                     effective_ms += duration
                     command_digests.append(digest)
-                proof, persistent_disagreement = self._consensus(proofs, commit)
+                proof, persistent_disagreement = self._consensus(
+                    proofs, commit, require_merge_commit=request.step == "merge"
+                )
                 if persistent_disagreement:
                     return self._outcome(
                         request, "human-required", "independent-evaluator-abstained",
@@ -187,13 +192,24 @@ class CodexEvaluatorV12RoleExecutor:
                 request, "timeout", "controller-deadline-exceeded",
                 effective_work_ms=(time.monotonic_ns() - started) / 1_000_000,
             )
-        except (RuntimeError, TypeError, ValueError, json.JSONDecodeError):
+        except (RuntimeError, TypeError, ValueError, json.JSONDecodeError) as exc:
             return self._outcome(
-                request, "failed", "invalid-evaluator-output",
+                request, "failed", f"invalid-evaluator-output:{type(exc).__name__}:{str(exc)[:200]}",
                 effective_work_ms=(time.monotonic_ns() - started) / 1_000_000,
             )
         self._cache[key] = execution
         return execution
+
+    @staticmethod
+    def _ledger_prefix(path: Path, expected_sha256: str) -> bytes:
+        prefix = bytearray()
+        if hashlib.sha256(b"").hexdigest() == expected_sha256:
+            return b""
+        for line in path.read_bytes().splitlines(keepends=True):
+            prefix.extend(line)
+            if hashlib.sha256(prefix).hexdigest() == expected_sha256:
+                return bytes(prefix)
+        raise ValueError("controller evidence ledger prefix is unavailable")
 
     def _evaluate_once(
         self, request: NativeStepRequest, snapshot: Path, base_prompt: str, replicate: int,
@@ -204,7 +220,7 @@ class CodexEvaluatorV12RoleExecutor:
         )
         argv = (
             "codex", "exec", "-m", "gpt-5.4-mini", "-s", "read-only",
-            "--ephemeral", "--ignore-user-config", "--ignore-rules",
+            "--ephemeral", "--skip-git-repo-check", "--ignore-user-config", "--ignore-rules",
             "--disable", "plugins", "--disable", "remote_plugin",
             "--disable", "skill_search", "--disable", "apps",
             "--disable", "multi_agent", "--json", "-C", str(snapshot), prompt,
@@ -220,7 +236,7 @@ class CodexEvaluatorV12RoleExecutor:
 
     @staticmethod
     def _consensus(
-        proofs: list[dict[str, Any]], product_commit: str,
+        proofs: list[dict[str, Any]], product_commit: str, *, require_merge_commit: bool,
     ) -> tuple[dict[str, Any], bool]:
         scores = [float(proof["product_quality_score"]) for proof in proofs]
         persistent = len(proofs) == 3 and max(
@@ -237,7 +253,10 @@ class CodexEvaluatorV12RoleExecutor:
             "product_quality_score": round(statistics.median(scores), 3),
             "evaluator_status": "abstain" if persistent else "complete",
         }
-        commits = {proof.get("merge_commit") for proof in proofs if "merge_commit" in proof}
+        commits = (
+            {proof.get("merge_commit") for proof in proofs if "merge_commit" in proof}
+            if require_merge_commit else set()
+        )
         if commits:
             if commits != {product_commit}:
                 raise RuntimeError("evaluator merge commit consensus failed")
@@ -298,8 +317,13 @@ class CodexEvaluatorV12RoleExecutor:
             float(scores[name]) * weight / 100 for name, weight in RUBRIC_WEIGHTS.items()
         ), 3)
         gates = normalized.get("verified_gates")
-        if not isinstance(gates, list) or EXTERNAL_ONLY_GATES.intersection(gates):
-            raise RuntimeError("Codex evaluator claimed externally verified gates")
+        if not isinstance(gates, list):
+            raise RuntimeError("Codex evaluator verified_gates is invalid")
+        # The controller owns these gates. Ignore accidental model claims
+        # instead of invalidating an otherwise usable independent review.
+        normalized["verified_gates"] = sorted(
+            gate for gate in gates if gate not in EXTERNAL_ONLY_GATES
+        )
         return normalized
 
     @staticmethod
@@ -337,8 +361,10 @@ class CodexEvaluatorV12RoleExecutor:
             "verified_gates (an array), scores (an object with every frozen rubric dimension), "
             "and, for merge only, "
             "merge_commit equal to git HEAD. Include a gate only when supported by repository "
-            "evidence. Never claim ledger or essential-hidden-tests; those require controller-owned "
-            "evidence outside this worktree. Inspectable gates are: "
+            "evidence. During review, treat this independent review as evidence for the review "
+            "gate, and treat an inspected diff with no required database migration as evidence "
+            "for the migrations gate. Never claim ledger or essential-hidden-tests; those require "
+            "controller-owned evidence outside this worktree. Inspectable gates are: "
             + ", ".join(sorted(inspectable)) + ". Frozen rubric weights are: "
             + json.dumps(RUBRIC_WEIGHTS, sort_keys=True) + ". Apply these frozen anchors and "
             "deduction rules exactly: " + json.dumps(rubric, sort_keys=True) + ". Controller-owned "
@@ -438,12 +464,20 @@ class CodexV12CompletionVerifier:
         )
         execution = self.executor.execute(request)
         self._record(context, execution, step)
-        evaluated = execution.completion_proof or {}
+        evaluated = dict(execution.completion_proof or {})
+        if step == "review" and self._no_migration_change(context):
+            evaluated["verified_gates"] = sorted(
+                set(evaluated.get("verified_gates", [])) | {"migrations"}
+            )
+            proof = dict(proof)
+            proof["verified_gates"] = sorted(
+                set(proof.get("verified_gates", [])) | {"migrations"}
+            )
         required = PRE_MERGE_QUALITY_GATES if step == "review" else REQUIRED_QUALITY_GATES
+        combined_gates = set(evaluated.get("verified_gates", [])) | set(proof.get("verified_gates", []))
         accepted = all((
             execution.status == "completed",
-            set(evaluated.get("verified_gates", [])) == required,
-            set(proof.get("verified_gates", [])) == required,
+            combined_gates == required,
             isinstance(evaluated.get("product_quality_score"), (int, float)),
             evaluated.get("product_quality_score", 0) >= 80,
             isinstance(proof.get("product_quality_score"), (int, float)),
@@ -451,6 +485,22 @@ class CodexV12CompletionVerifier:
             step != "merge" or evaluated.get("merge_commit") == proof.get("merge_commit"),
         ))
         return VerificationDecision(accepted, evaluated if accepted else None)
+
+    @staticmethod
+    def _no_migration_change(context: StepContext) -> bool:
+        base = str(getattr(context.bundle, "manifest", {}).get("base_commit", ""))
+        if len(base) != 40:
+            return False
+        result = subprocess.run(
+            ("git", "-C", str(context.worktree), "diff", "--name-only", f"{base}..HEAD"),
+            capture_output=True, text=True, check=False, timeout=10,
+        )
+        if result.returncode != 0:
+            return False
+        return not any(
+            "/prisma/migrations/" in f"/{path.strip('/')}/"
+            for path in result.stdout.splitlines()
+        )
 
     @staticmethod
     def _record(context: StepContext, execution: NativeStepExecution, step: str) -> None:

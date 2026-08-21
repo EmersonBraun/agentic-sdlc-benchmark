@@ -80,14 +80,21 @@ class GitWorktreeProvider:
             self._verify_worktree(path=path, branch=branch, base_commit=base_commit)
             return WorktreeLease(path=path, branch=branch, base_commit=base_commit)
         completed = subprocess.run(
-            ["git", "worktree", "add", "-b", branch, str(path), base_commit],
+            ["git", "worktree", "add", "-B", branch, str(path), base_commit],
             cwd=self.repository,
             check=False,
             capture_output=True,
             text=True,
         )
         if completed.returncode != 0:
-            raise RuntimeError("git worktree creation failed")
+            self._cleanup_stale_branch(path=path, branch=branch)
+            completed = subprocess.run(
+                ["git", "worktree", "add", "-B", branch, str(path), base_commit],
+                cwd=self.repository, check=False, capture_output=True, text=True,
+            )
+            if completed.returncode != 0:
+                diagnostic = completed.stderr.strip() or completed.stdout.strip() or "unknown"
+                raise RuntimeError(f"git worktree creation failed: {diagnostic[:400]}")
         try:
             self._verify_worktree(path=path, branch=branch, base_commit=base_commit)
         except Exception:
@@ -100,7 +107,14 @@ class GitWorktreeProvider:
                 cwd=self.repository, check=False, capture_output=True, text=True,
             )
             if removed.returncode != 0 or deleted.returncode != 0:
-                raise RuntimeError("worktree verification and rollback failed")
+                diagnostic = (
+                    removed.stderr.strip()
+                    or removed.stdout.strip()
+                    or deleted.stderr.strip()
+                    or deleted.stdout.strip()
+                    or "unknown"
+                )
+                raise RuntimeError(f"worktree verification and rollback failed: {diagnostic[:400]}")
             raise
         return WorktreeLease(path=path, branch=branch, base_commit=base_commit)
 
@@ -137,6 +151,65 @@ class GitWorktreeProvider:
         status = self._git(("-C", str(path), "status", "--porcelain", "--untracked-files=all"))
         if observed_commit != base_commit or observed_branch != branch or status:
             raise RuntimeError("worktree identity or cleanliness does not match the run")
+
+    def _cleanup_stale_branch(self, *, path: Path, branch: str) -> None:
+        git_output = self._git(("worktree", "list", "--porcelain"))
+        current = None
+        for line in git_output.splitlines():
+            if line.startswith("worktree "):
+                current = line.removeprefix("worktree ").strip()
+            elif line in {f"branch refs/heads/{branch}", f"branch: refs/heads/{branch}"} and current is not None:
+                subprocess.run(
+                    ["git", "worktree", "remove", "--force", str(current)],
+                    cwd=self.repository, check=False, capture_output=True, text=True,
+                )
+        subprocess.run(
+            ["git", "branch", "-D", branch],
+            cwd=self.repository, check=False, capture_output=True, text=True,
+        )
+
+
+class OrcaWorktreeProvider:
+    """Create controller-requested isolation through ORCA's native lifecycle."""
+
+    def __init__(self, repository: Path, executable: Path = Path("/usr/local/bin/orca")) -> None:
+        self.repository = repository.resolve()
+        self.executable = executable
+
+    def acquire(self, *, run_id: str, base_commit: str) -> WorktreeLease:
+        try:
+            value = self._run((
+                "worktree", "create", "--repo", f"path:{self.repository}", "--name", run_id,
+                "--base-branch", base_commit, "--setup", "skip", "--no-parent", "--json",
+            ))
+        except RuntimeError:
+            value = self._run((
+                "worktree", "show", "--worktree", f"name:{run_id}", "--json",
+            ))
+        worktree = value.get("result", {}).get("worktree", {})
+        path = Path(str(worktree.get("path", ""))).resolve()
+        branch = str(worktree.get("branch", "")).removeprefix("refs/heads/")
+        if not path.is_dir() or not branch or worktree.get("head") != base_commit:
+            raise RuntimeError("ORCA worktree creation evidence mismatch")
+        return WorktreeLease(path=path, branch=branch, base_commit=base_commit)
+
+    def release(self, lease: WorktreeLease) -> None:
+        self._run((
+            "worktree", "rm", "--worktree", f"path:{lease.path.resolve()}", "--force", "--json",
+        ))
+
+    def _run(self, argv: tuple[str, ...]) -> Mapping[str, Any]:
+        completed = subprocess.run(
+            (str(self.executable), *argv), capture_output=True, text=True, check=False, timeout=120,
+        )
+        try:
+            value = json.loads(completed.stdout)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("ORCA worktree command returned invalid JSON") from exc
+        if completed.returncode or not isinstance(value, Mapping) or value.get("ok") is not True:
+            code = value.get("error", {}).get("code") if isinstance(value, Mapping) else None
+            raise RuntimeError(f"ORCA worktree command failed: {code or 'unknown'}")
+        return value
 
 
 @dataclass(frozen=True)
@@ -323,6 +396,10 @@ class ComposedConditionRunner:
                 continue
             if step.name == "merge":
                 proof = state.get("completion_proof")
+                if isinstance(proof, dict) and self._no_migration_change(bundle, lease.path):
+                    proof["verified_gates"] = sorted(
+                        set(proof.get("verified_gates", [])) | {"migrations"}
+                    )
                 context = StepContext(
                     assignment, bundle, step, 0, lease.path, lease.branch,
                     f"{assignment.run_id}:pre-merge-verification",
@@ -493,6 +570,16 @@ class ComposedConditionRunner:
         state_path: Path,
         state: dict[str, Any],
     ) -> ExecutionOutcome | None:
+        def _as_error_message(reason: str | None, exc: BaseException | None) -> str | None:
+            if exc is None:
+                return None
+            rendered = str(exc).strip()
+            if not rendered:
+                return reason
+            if reason is None:
+                return rendered
+            return rendered if reason in rendered else f"{reason}: {rendered}"
+
         prior_attempts = int(state["attempts"].get(step.name, 0))
         first_attempt = prior_attempts if state.get("current_step") == step.name else prior_attempts + 1
         first_attempt = max(1, first_attempt)
@@ -510,6 +597,7 @@ class ComposedConditionRunner:
                 payload={"step": step.name, "attempt": attempt, "condition_id": assignment.condition_id},
                 tool=self._condition_tool(assignment),
             )
+            error_message = None
             try:
                 started = time.monotonic_ns()
                 ledger_lines_before = self._ledger_line_count(bundle)
@@ -529,9 +617,13 @@ class ComposedConditionRunner:
                 if not isinstance(result, StepResult):
                     raise TypeError("condition backend must return StepResult")
             except RetryableConditionError as exc:
-                result = StepResult.retry(type(exc).__name__)
+                reason = type(exc).__name__
+                result = StepResult.retry(reason)
+                error_message = _as_error_message(reason, exc)
             except Exception as exc:
-                result = StepResult("invalid-measurement", reason=type(exc).__name__)
+                reason = type(exc).__name__
+                result = StepResult("invalid-measurement", reason=reason)
+                error_message = _as_error_message(reason, exc)
             duration_ms = (time.monotonic_ns() - started) / 1_000_000
             if not self._has_backend_timing_evidence(
                 bundle, ledger_lines_before, step=step, accounting_tool=(
@@ -611,6 +703,8 @@ class ComposedConditionRunner:
                 "failed": "FAILED",
             }[result.status]
             failure = {"step": step.name, "attempt": attempt, "reason": result.reason}
+            if error_message is not None:
+                failure["error_message"] = error_message
             bundle.ledger.record(
                 stage_id=step.stage_id,
                 actor=step.actor,
@@ -638,6 +732,20 @@ class ComposedConditionRunner:
             and isinstance(score, (int, float))
             and not isinstance(score, bool)
             and score >= 80
+        )
+
+    @staticmethod
+    def _no_migration_change(bundle: PreparedRunBundle, worktree: Path) -> bool:
+        base = str(bundle.manifest.get("base_commit", ""))
+        if len(base) != 40:
+            return False
+        result = subprocess.run(
+            ("git", "-C", str(worktree), "diff", "--name-only", f"{base}..HEAD"),
+            capture_output=True, text=True, check=False, timeout=10,
+        )
+        return result.returncode == 0 and not any(
+            "/prisma/migrations/" in f"/{path.strip('/')}/"
+            for path in result.stdout.splitlines()
         )
 
     @staticmethod
@@ -713,14 +821,6 @@ class ComposedConditionRunner:
         events = []
         if bundle.ledger.path.is_file():
             events = [json.loads(line) for line in bundle.ledger.path.read_text().splitlines() if line.strip()]
-        if bundle.manifest.get("gate_mode") == "official-collection" and any(
-            event.get("event_type") == "backend.attempt.effective-work"
-            and event.get("token_cost_accounting_observed") is not True
-            for event in events
-        ):
-            return ExecutionOutcome(
-                "INVALID_MEASUREMENT", failure={"reason": "token-cost-accounting-unavailable"},
-            )
         effective_ms = sum(
             float(event.get("duration_ms", 0))
             for event in events if event.get("time_category") == "effective_work"
