@@ -312,8 +312,13 @@ class CodexEvaluatorV12RoleExecutor:
             float(scores[name]) * weight / 100 for name, weight in RUBRIC_WEIGHTS.items()
         ), 3)
         gates = normalized.get("verified_gates")
-        if not isinstance(gates, list) or EXTERNAL_ONLY_GATES.intersection(gates):
-            raise RuntimeError("Codex evaluator claimed externally verified gates")
+        if not isinstance(gates, list):
+            raise RuntimeError("Codex evaluator verified_gates is invalid")
+        # The controller owns these gates. Ignore accidental model claims
+        # instead of invalidating an otherwise usable independent review.
+        normalized["verified_gates"] = sorted(
+            gate for gate in gates if gate not in EXTERNAL_ONLY_GATES
+        )
         return normalized
 
     @staticmethod
