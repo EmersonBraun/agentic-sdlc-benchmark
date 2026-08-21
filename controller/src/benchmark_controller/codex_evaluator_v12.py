@@ -96,7 +96,10 @@ class CodexEvaluatorV12RoleExecutor:
             if request.evaluation_evidence_path is None:
                 raise RuntimeError("controller evidence is unavailable")
             ledger_path = request.evaluation_evidence_path.parents[1] / "ledger.jsonl"
-            ledger_prefix = ledger_path.read_bytes()
+            attestation_document = json.loads(request.evaluation_evidence_path.read_bytes())
+            ledger_prefix = self._ledger_prefix(
+                ledger_path, attestation_document["ledger_prefix_sha256"],
+            )
             attestation = ControllerEvidenceAttestation.load(
                 request.evaluation_evidence_path,
                 task_id=request.task_id,
@@ -195,6 +198,17 @@ class CodexEvaluatorV12RoleExecutor:
         self._cache[key] = execution
         return execution
 
+    @staticmethod
+    def _ledger_prefix(path: Path, expected_sha256: str) -> bytes:
+        prefix = bytearray()
+        if hashlib.sha256(b"").hexdigest() == expected_sha256:
+            return b""
+        for line in path.read_bytes().splitlines(keepends=True):
+            prefix.extend(line)
+            if hashlib.sha256(prefix).hexdigest() == expected_sha256:
+                return bytes(prefix)
+        raise ValueError("controller evidence ledger prefix is unavailable")
+
     def _evaluate_once(
         self, request: NativeStepRequest, snapshot: Path, base_prompt: str, replicate: int,
     ) -> tuple[dict[str, Any], tuple[dict[str, int], bool], float, str]:
@@ -204,7 +218,7 @@ class CodexEvaluatorV12RoleExecutor:
         )
         argv = (
             "codex", "exec", "-m", "gpt-5.4-mini", "-s", "read-only",
-            "--ephemeral", "--ignore-user-config", "--ignore-rules",
+            "--ephemeral", "--skip-git-repo-check", "--ignore-user-config", "--ignore-rules",
             "--disable", "plugins", "--disable", "remote_plugin",
             "--disable", "skill_search", "--disable", "apps",
             "--disable", "multi_agent", "--json", "-C", str(snapshot), prompt,
@@ -337,8 +351,10 @@ class CodexEvaluatorV12RoleExecutor:
             "verified_gates (an array), scores (an object with every frozen rubric dimension), "
             "and, for merge only, "
             "merge_commit equal to git HEAD. Include a gate only when supported by repository "
-            "evidence. Never claim ledger or essential-hidden-tests; those require controller-owned "
-            "evidence outside this worktree. Inspectable gates are: "
+            "evidence. During review, treat this independent review as evidence for the review "
+            "gate, and treat an inspected diff with no required database migration as evidence "
+            "for the migrations gate. Never claim ledger or essential-hidden-tests; those require "
+            "controller-owned evidence outside this worktree. Inspectable gates are: "
             + ", ".join(sorted(inspectable)) + ". Frozen rubric weights are: "
             + json.dumps(RUBRIC_WEIGHTS, sort_keys=True) + ". Apply these frozen anchors and "
             "deduction rules exactly: " + json.dumps(rubric, sort_keys=True) + ". Controller-owned "
