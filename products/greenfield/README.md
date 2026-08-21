@@ -23,6 +23,45 @@ pnpm dev
 
 The application is available at `http://localhost:3000`.
 
+## Health and readiness
+
+| Endpoint | Purpose | Success | Failure |
+| --- | --- | --- | --- |
+| `GET /health` | Process liveness for existing callers | `200` `{ "service": "greenfield-product", "status": "ok" }` | Unchanged from the original liveness contract |
+| `GET /health/ready` | Deployment readiness (PostgreSQL reachable via Prisma) | `200` `{ "status": "ready", "checks": { "database": "ok" } }` | `503` `{ "status": "not_ready", "checks": { "database": "unavailable" } }` |
+
+Readiness probes PostgreSQL through Prisma with a minimal `SELECT 1` and a short bounded timeout. Responses never include credentials, connection strings, stack traces, or raw driver errors.
+
+### Local or Docker smoke check
+
+```bash
+# Start PostgreSQL
+docker compose up -d postgres
+
+# Install, generate the Prisma client, and start the app
+export DATABASE_URL=postgresql://app:app@localhost:5432/agentic_sdlc_greenfield
+pnpm install --frozen-lockfile
+pnpm prisma:generate
+pnpm dev
+```
+
+In another shell:
+
+```bash
+# Liveness (unchanged)
+curl -sS -i http://localhost:3000/health
+
+# Readiness while the database is up
+curl -sS -i http://localhost:3000/health/ready
+# or: pnpm smoke:ready
+
+# Make the required dependency unavailable and re-check readiness
+docker compose stop postgres
+curl -sS -i http://localhost:3000/health/ready
+```
+
+Expect HTTP `200` with `"status":"ready"` and `"checks":{"database":"ok"}` while Postgres is healthy, and HTTP `503` with `"status":"not_ready"` and `"checks":{"database":"unavailable"}` after it is stopped or the probe times out.
+
 ## Verification
 
 ```bash
