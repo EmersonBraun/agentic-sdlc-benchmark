@@ -181,7 +181,7 @@ class OrcaV12RoleExecutor:
             self._discard_worker(key, request)
             result = self._outcome(
                 request, "failed" if dispatch_started else "retry",
-                "post-dispatch-evidence-invalid" if dispatch_started else self._reason(exc),
+                f"post-dispatch-{self._reason(exc)}" if dispatch_started else self._reason(exc),
                 effective_work_ms=effective_ms,
                 external_wait_ms=external_wait_ms, orchestration_overhead_ms=overhead_ms,
             )
@@ -291,18 +291,16 @@ class OrcaV12RoleExecutor:
         self._orphaned_terminals.add(handle)
         duration = created.duration_ms
         try:
-            for _ in range(2):
-                waited = self.transport.run_json((
-                    "terminal", "wait", "--terminal", handle, "--for", "tui-idle",
-                    "--timeout-ms", str(int(self._timeout(request, 120) * 1000)), "--json",
-                ), timeout_seconds=self._timeout(request, 125))
-                duration += waited.duration_ms
-                state = self._nested(waited.value, "result", "wait")
-                if not isinstance(state, Mapping) or state.get("satisfied") is not True:
-                    raise RuntimeError("ORCA worker TUI did not become ready")
-                if _ == 0:
-                    stable_sleep = min(self.stable_idle_seconds, self._remaining(request))
-                    time.sleep(stable_sleep)
+            waited = self.transport.run_json((
+                "terminal", "wait", "--terminal", handle, "--for", "tui-idle",
+                "--timeout-ms", str(int(self._timeout(request, 120) * 1000)), "--json",
+            ), timeout_seconds=self._timeout(request, 125))
+            duration += waited.duration_ms
+            state = self._nested(waited.value, "result", "wait")
+            if not isinstance(state, Mapping) or state.get("satisfied") is not True:
+                raise RuntimeError("ORCA worker TUI did not become ready")
+            stable_sleep = min(self.stable_idle_seconds, self._remaining(request))
+            time.sleep(stable_sleep)
         except Exception:
             try:
                 self._close_terminal(handle)
@@ -503,6 +501,11 @@ class OrcaV12RoleExecutor:
             "raw_output_persisted": False,
             "usage_observation": {"token_breakdown_observed": False, "zero_tokens_mean_unavailable": True},
         }
+        if request.step == "requirements":
+            key = "requirements_payload" if request.handoff_path else "oracle_questions"
+            metadata[key] = self._extract_json(durable_output, key)[key]
+        if request.step == "planning":
+            metadata["planning_payload"] = self._extract_json(durable_output, "planning_payload")["planning_payload"]
         if request.step == "decomposition":
             metadata["handoff_payload"] = self._extract_json(durable_output, "handoff_payload")["handoff_payload"]
         if request.step in {"review", "merge"}:
@@ -510,16 +513,16 @@ class OrcaV12RoleExecutor:
             if not isinstance(proof, Mapping):
                 raise RuntimeError("ORCA completion proof missing")
             metadata["completion_proof"] = dict(proof)
-        for path, key, label in (
-            (request.handoff_path, "handoff_sha256_observed", "handoff"),
-            (request.agentskit_context_path, "agentskit_context_sha256_observed", "AgentsKit"),
+        for required, path, key, label in (
+            (request.step == "implementation", request.handoff_path, "handoff_sha256_observed", "handoff"),
+            (request.step in {"decomposition", "implementation"}, request.agentskit_context_path, "agentskit_context_sha256_observed", "AgentsKit"),
         ):
-            if path:
+            if required and path:
                 digest = hashlib.sha256(path.read_bytes()).hexdigest()
                 if digest not in durable_output:
                     raise RuntimeError(f"ORCA worker did not acknowledge {label} digest")
                 metadata[key] = digest
-        if request.agentskit_context_path:
+        if request.step in {"decomposition", "implementation"} and request.agentskit_context_path:
             metadata["agentskit_components_observed"] = ["doc-bridge", "playbook", "code-review"]
         return metadata
 
@@ -567,9 +570,14 @@ class OrcaV12RoleExecutor:
 
     def _close_terminal(self, handle: str, request: NativeStepRequest | None = None) -> float:
         timeout = self._timeout(request, 30) if request else 30
-        closed = self.transport.run_json(
-            ("terminal", "close", "--terminal", handle, "--json"), timeout_seconds=timeout,
-        )
+        try:
+            closed = self.transport.run_json(
+                ("terminal", "close", "--terminal", handle, "--json"), timeout_seconds=timeout,
+            )
+        except RuntimeError as exc:
+            if "terminal:runtime_error" not in str(exc) and "terminal_handle_stale" not in str(exc):
+                raise
+            return 0
         duration = closed.duration_ms
         for _ in range(20):
             try:
@@ -593,10 +601,16 @@ class OrcaV12RoleExecutor:
             f"{request.run_id}:{request.step}".encode()
         ).hexdigest()[:20].upper()
         task = request.task_path.read_text(encoding="utf-8")
+        manifest_path = request.task_path.with_suffix(".manifest.json")
+        task_manifest = manifest_path.read_text(encoding="utf-8") if request.step == "requirements" and manifest_path.is_file() else ""
         handoff = request.handoff_path.read_text(encoding="utf-8") if request.handoff_path else ""
-        factor = request.agentskit_context_path.read_text(encoding="utf-8") if request.agentskit_context_path else ""
+        if request.handoff_path and request.step in {"requirements", "planning", "decomposition", "implementation"}:
+            handoff = f"READ_ONLY_PATH:{request.handoff_path.resolve()}"
+        factor = request.agentskit_context_path.read_text(encoding="utf-8") if request.agentskit_context_path and request.step in {"decomposition", "implementation"} else ""
+        if factor and request.agentskit_context_path:
+            factor = f"READ_ONLY_PATH:{request.agentskit_context_path.resolve()}"
         handoff_digest = hashlib.sha256(request.handoff_path.read_bytes()).hexdigest() if request.handoff_path else ""
-        factor_digest = hashlib.sha256(request.agentskit_context_path.read_bytes()).hexdigest() if request.agentskit_context_path else ""
+        factor_digest = hashlib.sha256(request.agentskit_context_path.read_bytes()).hexdigest() if request.agentskit_context_path and request.step in {"decomposition", "implementation"} else ""
         rules = (
             f"Execute SDLC stage {request.step} only in the current ORCA worktree. "
             f"Before calling worker_done, print the complete requested output ending with {sentinel}; "
@@ -605,9 +619,40 @@ class OrcaV12RoleExecutor:
             "coordinator can verify it from the durable delivery."
         )
         if request.step in {"requirements", "planning", "decomposition"}:
-            rules += " Do not inspect or edit files; all admissible inputs follow."
+            rules += (
+                " Do not inspect or edit files except reading the exact READ_ONLY_PATH when supplied, "
+                "and do not call orchestration ask; all admissible inputs follow. Resolve ambiguities explicitly from the supplied evidence. "
+                "Do not use quote characters inside JSON string values."
+            )
+        if request.step == "requirements":
+            rules += (
+                " Return compact JSON only. "
+                + ("Return requirements_payload with requirements, non_functional_requirements, acceptance_criteria, ambiguity_log, and traceability." if request.handoff_path else "Return oracle_questions as an array of objects with ambiguity_id and one precise question for every material ambiguity.")
+            )
+            if request.handoff_path and request.handoff_path.is_file():
+                try:
+                    context = json.loads(request.handoff_path.read_text(encoding="utf-8"))
+                    answers = context.get("oracle_answers")
+                    if isinstance(answers, Mapping):
+                        rules += (
+                            " Deterministic oracle answers are supplied and must be applied. "
+                            "Do not return oracle_questions; return requirements_payload only, "
+                            "with the ambiguity log and traceability resolved from these answers: "
+                            + json.dumps(answers, sort_keys=True, separators=(",", ":"))
+                        )
+                except (OSError, json.JSONDecodeError):
+                    pass
+        if request.step == "planning":
+            rules += " Return compact JSON only with planning_payload containing implementation_plan, subtasks, test_strategy, risks, and requirement_links."
         if request.step == "decomposition":
-            rules += " Return JSON with handoff_payload containing requirements, implementation_plan, acceptance_criteria."
+            rules += (
+                " Return one compact JSON object, not Markdown, with a handoff_payload object "
+                "containing three non-empty string arrays named requirements, "
+                "implementation_plan, and acceptance_criteria. Every item must contain "
+                "task-specific, implementable content; generic labels are invalid."
+            )
+            if factor_digest:
+                rules += " State the supplied AgentsKit SHA-256 digest verbatim."
         if request.step == "implementation":
             rules += (
                 " State the handoff and AgentsKit SHA-256 digests verbatim. Commit all product "
@@ -615,6 +660,8 @@ class OrcaV12RoleExecutor:
             )
         if request.step in {"local-testing", "pull-request", "ci-qa", "documentation", "merge"}:
             rules += " Commit any product changes before completion and leave the worktree clean."
+        if request.step == "local-testing":
+            rules += " Use only bounded test commands; never leave a server, watcher, or interactive process running. Apply an explicit timeout and cleanup to any smoke server."
         if request.step == "review":
             rules += (
                 " Return a JSON object with completion_proof containing verified_gates and "
@@ -628,7 +675,7 @@ class OrcaV12RoleExecutor:
                 + ", ".join(sorted(REQUIRED_QUALITY_GATES)) + "."
             )
         return "\n\n".join((
-            rules, "TASK:\n" + task,
+            rules, "TASK:\n" + task, "PUBLIC_TASK_MANIFEST:\n" + task_manifest,
             "HANDOFF_SHA256:" + handoff_digest + "\nHANDOFF:\n" + handoff,
             "AGENTSKIT_SHA256:" + factor_digest + "\nAGENTSKIT:\n" + factor,
         )), sentinel
@@ -684,6 +731,10 @@ class OrcaV12RoleExecutor:
     @staticmethod
     def _reason(exc: RuntimeError) -> str:
         message = str(exc)
+        if "model identity or completion sentinel" in message:
+            return "native-completion-unverified"
+        if "acknowledge" in message:
+            return "native-handoff-unacknowledged"
         if "JSON" in message or "output" in message:
             return "invalid-native-output"
         if "settlement" in message or "worker_done" in message:
