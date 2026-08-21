@@ -190,9 +190,9 @@ class CodexEvaluatorV12RoleExecutor:
                 request, "timeout", "controller-deadline-exceeded",
                 effective_work_ms=(time.monotonic_ns() - started) / 1_000_000,
             )
-        except (RuntimeError, TypeError, ValueError, json.JSONDecodeError):
+        except (RuntimeError, TypeError, ValueError, json.JSONDecodeError) as exc:
             return self._outcome(
-                request, "failed", "invalid-evaluator-output",
+                request, "failed", f"invalid-evaluator-output:{type(exc).__name__}:{str(exc)[:200]}",
                 effective_work_ms=(time.monotonic_ns() - started) / 1_000_000,
             )
         self._cache[key] = execution
