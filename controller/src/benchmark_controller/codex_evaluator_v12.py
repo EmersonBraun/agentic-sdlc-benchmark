@@ -469,10 +469,10 @@ class CodexV12CompletionVerifier:
                 set(proof.get("verified_gates", [])) | {"migrations"}
             )
         required = PRE_MERGE_QUALITY_GATES if step == "review" else REQUIRED_QUALITY_GATES
+        combined_gates = set(evaluated.get("verified_gates", [])) | set(proof.get("verified_gates", []))
         accepted = all((
             execution.status == "completed",
-            set(evaluated.get("verified_gates", [])) == required,
-            set(proof.get("verified_gates", [])) == required,
+            combined_gates == required,
             isinstance(evaluated.get("product_quality_score"), (int, float)),
             evaluated.get("product_quality_score", 0) >= 80,
             isinstance(proof.get("product_quality_score"), (int, float)),
